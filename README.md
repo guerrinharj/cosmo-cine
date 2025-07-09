@@ -1,36 +1,153 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🎬 Cosmo Cine
 
-## Getting Started
+Este é um CRM (Customer Relationship Manager) feito em **Next.js + Prisma** para a produtora de filmes **Cosmo Cine**. O objetivo é permitir a criação, visualização, edição e exclusão de registros de filmes (`Filme`) produzidos pela empresa, com informações detalhadas sobre cliente, direção, categoria, thumbnails e mais.
 
-First, run the development server:
+---
 
+## 📁 Estrutura do Projeto
+
+- **Framework:** Next.js (App Router)
+- **Banco de Dados:** SQLite (via Prisma ORM)
+- **Estilização:** TailwindCSS
+- **Linguagem:** TypeScript
+- **Auth:** (em breve)
+- **Deploy recomendado:** Vercel
+
+---
+
+## 🚀 Instalação e Execução
+
+1. **Clone o repositório**
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/seu-usuario/cosmo-cine-crm.git
+cd cosmo-cine-crm
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. **Instale as dependências**
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. **Configure o banco de dados**
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Edite o arquivo .env e certifique-se de que ele contenha:
 
-## Learn More
+```bash
+DATABASE_URL="file:./dev.db"
+```
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Rode as migrações e gere o cliente Prisma**
+```bash
+npx prisma migrate dev --name init
+npx prisma generate
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+5. **Execute o servidor de desenvolvimento**
+```bash
+npm run dev
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Abra http://localhost:3000 no navegador para ver o app.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## 🧩 Modelo Filme
+
+A aplicação trabalha com um único modelo central: Filme.
+
+| Campo                  | Tipo       | Obrigatório | Descrição                           |
+| ---------------------- | ---------- | ----------- | ----------------------------------- |
+| `id`                   | `String`   | Sim         | Gerado automaticamente (CUID)       |
+| `nome`                 | `String`   | Sim         | Nome do projeto                     |
+| `cliente`              | `String`   | Sim         | Nome do cliente                     |
+| `diretor`              | `String`   | Sim         | Nome do diretor                     |
+| `categoria`            | `Enum`     | Sim         | Publicidade, Clipe ou Conteúdo      |
+| `produtoraContratante` | `String`   | Não         | Nome da produtora contratante       |
+| `agencia`              | `String`   | Não         | Nome da agência                     |
+| `creditos`             | `JSON`     | Não         | Objeto com cargos e nomes           |
+| `slug`                 | `String`   | Sim         | Identificador único da URL          |
+| `date`                 | `String`   | Não         | Data do projeto                     |
+| `thumbnail`            | `String`   | Não         | URL de imagem                       |
+| `showable`             | `Boolean`  | Não         | Define se será visível publicamente |
+| `createdAt`            | `DateTime` | Sim         | Gerado automaticamente              |
+| `updatedAt`            | `DateTime` | Sim         | Atualizado automaticamente          |
+
+
+## 📡 Endpoints da API
+
+Abaixo estão os endpoints RESTful disponíveis:
+
+### GET /api/filmes
+Retorna todos os filmes cadastrados.
+
+Exemplo de resposta:
+```json
+[
+  {
+    "nome": "Projeto Dummy",
+    "cliente": "Agência XYZ",
+    "diretor": "Fulano de Tal",
+    "categoria": "Publicidade",
+    ...
+  }
+]
+```
+
+### POST /api/filmes
+Cria um novo filme.
+
+Body esperado (JSON):
+```json
+{
+  "nome": "Projeto Dummy",
+  "cliente": "Agência XYZ",
+  "diretor": "Fulano de Tal",
+  "categoria": "Publicidade",
+  "produtoraContratante": "Cosmo Cine",
+  "agencia": "Agência XYZ",
+  "creditos": { "roteiro": "Joana", "edição": "Carlos" },
+  "slug": "projeto-dummy",
+  "date": "2025-07-09",
+  "thumbnail": "https://example.com/thumb.jpg",
+  "showable": true
+}
+```
+
+
+
+### GET /api/filmes/[slug]
+Busca um único filme pelo slug.
+
+Exemplo:
+```json
+{
+    "id": "cmcwjajy50000xjw6x7m95wxh",
+    "nome": "Projeto Dummy Editado",
+    "cliente": "Agência ABC",
+    "diretor": "Fulano Editado",
+    "categoria": "Clipe",
+    "produtoraContratante": "Cosmo Cine",
+    "agencia": "Agência Nova",
+    "creditos": {
+        "direção": "Maria",
+        "edição": "João"
+    },
+    "slug": "projeto-dummy",
+    "date": "2025-08-01",
+    "thumbnail": "https://example.com/updated-thumb.jpg",
+    "showable": false,
+    "createdAt": "2025-07-09T22:32:00.894Z",
+    "updatedAt": "2025-07-09T22:33:03.739Z"
+}
+```
+
+
+### PUT /api/filmes/[slug]
+Atualiza um filme pelo slug.
+
+
+### DELETE /api/filmes/[slug]
+Remove o filme do banco de dados.
+
