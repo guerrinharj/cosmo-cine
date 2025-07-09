@@ -1,19 +1,22 @@
-import { cookies } from 'next/headers';
 import { prisma } from '@/lib/prisma';
+import { checkApiKey } from '@/lib/checkApiKey';
 import { NextResponse } from 'next/server';
 
-export async function DELETE() {
-    const username = cookies().get('session')?.value;
-
-    if (!username) {
-        return NextResponse.json({ error: 'Não autenticado' }, { status: 401 });
+export async function DELETE(req: Request) {
+    if (!checkApiKey(req)) {
+        return NextResponse.json({ error: 'Acesso não autorizado' }, { status: 401 });
     }
 
-    await prisma.user.delete({
-        where: { username }
-    });
+    const { username } = await req.json();
 
-    cookies().delete('session');
+    if (!username) {
+        return NextResponse.json({ error: 'Usuário não informado' }, { status: 400 });
+    }
 
-    return NextResponse.json({ message: 'Usuário deletado com sucesso' });
+    try {
+        await prisma.user.delete({ where: { username } });
+        return NextResponse.json({ message: `Usuário '${username}' deletado com sucesso` });
+    } catch (error) {
+        return NextResponse.json({ error: `Erro ao deletar o usuário: ${username}` }, { status: 500 });
+    }
 }
