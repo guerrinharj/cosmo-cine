@@ -1,5 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
 export async function POST(req: Request) {
@@ -16,6 +17,16 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: 'Senha incorreta' }, { status: 401 });
     }
 
-    // Sessão simplificada com header ou cookie
-    return NextResponse.json({ message: 'Login bem-sucedido', username: user.username });
+    const response = NextResponse.json({ message: 'Login bem-sucedido', username });
+
+    // Cookie de sessão por 1 hora
+    const oneHour = 60 * 60;
+    cookies().set('session', username, {
+        maxAge: oneHour,
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production'
+    });
+
+    return response;
 }
