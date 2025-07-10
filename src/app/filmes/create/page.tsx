@@ -1,10 +1,13 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation'; // ✅ Importa o router
 import NavBar from '../../../components/NavBar';
 import slugify from 'slugify';
 
 export default function CreateFilmePage() {
+    const router = useRouter(); // ✅ Instancia o router
+
     const [form, setForm] = useState({
         nome: '',
         cliente: '',
@@ -56,51 +59,6 @@ export default function CreateFilmePage() {
         }
 
         try {
-            // Buscar thumbnail da API pública do Vimeo
-            const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
-            const oembed = await oembedRes.json();
-            const thumbnailUrl = oembed.thumbnail_url;
-
-            const res = await fetch('/api/filmes', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...form,
-                    date: form.date ? new Date(form.date).toISOString() : null, // <- Aqui está o fix
-                    thumbnail: thumbnailUrl,
-                    creditos: Object.fromEntries(creditos.map(c => [c.funcao, c.nome]))
-                })
-            });
-
-            const result = await res.json();
-            if (res.ok) {
-                setModalMessage('Filme criado com sucesso!');
-                setForm({
-                    nome: '',
-                    cliente: '',
-                    diretor: '',
-                    categoria: '',
-                    produtoraContratante: '',
-                    agencia: '',
-                    video_url: '',
-                    date: '',
-                    thumbnail: '',
-                    showable: false,
-                });
-                setCreditos([]);
-            } else {
-                setModalMessage(`Erro ao criar filme: ${result.details || result.error}`);
-            }
-        } catch (err) {
-            setModalMessage('Erro inesperado. Verifique os dados e tente novamente.');
-        }
-
-        setShowModal(true);
-    };
-
-
-        try {
-            // Buscar thumbnail da API pública do Vimeo
             const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
             const oembed = await oembedRes.json();
             const thumbnailUrl = oembed.thumbnail_url;
@@ -117,11 +75,8 @@ export default function CreateFilmePage() {
 
             const result = await res.json();
             if (res.ok) {
-                setModalMessage('Filme criado com sucesso!');
-                setForm({
-                    nome: '', cliente: '', diretor: '', categoria: '', produtoraContratante: '', agencia: '', video_url: '', date: '', thumbnail: '', showable: false
-                });
-                setCreditos([]);
+                router.push('/filmes'); // ✅ Redireciona após sucesso
+                return;
             } else {
                 setModalMessage(`Erro ao criar filme: ${result.details || result.error}`);
             }

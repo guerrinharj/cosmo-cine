@@ -20,7 +20,7 @@ export async function POST(req: Request) {
                 agencia: data.agencia,
                 creditos: data.creditos,
                 slug: data.slug,
-                date: data.date,
+                date: data.date ? new Date(data.date) : null,
                 thumbnail: data.thumbnail,
                 video_url: data.video_url,
                 showable: data.showable,
