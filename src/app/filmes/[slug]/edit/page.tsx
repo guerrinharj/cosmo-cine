@@ -100,7 +100,7 @@ export default function EditFilmePage() {
 
             const result = await res.json();
             if (res.ok) {
-                router.push(`/filmes/${slug}`);
+                router.push(`/filmes/${result.slug}`);
                 return;
             } else {
                 setModalMessage(`Erro ao atualizar filme: ${result.details || result.error}`);

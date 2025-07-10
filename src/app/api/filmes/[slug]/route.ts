@@ -1,6 +1,7 @@
 // src/app/api/filmes/[slug]/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generateUniqueSlug } from '@/lib/generateUniqueSlug';
 
 export async function GET(_: Request, { params }: { params: { slug: string } }) {
     const filme = await prisma.filme.findUnique({
@@ -19,10 +20,13 @@ export async function PUT(req: Request, context: { params: { slug: string } }) {
     const data = await req.json();
 
     try {
+        const newSlug = await generateUniqueSlug(data.nome, params.slug);
+
         const updated = await prisma.filme.update({
             where: { slug: params.slug },
             data: {
                 ...data,
+                slug: newSlug,
                 date: data.date ? new Date(data.date) : null,
             },
         });
