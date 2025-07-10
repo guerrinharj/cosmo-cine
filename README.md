@@ -10,7 +10,6 @@ Este é um CRM (Customer Relationship Manager) feito em **Next.js + Prisma** par
 - **Banco de Dados:** SQLite (via Prisma ORM)
 - **Estilização:** TailwindCSS
 - **Linguagem:** TypeScript
-- **Auth:** (em breve)
 - **Deploy recomendado:** Vercel
 
 ---
@@ -34,6 +33,7 @@ Edite o arquivo .env e certifique-se de que ele contenha:
 
 ```bash
 DATABASE_URL="file:./dev.db"
+API_KEY="sua-chave-secreta"
 ```
 
 
@@ -50,6 +50,76 @@ npm run dev
 ```
 
 Abra http://localhost:3000 no navegador para ver o app.
+
+
+## 🔐 Autenticação e Sistema de Acesso
+O sistema de autenticação do Cosmo Cine CRM foi criado de forma simples, segura e modular. Ele possui dois níveis de acesso:
+
+1. **Sessão via Login**
+Usuários se autenticam através de /api/auth/login, e uma sessão baseada em cookie é criada com validade de 1 hora. Esse cookie é armazenado de forma segura (HttpOnly) e identifica o usuário durante o uso do sistema.
+
+2. **Chave de Acesso (API Key)**
+Algumas rotas administrativas mais sensíveis requerem o envio de uma chave de API no header da requisição (x-api-key). Essa chave está armazenada apenas no .env do projeto e nunca é exposta ao cliente.
+```env
+API_KEY=sua-chave-secreta
+```
+Essa chave é obrigatória para registrar, deletar ou listar usuários, garantindo que somente você tenha esse controle.
+
+3. **Observações**
+
+A API Key é obrigatória apenas para rotas sensíveis (register, delete, list).
+
+A sessão por cookie é usada para ações autenticadas em geral.
+
+O arquivo de banco de dados dev.db fica local, e a chave de API nunca é exposta no frontend.
+
+### 🧪 Endpoints de Autenticação
+#### POST /api/auth/register
+Registra um novo usuário (requer header x-api-key).
+
+```bash
+curl -X POST http://localhost:3000/api/auth/register \
+    -H "Content-Type: application/json" \
+    -H "x-api-key: sua-chave-secreta" \
+    -d '{ "username": "admin", "password": "senha123" }'
+```
+
+#### POST /api/auth/login
+Realiza login e inicia uma sessão (salva cookie).
+
+```bash
+curl -X POST http://localhost:3000/api/auth/login \
+    -H "Content-Type: application/json" \
+    -d '{ "username": "admin", "password": "senha123" }' \
+    -c cookie.txt
+```
+
+#### POST /api/auth/logout
+Encerra a sessão removendo o cookie.
+
+```bash
+curl -X POST http://localhost:3000/api/auth/logout \
+    -b cookie.txt
+```
+
+#### DELETE /api/auth/delete
+Deleta um usuário (requer API Key e username no body).
+
+```bash
+curl -X DELETE http://localhost:3000/api/auth/delete \
+    -H "x-api-key: sua-chave-secreta" \
+    -H "Content-Type: application/json" \
+    -d '{ "username": "admin" }'
+```
+
+#### GET /api/auth/users
+Retorna todos os usuários cadastrados (requer API Key).
+
+```bash
+curl http://localhost:3000/api/auth/users \
+    -H "x-api-key: sua-chave-secreta"
+
+```
 
 
 
@@ -75,11 +145,11 @@ A aplicação trabalha com um único modelo central: Filme.
 | `updatedAt`            | `DateTime` | Sim         | Atualizado automaticamente          |
 
 
-## 📡 Endpoints da API
+### 📡 Endpoints Filme da API
 
 Abaixo estão os endpoints RESTful disponíveis:
 
-### GET /api/filmes
+#### GET /api/filmes
 Retorna todos os filmes cadastrados.
 
 Exemplo de resposta:
@@ -95,7 +165,7 @@ Exemplo de resposta:
 ]
 ```
 
-### POST /api/filmes
+#### POST /api/filmes
 Cria um novo filme.
 
 Body esperado (JSON):
@@ -117,7 +187,7 @@ Body esperado (JSON):
 
 
 
-### GET /api/filmes/[slug]
+#### GET /api/filmes/[slug]
 Busca um único filme pelo slug.
 
 Exemplo:
@@ -144,10 +214,10 @@ Exemplo:
 ```
 
 
-### PUT /api/filmes/[slug]
+#### PUT /api/filmes/[slug]
 Atualiza um filme pelo slug.
 
 
-### DELETE /api/filmes/[slug]
+#### DELETE /api/filmes/[slug]
 Remove o filme do banco de dados.
 
