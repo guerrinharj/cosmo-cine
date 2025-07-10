@@ -5,21 +5,50 @@ import NavBar from '../../components/NavBar';
 
 export default function HomePage() {
     const [filmes, setFilmes] = useState([]);
-    const [filtro, setFiltro] = useState('Todos');
-    const categorias = ['Todos', 'Publicidade', 'Clipe', 'Conteudo'];
+    const [filtro, setFiltro] = useState<string | null>(null);
+    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
         fetch('/api/filmes')
             .then((res) => res.json())
             .then((data) => setFilmes(data));
+
+        fetch('/api/auth/me', { credentials: 'include' })
+            .then(res => setIsAuthenticated(res.ok));
     }, []);
 
-    const filmesFiltrados =
-        filtro === 'Todos' ? filmes : filmes.filter(f => f.categoria === filtro);
+    const filmesFiltrados = filtro
+        ? filmes.filter(f => f.categoria === filtro)
+        : filmes;
 
     return (
         <div className="bg-black text-white min-h-screen">
             <NavBar />
+
+            {/* Criar Button */}
+            {isAuthenticated && (
+                <>
+                    {/* Mobile view */}
+                    <div className="md:hidden flex justify-center mt-6">
+                        <a
+                            href="/filmes/create"
+                            className="px-6 py-2 border border-white rounded"
+                        >
+                            Criar
+                        </a>
+                    </div>
+
+                    {/* Desktop floating "+" button */}
+                    <a
+                        href="/filmes/create"
+                        className="hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
+                        title="Criar novo filme"
+                    >
+                        +
+                    </a>
+                </>
+            )}
 
             {/* Filtro de Categorias */}
             <div className="text-center mt-8">
@@ -27,7 +56,9 @@ export default function HomePage() {
                     {categorias.map((cat) => (
                         <button
                             key={cat}
-                            onClick={() => setFiltro(cat)}
+                            onClick={() =>
+                                setFiltro(filtro === cat ? null : cat)
+                            }
                             className={`px-4 py-1 border rounded-full transition-all duration-300 ${
                                 filtro === cat
                                     ? 'bg-white text-black'

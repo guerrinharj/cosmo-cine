@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generateUniqueSlug } from '@/lib/generateUniqueSlug';
 
 export async function GET() {
     const filmes = await prisma.filme.findMany();
@@ -8,6 +9,8 @@ export async function GET() {
 
 export async function POST(req: Request) {
     const data = await req.json();
+
+    const slug = await generateUniqueSlug(data.nome);
 
     try {
         const filme = await prisma.filme.create({
@@ -19,9 +22,10 @@ export async function POST(req: Request) {
                 produtoraContratante: data.produtoraContratante,
                 agencia: data.agencia,
                 creditos: data.creditos,
-                slug: data.slug,
-                date: data.date,
+                slug,
+                date: data.date ? new Date(data.date) : null,
                 thumbnail: data.thumbnail,
+                video_url: data.video_url,
                 showable: data.showable,
             },
         });

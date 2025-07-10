@@ -17,7 +17,7 @@ model Filme {
   agencia              String?
   creditos             Json?
   slug                 String   @unique
-  date                 String?
+  date                 DateTime?
   thumbnail            String
   video_url            String
   showable             Boolean  @default(false)

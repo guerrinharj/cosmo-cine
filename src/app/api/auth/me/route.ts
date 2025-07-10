@@ -1,12 +1,13 @@
-import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export async function GET() {
-    const session = cookies().get('session');
+export async function GET(request: Request) {
+    const cookieHeader = request.headers.get('cookie') || '';
+    const sessionMatch = cookieHeader.match(/session=([^;]+)/);
+    const session = sessionMatch?.[1];
 
-    if (session?.value) {
-        return NextResponse.json({ authenticated: true, username: session.value });
+    if (session) {
+        return NextResponse.json({ authenticated: true, username: session });
     }
 
-    return NextResponse.json({ authenticated: false }, { status: 401 });
+    return NextResponse.json({ authenticated: false });
 }
