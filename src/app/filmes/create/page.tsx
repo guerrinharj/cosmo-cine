@@ -47,12 +47,26 @@ export default function CreateFilmePage() {
             return;
         }
 
+        const isVimeoUrl = /^https?:\/\/(www\.)?vimeo\.com\/\d+/.test(form.video_url);
+        if (!isVimeoUrl) {
+            setTouched({ ...touched, video_url: true });
+            setModalMessage('A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)');
+            setShowModal(true);
+            return;
+        }
+
         try {
+            // Buscar thumbnail da API pública do Vimeo
+            const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
+            const oembed = await oembedRes.json();
+            const thumbnailUrl = oembed.thumbnail_url;
+
             const res = await fetch('/api/filmes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...form,
+                    thumbnail: thumbnailUrl,
                     creditos: Object.fromEntries(creditos.map(c => [c.funcao, c.nome]))
                 })
             });
@@ -102,8 +116,7 @@ export default function CreateFilmePage() {
                     </select>
                     <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante} onChange={handleChange} className={inputStyle('produtoraContratante')} />
                     <input name="agencia" placeholder="Agência" value={form.agencia} onChange={handleChange} className={inputStyle('agencia')} />
-                    <input name="video_url" placeholder="Vídeo URL" value={form.video_url} onChange={handleChange} className={inputStyle('video_url')} />
-                    <input name="thumbnail" placeholder="Thumbnail URL" value={form.thumbnail} onChange={handleChange} className={inputStyle('thumbnail')} />
+                    <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
                     <input name="date" type="date" value={form.date} onChange={handleChange} className={inputStyle('date')} />
 
                     <div className="md:col-span-2">
