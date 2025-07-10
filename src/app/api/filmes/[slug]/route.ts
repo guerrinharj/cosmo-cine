@@ -1,6 +1,7 @@
 // src/app/api/filmes/[slug]/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { generateUniqueSlug } from '@/lib/generateUniqueSlug';
 
 export async function GET(_: Request, { params }: { params: { slug: string } }) {
     const filme = await prisma.filme.findUnique({
@@ -14,17 +15,25 @@ export async function GET(_: Request, { params }: { params: { slug: string } }) 
     return NextResponse.json(filme);
 }
 
-export async function PUT(req: Request, { params }: { params: { slug: string } }) {
+export async function PUT(req: Request, context: { params: { slug: string } }) {
+    const { params } = context;
     const data = await req.json();
 
     try {
+        const newSlug = await generateUniqueSlug(data.nome, params.slug);
+
         const updated = await prisma.filme.update({
             where: { slug: params.slug },
-            data: { ...data },
+            data: {
+                ...data,
+                slug: newSlug,
+                date: data.date ? new Date(data.date) : null,
+            },
         });
 
         return NextResponse.json(updated);
     } catch (error) {
+        console.error('Erro ao atualizar filme:', error);
         return NextResponse.json({ error: 'Failed to update filme' }, { status: 500 });
     }
 }
