@@ -22,6 +22,7 @@ export async function POST(req: Request) {
                 slug: data.slug,
                 date: data.date,
                 thumbnail: data.thumbnail,
+                video_url: data.video_url,
                 showable: data.showable,
             },
         });
