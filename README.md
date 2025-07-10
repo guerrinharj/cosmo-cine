@@ -10,7 +10,6 @@ Este é um CRM (Customer Relationship Manager) feito em **Next.js + Prisma** par
 - **Banco de Dados:** SQLite (via Prisma ORM)
 - **Estilização:** TailwindCSS
 - **Linguagem:** TypeScript
-- **Auth:** (em breve)
 - **Deploy recomendado:** Vercel
 
 ---
