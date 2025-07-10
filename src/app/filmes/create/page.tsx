@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation'; // ✅ Importa o router
 import NavBar from '../../../components/NavBar';
-import slugify from 'slugify';
 
 export default function CreateFilmePage() {
     const router = useRouter(); // ✅ Instancia o router
@@ -35,7 +34,7 @@ export default function CreateFilmePage() {
             [name]: type === 'checkbox' ? checked : value,
         }));
         if (name === 'nome') {
-            setForm((prev) => ({ ...prev, slug: slugify(value, { lower: true }) }));
+            setForm((prev) => ({ ...prev, nome: value }));
         }
     };
 
