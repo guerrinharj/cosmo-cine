@@ -15,7 +15,10 @@ export default function HomePage() {
     }, []);
 
     const filmesFiltrados =
-        filtro === 'Todos' ? filmes : filmes.filter(f => f.categoria === filtro);
+        filtro === 'Todos'
+            ? filmes.filter(f => f.showable !== false)
+            : filmes.filter(f => f.showable !== false && f.categoria === filtro);
+
 
     return (
         <div className="bg-black text-white min-h-screen">
