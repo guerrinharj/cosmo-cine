@@ -74,15 +74,28 @@ export default function ContatoPage() {
 
             <div className="max-w-5xl mx-auto px-6 py-8">
                 {isAuthenticated && (
-                    <div className="flex justify-center mb-6">
+                    <>
+                        {/* Mobile version (centered button) */}
+                        <div className="flex justify-center mb-6 md:hidden">
+                            <button
+                                onClick={() => setShowModal(true)}
+                                className="px-6 py-2 border border-white rounded"
+                            >
+                                Criar
+                            </button>
+                        </div>
+
+                        {/* Desktop version (floating icon button) */}
                         <button
                             onClick={() => setShowModal(true)}
-                            className="px-6 py-2 border border-white rounded"
+                            className="hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
+                            title="Criar novo contato"
                         >
-                            Criar
+                            +
                         </button>
-                    </div>
+                    </>
                 )}
+
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {contatos.map((contato) => (
