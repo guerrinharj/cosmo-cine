@@ -1,21 +1,11 @@
-// app/api/auth/me/route.ts
+import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-export async function GET(req: Request) {
-    const cookieHeader = req.headers.get('cookie') || '';
+export async function GET() {
+    const session = cookies().get('session');
 
-    const cookies = Object.fromEntries(
-        cookieHeader.split(';').map(cookie => {
-            const [key, value] = cookie.trim().split('=');
-            return [key, value];
-        })
-    );
-
-    const isAuthenticated = cookies.auth === 'true';
-    const username = cookies.username;
-
-    if (isAuthenticated && username) {
-        return NextResponse.json({ authenticated: true, username });
+    if (session?.value) {
+        return NextResponse.json({ authenticated: true, username: session.value });
     }
 
     return NextResponse.json({ authenticated: false }, { status: 401 });

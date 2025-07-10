@@ -27,14 +27,22 @@ export async function POST(req: Request) {
     // 7. Cria resposta de sucesso
     const response = NextResponse.json({ message: 'Login bem-sucedido', username });
 
-    // 8. Seta cookie chamado 'session' com valor do username
+    // 8. Seta cookie chamado 'session' com valor do username (seguro, httpOnly)
     response.cookies.set('session', username, {
         maxAge: oneHour,
-        httpOnly: true, // Segurança: não acessível via JavaScript no cliente
-        sameSite: 'lax', // Evita envio de cookies em requisições cross-site inseguras
-        secure: process.env.NODE_ENV === 'production', // Só HTTPS em produção
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+        path: '/',
     });
 
+    // ✅ 8.1. Seta cookie 'auth' com valor 'true' (visível para o App Router)
+    response.cookies.set('auth', 'true', {
+        maxAge: oneHour,
+        httpOnly: false, // <-- permite leitura no page.tsx e até via client (se quiser)
+        sameSite: 'lax',
+        secure: process.env.NODE_ENV === 'production',
+    });
     // 9. Retorna resposta final
     return response;
 }
