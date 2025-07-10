@@ -18,7 +18,8 @@ model Filme {
   creditos             Json?
   slug                 String   @unique
   date                 String?
-  thumbnail            String?
+  thumbnail            String
+  video_url            String
   showable             Boolean  @default(false)
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
