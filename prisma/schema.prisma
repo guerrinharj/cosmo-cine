@@ -37,3 +37,12 @@ model User {
   password String
   createdAt DateTime @default(now())
 }
+
+
+model Contato {
+  id       String   @id @default(cuid())
+  nome     String
+  funcao   String?
+  email    String
+  createdAt DateTime @default(now())
+}

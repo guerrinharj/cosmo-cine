@@ -221,3 +221,58 @@ Atualiza um filme pelo slug.
 #### DELETE /api/filmes/[slug]
 Remove o filme do banco de dados.
 
+
+
+## 🧩 Modelo Contato
+A aplicação também possui um modelo para armazenar contatos associados à produção dos filmes.
+
+| Campo                  | Tipo       | Obrigatório | Descrição                           |
+| ---------------------- | ---------- | ----------- | ----------------------------------- |
+| `id`                   | `String`   | Sim         | Gerado automaticamente (CUID)       |
+| `nome`                 | `String`   | Sim         | Nome do contato                     |
+| `email`                | `String`   | Sim         | Email do contato                    |
+| `funcao`               | `String`   | Não         | Função do contato                   |
+| `createdAt`            | `DateTime` | Sim         | Gerado automaticamente (CUID)       |
+
+### 📡 Endpoints Contato da API
+Abaixo estão os endpoints RESTful disponíveis para o modelo Contato:
+
+#### GET /api/contatos
+Retorna todos os contatos cadastrados.
+
+Exemplo de resposta:
+
+```json
+[
+  {
+    "id": "clz91nvyi0000xjgk3b6z38qg",
+    "nome": "João da Silva",
+    "funcao": "Diretor de Fotografia",
+    "email": "joao@email.com",
+    "createdAt": "2025-07-10T18:00:00.000Z"
+  }
+]
+```
+#### POST /api/contatos
+Cria um novo contato.
+
+Body esperado (JSON):
+
+```
+json
+{
+  "nome": "João da Silva",
+  "funcao": "Diretor de Fotografia",
+  "email": "joao@email.com"
+}
+```
+
+#### DELETE /api/contatos/[id]
+Remove o contato do banco de dados com base no ID.
+
+Exemplo:
+```json
+{
+  "message": "Contato deletado com sucesso."
+}
+```

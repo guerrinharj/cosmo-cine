@@ -13,18 +13,16 @@ async function main() {
     // Delete existing entries
     await prisma.filme.deleteMany();
     await prisma.user.deleteMany();
-    console.log('🧨 Deleted all existing filmes and users.');
+    await prisma.contato.deleteMany();
+    console.log('🧨 Deleted all existing filmes, users, and contatos.');
 
-    // Create default admin user with hashed password
+    // Create default admin user
     const username = process.env.USERNAME || 'admin';
     const rawPassword = process.env.PASSWORD || 'password';
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
     await prisma.user.create({
-        data: {
-            username,
-            password: hashedPassword,
-        },
+        data: { username, password: hashedPassword },
     });
     console.log(`👤 Created default user "${username}".`);
 
@@ -54,9 +52,19 @@ async function main() {
     });
 
     await prisma.filme.createMany({ data: filmes });
+    console.log('🎬 Seeded 50 Filmes.');
 
-    console.log('🌱 Seeded 50 Filmes.');
+    // Create fake contatos
+    const contatos = Array.from({ length: 10 }).map(() => ({
+        nome: faker.person.fullName(),
+        funcao: faker.person.jobTitle(),
+        email: faker.internet.email(),
+    }));
+
+    await prisma.contato.createMany({ data: contatos });
+    console.log('📇 Seeded 10 Contatos.');
 }
+
 
 main()
     .catch((e) => {
