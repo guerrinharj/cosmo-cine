@@ -44,7 +44,7 @@ async function main() {
                 roteiro: faker.person.fullName(),
             },
             slug,
-            date: faker.date.past({ years: 2 }).toISOString().split('T')[0],
+            date: faker.date.past({ years: 2 }),
             thumbnail: thumb,
             video_url: videoUrl,
             showable: faker.datatype.boolean(),
