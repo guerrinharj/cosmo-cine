@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-import 'dotenv/config'; // load environment variables
+import bcrypt from 'bcrypt';
+import 'dotenv/config'; // Load environment variables
 
 const prisma = new PrismaClient();
 
@@ -14,13 +15,15 @@ async function main() {
     await prisma.user.deleteMany();
     console.log('🧨 Deleted all existing filmes and users.');
 
-    // Create default admin user
+    // Create default admin user with hashed password
     const username = process.env.USERNAME || 'admin';
-    const password = process.env.PASSWORD || 'password'; // optionally hash in production
+    const rawPassword = process.env.PASSWORD || 'password';
+    const hashedPassword = await bcrypt.hash(rawPassword, 10);
+
     await prisma.user.create({
         data: {
             username,
-            password,
+            password: hashedPassword,
         },
     });
     console.log(`👤 Created default user "${username}".`);
@@ -50,9 +53,7 @@ async function main() {
         };
     });
 
-    await prisma.filme.createMany({
-        data: filmes,
-    });
+    await prisma.filme.createMany({ data: filmes });
 
     console.log('🌱 Seeded 50 Filmes.');
 }
