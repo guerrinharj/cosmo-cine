@@ -5,9 +5,9 @@ import NavBar from '../../components/NavBar';
 
 export default function HomePage() {
     const [filmes, setFilmes] = useState([]);
-    const [filtro, setFiltro] = useState('Todos');
+    const [filtro, setFiltro] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const categorias = ['Todos', 'Publicidade', 'Clipe', 'Conteudo'];
+    const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
         fetch('/api/filmes')
@@ -18,8 +18,9 @@ export default function HomePage() {
             .then(res => setIsAuthenticated(res.ok));
     }, []);
 
-    const filmesFiltrados =
-        filtro === 'Todos' ? filmes : filmes.filter(f => f.categoria === filtro);
+    const filmesFiltrados = filtro
+        ? filmes.filter(f => f.categoria === filtro)
+        : filmes;
 
     return (
         <div className="bg-black text-white min-h-screen">
@@ -55,7 +56,9 @@ export default function HomePage() {
                     {categorias.map((cat) => (
                         <button
                             key={cat}
-                            onClick={() => setFiltro(cat)}
+                            onClick={() =>
+                                setFiltro(filtro === cat ? null : cat)
+                            }
                             className={`px-4 py-1 border rounded-full transition-all duration-300 ${
                                 filtro === cat
                                     ? 'bg-white text-black'
