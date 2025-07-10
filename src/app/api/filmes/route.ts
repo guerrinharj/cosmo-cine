@@ -1,4 +1,3 @@
-// src/app/api/filmes/route.ts
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
@@ -28,7 +27,22 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json(filme, { status: 201 });
-    } catch (error) {
-        return NextResponse.json({ error: 'Failed to create filme' }, { status: 500 });
+    } catch (error: any) {
+        const rawMessage = error?.message || String(error);
+
+        // Expressão regular para extrair a primeira linha com "Argument ..."
+        const match = rawMessage.match(/Argument.*?missing\./);
+
+        const cleanMessage = match ? match[0] : 'Erro desconhecido';
+
+        console.error('Erro ao criar Filme:', cleanMessage);
+
+        return NextResponse.json(
+            {
+                error: 'Failed to create filme',
+                details: cleanMessage,
+            },
+            { status: 500 }
+        );
     }
 }
