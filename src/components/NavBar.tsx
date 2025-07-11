@@ -8,24 +8,29 @@ import { messages } from '@/lib/i18n';
 export default function NavBar() {
     const [locale, setLocale] = useState('pt');
     const [authenticated, setAuthenticated] = useState(false);
+    const [mounted, setMounted] = useState(false);
+
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
         const savedLocale = localStorage.getItem('locale') || 'pt';
         setLocale(savedLocale);
+        setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
             .then(res => res.ok ? res.json() : Promise.resolve({ authenticated: false }))
             .then(data => setAuthenticated(data.authenticated));
     }, []);
 
+    if (!mounted) return null;
+
     const t = messages[locale];
 
     const switchLocale = () => {
         const newLocale = locale === 'pt' ? 'en' : 'pt';
         localStorage.setItem('locale', newLocale);
-        window.location.reload(); // força recarregar toda a página
+        window.location.reload(); // hard reload
     };
 
     const handleLogout = async () => {
@@ -44,18 +49,16 @@ export default function NavBar() {
 
     return (
         <nav className="fixed top-0 left-0 z-50 thunder text-4xl uppercase w-full p-4 border-b border-gray-700 flex items-center justify-center bg-black">
-            {/* Logo on the left */}
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <Link href="/">
                     <img
                         src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
                         alt="Cosmo Cine"
-                        className="h-20"
+                        className="h-20 transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
                     />
                 </Link>
             </div>
 
-            {/* Center nav links */}
             <div className="flex gap-6 items-center text-white">
                 <Link href="/" className={linkClass('/')}>
                     {t.nav.films}
@@ -65,17 +68,12 @@ export default function NavBar() {
                 </Link>
             </div>
 
-            {/* Right side: locale + logout */}
             <div className="text-white absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-4">
-                <button onClick={switchLocale} className="underline">
+                <button onClick={switchLocale} className="hover:underline">
                     {locale === 'pt' ? 'EN' : 'PT'}
                 </button>
-
                 {authenticated && (
-                    <button
-                        onClick={handleLogout}
-                        className="text-red-400 hover:underline"
-                    >
+                    <button onClick={handleLogout} className="text-red-400 hover:underline">
                         {t.nav.logout}
                     </button>
                 )}
