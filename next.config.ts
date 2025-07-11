@@ -1,9 +1,11 @@
+// next.config.ts
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   i18n: {
-    locales: ['pt', 'en'], // supported locales
-    defaultLocale: 'pt',   // default fallback locale
+    locales: ['pt', 'en'],
+    defaultLocale: 'pt',
+    localeDetection: false
   },
 };
 
