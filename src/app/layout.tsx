@@ -1,6 +1,6 @@
 'use client'; // required at the top of layout if using hooks
 
-import type { Metadata } from "next";
+import { useEffect } from 'react';
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import NavBar from '../components/NavBar';
@@ -22,6 +22,11 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  useEffect(() => {
+    document.title = '| COSMO CINE DO BRASIL | Produção Audiovisual';
+  }, []);
+
 
   const pathname = usePathname();
 
