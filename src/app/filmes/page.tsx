@@ -2,15 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import NavBar from '../../components/NavBar';
-
+import { messages } from '@/lib/i18n';
 
 export default function HomePage() {
     const [filmes, setFilmes] = useState([]);
     const [filtro, setFiltro] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [locale, setLocale] = useState('pt');
+
     const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
+        const savedLocale = localStorage.getItem('locale') || 'pt';
+        setLocale(savedLocale);
+
         fetch('/api/filmes')
             .then((res) => res.json())
             .then((data) => setFilmes(data));
@@ -23,6 +28,8 @@ export default function HomePage() {
         ? filmes.filter(f => f.categoria === filtro)
         : filmes;
 
+    const t = messages[locale];
+
     return (
         <div className="bg-black text-white min-h-screen">
             <NavBar />
@@ -30,7 +37,6 @@ export default function HomePage() {
             {/* Criar Button */}
             {isAuthenticated && (
                 <>
-                    {/* Mobile view */}
                     <div className="md:hidden flex justify-center mt-6">
                         <a
                             href="/filmes/create"
@@ -40,7 +46,6 @@ export default function HomePage() {
                         </a>
                     </div>
 
-                    {/* Desktop floating "+" button */}
                     <a
                         href="/filmes/create"
                         className="hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
@@ -54,21 +59,23 @@ export default function HomePage() {
             {/* Filtro de Categorias */}
             <div className="text-center mt-8">
                 <div className="inline-flex gap-4 justify-center items-center">
-                    {categorias.map((cat) => (
-                        <button
-                            key={cat}
-                            onClick={() =>
-                                setFiltro(filtro === cat ? null : cat)
-                            }
-                            className={`px-4 py-1 border rounded-full transition-all duration-300 ${
-                                filtro === cat
-                                    ? 'bg-white text-black'
-                                    : 'border-white text-white hover:bg-white hover:text-black'
-                            }`}
-                        >
-                            {cat}
-                        </button>
-                    ))}
+                    {categorias.map((cat) => {
+                        const key = cat.toLowerCase(); // publicidade, clipe, conteudo
+                        const label = t.filmes[key];
+                        return (
+                            <button
+                                key={cat}
+                                onClick={() => setFiltro(filtro === cat ? null : cat)}
+                                className={`px-4 py-1 border rounded-full transition-all duration-300 ${
+                                    filtro === cat
+                                        ? 'bg-white text-black'
+                                        : 'border-white text-white hover:bg-white hover:text-black'
+                                }`}
+                            >
+                                {label}
+                            </button>
+                        );
+                    })}
                 </div>
             </div>
 

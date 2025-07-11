@@ -6,12 +6,22 @@ export const messages = {
             contact: 'Contato',
             logout: 'Sair',
         },
+        filmes: {
+            publicidade: 'Publicidade',
+            conteudo: 'Conteudo',
+            clipe: 'Clipes',
+        }
     },
     en: {
         nav: {
             films: 'Films',
             contact: 'Contact',
             logout: 'Logout',
+        },
+        filmes: {
+            publicidade: 'Advertising',
+            conteudo: 'Movies',
+            clipe: 'Music Videos',
         },
     },
 };

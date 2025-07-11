@@ -23,8 +23,8 @@ export default function NavBar() {
 
     const switchLocale = () => {
         const newLocale = locale === 'pt' ? 'en' : 'pt';
-        setLocale(newLocale);
         localStorage.setItem('locale', newLocale);
+        window.location.reload(); // força recarregar toda a página
     };
 
     const handleLogout = async () => {
