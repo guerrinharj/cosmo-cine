@@ -24,3 +24,30 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@font-face {
+    font-family: 'Paralucent';
+    src: url('/fonts/PARALUCENT/fonts/fonnts.com-Paralucent_Light.otf') format('opentype');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Thunder';
+    src: url('/fonts/THUNDER/Fonts/OpenType-PS/Thunder-ExtraBoldLC.otf') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
+
+.paralucent {
+    font-family: 'Paralucent', sans-serif;
+    font-weight: 300;
+}
+
+.thunder {
+    font-family: 'Thunder', sans-serif;
+    font-weight: 800;
+}

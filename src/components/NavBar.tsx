@@ -37,7 +37,7 @@ export default function NavBar() {
     };
 
     return (
-        <nav className="w-full flex justify-between items-center p-4 border-b border-gray-700">
+        <nav className="thunder text-4xl uppercase w-full flex justify-between items-center p-4 border-b border-gray-700">
             <Link href="/">
                 <img
                     src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
