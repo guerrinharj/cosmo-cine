@@ -72,7 +72,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
                 <button onClick={goToPrevious} className="text-2xl">&larr;</button>
 
-                <button onClick={() => router.push('/')} className="text-sm underline">Fechar</button>
+                <button onClick={() => router.push('/')} className="text-sm underline">X</button>
 
                 <div className="flex items-center gap-4">
                     {isAuthenticated && (
