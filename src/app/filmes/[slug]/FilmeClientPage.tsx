@@ -139,7 +139,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                         Object.entries(filme.creditos).map(([key, value]) => (
                             <div key={key}>
                                 <p className="thunder text-2xl uppercase font-bold">{key}</p>
-                                <p class="paralucent text-2xl">{value as string}</p>
+                                <p className="paralucent text-xl">{value as string}</p>
                             </div>
                         ))}
                 </div>
