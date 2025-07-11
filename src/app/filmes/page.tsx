@@ -114,7 +114,7 @@ export default function HomePage() {
                             <p className="mt-2 text-sm uppercase tracking-tight">
                                 {filme.cliente} | <strong>{filme.nome}</strong>
                             </p>
-                            <p className="text-xs text-gray-400">{filme.diretor}</p>
+                            <p className="text-xs text-gray-400 hover:underline">{filme.diretor}</p>
                             {filme.agencia && (
                                 <p className="text-xs text-gray-500">{filme.agencia}</p>
                             )}

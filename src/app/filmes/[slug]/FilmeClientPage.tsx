@@ -80,17 +80,22 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
-                <button onClick={goToPrevious} className="text-2xl">&larr;</button>
+                <button
+                    onClick={goToPrevious}
+                    className="text-2xl transition-transform duration-300 hover:-translate-x-1"
+                    >
+                    &larr;
+                </button>
 
                 <button onClick={() => router.push('/')} className="text-sm">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
+                        className="h-6 w-6 transition-transform duration-500 hover:rotate-[360deg]"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                         strokeWidth={2}
-                    >
+                        >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -98,11 +103,17 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                 <div className="flex items-center gap-4">
                     {isAuthenticated && (
                         <>
-                            <Link href={`/filmes/${slug}/edit`} className="paralucent uppercase">Editar</Link>
-                            <button onClick={handleDelete} className="paralucent uppercase text-red-500">Deletar</button>
+                            <Link href={`/filmes/${slug}/edit`} className="paralucent uppercase hover:underline">Editar</Link>
+                            <button onClick={handleDelete} className="paralucent uppercase text-red-500 hover:underline">Deletar</button>
                         </>
                     )}
-                    <button onClick={goToNext} className="text-2xl">&rarr;</button>
+
+                    <button
+                        onClick={goToNext}
+                        className="text-2xl transition-transform duration-300 hover:translate-x-1"
+                        >
+                        &rarr;
+                    </button>
                 </div>
             </div>
 

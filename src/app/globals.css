@@ -29,6 +29,11 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
 @font-face {
     font-family: 'Paralucent';
     src: url('/fonts/PARALUCENT/fonts/fonnts.com-Paralucent_Light.otf') format('opentype');
