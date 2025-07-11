@@ -69,7 +69,7 @@ export default function ContatoPage() {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen">
+        <div className="pt-20 bg-black text-white min-h-screen">
             <NavBar />
 
             <div className="max-w-5xl mx-auto px-6 py-8">

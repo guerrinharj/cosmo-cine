@@ -31,7 +31,7 @@ export default function HomePage() {
     const t = messages[locale];
 
     return (
-        <div className="bg-black text-white min-h-screen">
+        <div className="pt-20 pb-10 bg-black text-white min-h-screen">
             <NavBar />
 
             {/* Criar Button */}
@@ -66,7 +66,7 @@ export default function HomePage() {
                             <button
                                 key={cat}
                                 onClick={() => setFiltro(filtro === cat ? null : cat)}
-                                className={`thunder text-4xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
+                                className={`paralucent text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
                                     filtro === cat
                                         ? 'border-white'
                                         : 'border-transparent hover:border-white'
@@ -92,7 +92,7 @@ export default function HomePage() {
                         <a
                             href={`/filmes/${filme.slug}`}
                             key={filme.id}
-                            className="flex flex-col cursor-pointer group"
+                            className="paralucent text-2xl flex flex-col cursor-pointer group"
                         >
                             <img
                                 src={filme.thumbnail}
