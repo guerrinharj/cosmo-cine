@@ -64,7 +64,17 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         if (currentIndex < filmes.length - 1) router.push(`/filmes/${filmes[currentIndex + 1].slug}`);
     };
 
-    if (!filme) return <div className="text-white p-4">Carregando...</div>;
+    if (!filme) {
+    return (
+        <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
+            <img
+                src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
+                alt="Cosmo Cine Logo"
+                className="w-48 h-auto"
+            />
+        </div>
+    );
+    }
 
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">

@@ -31,6 +31,18 @@ export default function HomePage() {
 
     const t = messages[locale];
 
+    if (!filmes) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
+                <img
+                    src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
+                    alt="Cosmo Cine Logo"
+                    className="w-48 h-auto"
+                />
+            </div>
+        );
+        }
+
     return (
         <div className="pt-20 pb-10 bg-black text-white min-h-screen">
 
