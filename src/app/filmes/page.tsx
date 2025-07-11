@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import NavBar from '../../components/NavBar';
 
+
 export default function HomePage() {
     const [filmes, setFilmes] = useState([]);
     const [filtro, setFiltro] = useState<string | null>(null);

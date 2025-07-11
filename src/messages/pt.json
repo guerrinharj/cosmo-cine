@@ -1,4 +1,6 @@
 {
-    "notFound.title": "404",
-    "notFound.message": "não há nada a ser visto aqui"
+    "nav.filmes": "Filmes",
+    "nav.contato": "Contato",
+    "nav.logout": "Sair",
+    "nav.language": "EN"
 }
