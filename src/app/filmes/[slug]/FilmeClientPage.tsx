@@ -72,13 +72,13 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
                 <button onClick={goToPrevious} className="text-2xl">&larr;</button>
 
-                <button onClick={() => router.push('/')} className="text-sm underline">X</button>
+                <button onClick={() => router.push('/')} className="text-sm">X</button>
 
                 <div className="flex items-center gap-4">
                     {isAuthenticated && (
                         <>
-                            <Link href={`/filmes/${slug}/edit`} className="underline">Editar</Link>
-                            <button onClick={handleDelete} className="text-red-500">Deletar</button>
+                            <Link href={`/filmes/${slug}/edit`} className="paralucent uppercase">Editar</Link>
+                            <button onClick={handleDelete} className="paralucent uppercase text-red-500">Deletar</button>
                         </>
                     )}
                     <button onClick={goToNext} className="text-2xl">&rarr;</button>
@@ -87,9 +87,9 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                <h1 className="text-xl font-bold">{filme.cliente} | {filme.nome}</h1>
-                <p className="text-sm mt-1">{filme.diretor}</p>
-                {filme.agencia && <p className="text-sm text-gray-400">{filme.agencia}</p>}
+                <h1 className="paralucent text-4xl font-bold uppercase">{filme.cliente} | {filme.nome}</h1>
+                <p className="thunder text-4xl mt-1 uppercase">{filme.diretor}</p>
+                {filme.agencia && <p className="paralucent text-xl text-gray-400">{filme.agencia}</p>}
 
                 {filme.video_url && (
                     <div className="w-full aspect-video mt-6">
@@ -106,8 +106,8 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     {filme.creditos &&
                         Object.entries(filme.creditos).map(([key, value]) => (
                             <div key={key}>
-                                <p className="uppercase font-bold">{key}</p>
-                                <p>{value as string}</p>
+                                <p className="thunder text-2xl uppercase font-bold">{key}</p>
+                                <p class="paralucent text-2xl">{value as string}</p>
                             </div>
                         ))}
                 </div>

@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { messages } from '@/lib/i18n';
 
 export default function NavBar() {
     const [locale, setLocale] = useState('pt');
     const [authenticated, setAuthenticated] = useState(false);
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const savedLocale = localStorage.getItem('locale') || 'pt';
@@ -36,6 +37,11 @@ export default function NavBar() {
         router.push('/login');
     };
 
+    const linkClass = (href: string) =>
+        `border-b-2 px-2 py-1 transition-all duration-300 ${
+            pathname === href ? 'border-white' : 'border-transparent hover:border-white'
+        }`;
+
     return (
         <nav className="thunder text-4xl uppercase w-full flex justify-between items-center p-4 border-b border-gray-700">
             <Link href="/">
@@ -46,8 +52,12 @@ export default function NavBar() {
                 />
             </Link>
             <div className="flex gap-6 items-center">
-                <Link href="/">{t.nav.films}</Link>
-                <Link href="/contato">{t.nav.contact}</Link>
+                <Link href="/" className={linkClass('/')}>
+                    {t.nav.films}
+                </Link>
+                <Link href="/contato" className={linkClass('/contato')}>
+                    {t.nav.contact}
+                </Link>
 
                 <button onClick={switchLocale} className="underline">
                     {locale === 'pt' ? 'EN' : 'PT'}

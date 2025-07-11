@@ -44,10 +44,11 @@ body {
 
 .paralucent {
     font-family: 'Paralucent', sans-serif;
-    font-weight: 300;
+    font-weight: 600;
 }
 
 .thunder {
     font-family: 'Thunder', sans-serif;
-    font-weight: 800;
+    font-weight: 600;
+    letter-spacing: 1px;
 }

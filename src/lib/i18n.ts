@@ -10,6 +10,9 @@ export const messages = {
             publicidade: 'Publicidade',
             conteudo: 'Conteudo',
             clipe: 'Clipes',
+        },
+        notFound: {
+            notFound: "Não para ser visto aqui."
         }
     },
     en: {
@@ -23,5 +26,8 @@ export const messages = {
             conteudo: 'Movies',
             clipe: 'Music Videos',
         },
+        notFound: {
+            notFound: "Nothing to be seen here."
+        }
     },
 };

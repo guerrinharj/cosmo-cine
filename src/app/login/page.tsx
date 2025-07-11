@@ -13,7 +13,7 @@ export default function LoginPage() {
         const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            credentials: 'include', // VERY important for cookies
+            credentials: 'include',
             body: JSON.stringify({ username, password }),
         });
 
@@ -37,26 +37,26 @@ export default function LoginPage() {
             </div>
 
             {/* Login Form */}
-            <div className="bg-gray-900 p-6 rounded-lg shadow-lg w-full max-w-sm">
-                <h1 className="text-xl font-bold mb-4 text-center">Login</h1>
+            <div className="bg-black-900 border p-6 rounded-lg shadow-lg w-full max-w-sm">
+                <h1 className="paralucent text-2xl uppercase font-bold mb-4 text-center">Login</h1>
                 {error && <p className="text-red-500 mb-2 text-sm">{error}</p>}
                 <input
                     type="text"
                     placeholder="Username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="w-full mb-3 px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                    className="paralucent w-full mb-3 px-4 py-2 bg-black-800 border border-gray-600 rounded text-white"
                 />
                 <input
                     type="password"
                     placeholder="Password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full mb-4 px-4 py-2 bg-gray-800 border border-gray-600 rounded text-white"
+                    className="paralucent w-full mb-3 px-4 py-2 bg-black-800 border border-gray-600 rounded text-white"
                 />
                 <button
                     onClick={handleLogin}
-                    className="w-full bg-white text-black py-2 rounded hover:bg-gray-200 transition"
+                    className="paralucent w-full bg-black text-white py-2 rounded hover:bg-gray-200  transition"
                 >
                     Entrar
                 </button>
