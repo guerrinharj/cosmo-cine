@@ -31,7 +31,7 @@ export default function HomePage() {
     const t = messages[locale];
 
     return (
-        <div className="bg-black text-white min-h-screen">
+        <div className="pt-20 pb-10 bg-black text-white min-h-screen">
             <NavBar />
 
             {/* Criar Button */}
@@ -40,7 +40,7 @@ export default function HomePage() {
                     <div className="md:hidden flex justify-center mt-6">
                         <a
                             href="/filmes/create"
-                            className="px-6 py-2 border border-white rounded"
+                            className="paralucent px-6 py-2 border border-white rounded"
                         >
                             Criar
                         </a>
@@ -48,7 +48,7 @@ export default function HomePage() {
 
                     <a
                         href="/filmes/create"
-                        className="hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
+                        className="paralucent hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
                         title="Criar novo filme"
                     >
                         +
@@ -66,10 +66,10 @@ export default function HomePage() {
                             <button
                                 key={cat}
                                 onClick={() => setFiltro(filtro === cat ? null : cat)}
-                                className={`px-4 py-1 border rounded-full transition-all duration-300 ${
+                                className={`paralucent text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
                                     filtro === cat
-                                        ? 'bg-white text-black'
-                                        : 'border-white text-white hover:bg-white hover:text-black'
+                                        ? 'border-white'
+                                        : 'border-transparent hover:border-white'
                                 }`}
                             >
                                 {label}
@@ -92,7 +92,7 @@ export default function HomePage() {
                         <a
                             href={`/filmes/${filme.slug}`}
                             key={filme.id}
-                            className="flex flex-col cursor-pointer group"
+                            className="paralucent text-2xl flex flex-col cursor-pointer group"
                         >
                             <img
                                 src={filme.thumbnail}

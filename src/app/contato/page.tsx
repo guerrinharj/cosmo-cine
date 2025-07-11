@@ -69,7 +69,7 @@ export default function ContatoPage() {
     };
 
     return (
-        <div className="bg-black text-white min-h-screen">
+        <div className="pt-20 bg-black text-white min-h-screen">
             <NavBar />
 
             <div className="max-w-5xl mx-auto px-6 py-8">
@@ -110,10 +110,10 @@ export default function ContatoPage() {
                                 </button>
                             )}
                             {contato.funcao && (
-                                <p className="text-sm text-gray-400 mb-1 uppercase">{contato.funcao}</p>
+                                <p className="paralucent text-1xl text-gray-400 mb-1 uppercase">{contato.funcao}</p>
                             )}
-                            <p className="text-xl font-bold">{contato.nome}</p>
-                            <p className="text-sm text-gray-300 mt-1">{contato.email}</p>
+                            <p className="paralucent text-4xl text-xl font-bold">{contato.nome}</p>
+                            <p className="paralucent text-2xl text-sm text-gray-300 mt-1 lowercase">{contato.email}</p>
                         </div>
                     ))}
                 </div>

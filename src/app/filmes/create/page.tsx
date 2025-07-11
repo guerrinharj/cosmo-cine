@@ -101,8 +101,8 @@ export default function CreateFilmePage() {
         <div className="bg-black text-white min-h-screen">
             <NavBar />
             <div className="max-w-5xl mx-auto px-6 py-10">
-                <h1 className="text-2xl font-bold mb-8">Criar Filme</h1>
-                <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <h1 className="paralucent text-3xl font-bold mb-8 uppercase">Criar Filme</h1>
+                <form onSubmit={handleSubmit} className="paralucent grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input name="nome" placeholder="Nome *" value={form.nome} onChange={handleChange} onBlur={() => setTouched({ ...touched, nome: true })} className={inputStyle('nome')} />
                     <input name="cliente" placeholder="Cliente *" value={form.cliente} onChange={handleChange} onBlur={() => setTouched({ ...touched, cliente: true })} className={inputStyle('cliente')} />
                     <input name="diretor" placeholder="Diretor *" value={form.diretor} onChange={handleChange} onBlur={() => setTouched({ ...touched, diretor: true })} className={inputStyle('diretor')} />
