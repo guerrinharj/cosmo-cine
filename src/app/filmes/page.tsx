@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import NavBar from '../../components/NavBar';
 import { messages } from '@/lib/i18n';
 
 export default function HomePage() {
@@ -10,9 +9,11 @@ export default function HomePage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [locale, setLocale] = useState('pt');
 
+
     const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
+        
         const savedLocale = localStorage.getItem('locale') || 'pt';
         setLocale(savedLocale);
 
@@ -30,9 +31,20 @@ export default function HomePage() {
 
     const t = messages[locale];
 
+    if (!filmes) {
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
+                <img
+                    src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
+                    alt="Cosmo Cine Logo"
+                    className="w-48 h-auto"
+                />
+            </div>
+        );
+        }
+
     return (
         <div className="pt-20 pb-10 bg-black text-white min-h-screen">
-            <NavBar />
 
             {/* Criar Button */}
             {isAuthenticated && (
@@ -81,7 +93,7 @@ export default function HomePage() {
 
             {/* Lista de Filmes */}
             <div
-                className="grid gap-6 mt-10 px-4"
+                className="grid gap-6 mt-10 px-4 fade-in"
                 style={{
                     gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                 }}
@@ -102,7 +114,7 @@ export default function HomePage() {
                             <p className="mt-2 text-sm uppercase tracking-tight">
                                 {filme.cliente} | <strong>{filme.nome}</strong>
                             </p>
-                            <p className="text-xs text-gray-400">{filme.diretor}</p>
+                            <p className="text-xs text-gray-400 hover:underline">{filme.diretor}</p>
                             {filme.agencia && (
                                 <p className="text-xs text-gray-500">{filme.agencia}</p>
                             )}

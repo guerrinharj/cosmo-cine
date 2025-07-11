@@ -56,7 +56,7 @@ export default function NavBar() {
             </div>
 
             {/* Center nav links */}
-            <div className="flex gap-6 items-center">
+            <div className="flex gap-6 items-center text-white">
                 <Link href="/" className={linkClass('/')}>
                     {t.nav.films}
                 </Link>
@@ -66,7 +66,7 @@ export default function NavBar() {
             </div>
 
             {/* Right side: locale + logout */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-4">
+            <div className="text-white absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-4">
                 <button onClick={switchLocale} className="underline">
                     {locale === 'pt' ? 'EN' : 'PT'}
                 </button>
