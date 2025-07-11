@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import NavBar from '../../components/NavBar';
 import { messages } from '@/lib/i18n';
 
 export default function HomePage() {
@@ -10,9 +9,11 @@ export default function HomePage() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [locale, setLocale] = useState('pt');
 
+
     const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
+        
         const savedLocale = localStorage.getItem('locale') || 'pt';
         setLocale(savedLocale);
 
@@ -32,7 +33,6 @@ export default function HomePage() {
 
     return (
         <div className="pt-20 pb-10 bg-black text-white min-h-screen">
-            <NavBar />
 
             {/* Criar Button */}
             {isAuthenticated && (
@@ -81,7 +81,7 @@ export default function HomePage() {
 
             {/* Lista de Filmes */}
             <div
-                className="grid gap-6 mt-10 px-4"
+                className="grid gap-6 mt-10 px-4 fade-in"
                 style={{
                     gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
                 }}

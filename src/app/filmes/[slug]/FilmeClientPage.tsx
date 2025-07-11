@@ -67,7 +67,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     if (!filme) return <div className="text-white p-4">Carregando...</div>;
 
     return (
-        <div className="bg-black text-white min-h-screen px-6 pb-12">
+        <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
                 <button onClick={goToPrevious} className="text-2xl">&larr;</button>

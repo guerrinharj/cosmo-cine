@@ -1,6 +1,11 @@
+'use client'; // required at the top of layout if using hooks
+
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import NavBar from '../components/NavBar';
+import { usePathname } from 'next/navigation';
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -12,16 +17,16 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "| COSMO CINE DO BRASIL | Produção Audiovisual",
-  description: "Cosmo Cine do Brasil",
-};
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
+  const pathname = usePathname();
+
+  const hideNavBar = pathname.startsWith('/filmes/') && pathname !== '/filmes';
+
   return (
     <html lang="en">
       <head>
@@ -30,6 +35,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        {!hideNavBar && <NavBar />}
         {children}
       </body>
     </html>

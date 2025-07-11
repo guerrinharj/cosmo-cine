@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import NavBar from '../../components/NavBar';
 
 type Contato = {
     id: string;
@@ -70,7 +69,6 @@ export default function ContatoPage() {
 
     return (
         <div className="pt-20 bg-black text-white min-h-screen">
-            <NavBar />
 
             <div className="max-w-5xl mx-auto px-6 py-8">
                 {isAuthenticated && (
@@ -99,7 +97,7 @@ export default function ContatoPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     {contatos.map((contato) => (
-                        <div key={contato.id} className="relative p-4">
+                        <div key={contato.id} className="relative p-4 fade-in">
                             {isAuthenticated && (
                                 <button
                                     className="absolute top-2 right-2 text-red-400 hover:text-red-600"
