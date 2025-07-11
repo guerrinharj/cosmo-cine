@@ -110,7 +110,7 @@ export default function ContatoPage() {
                             {contato.funcao && (
                                 <p className="paralucent text-1xl text-gray-400 mb-1 uppercase">{contato.funcao}</p>
                             )}
-                            <p className="paralucent text-4xl text-xl font-bol">{contato.nome}</p>
+                            <p className="paralucent text-4xl text-xl font-bol hover:underline">{contato.nome}</p>
                             <a
                             key={contato.id}
                             href={`mailto:${contato.email}`}
