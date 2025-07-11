@@ -22,7 +22,8 @@ export default function HomePage() {
             .then((data) => setFilmes(data));
 
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => setIsAuthenticated(res.ok));
+            .then(res => res.ok ? res.json() : { authenticated: false })
+            .then(data => setIsAuthenticated(data.authenticated));
     }, []);
 
     const filmesFiltrados = filtro

@@ -18,10 +18,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             credentials: 'include', 
         })
         .then(res => res.ok ? res.json() : { authenticated: false })
-        .then(data => {
-            console.log("Autenticação:", data);
-            setIsAuthenticated(data.authenticated);
-        });
+        .then(data => setIsAuthenticated(data.authenticated));
     }, []);
 
 
