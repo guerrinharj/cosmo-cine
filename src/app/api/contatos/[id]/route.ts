@@ -1,12 +1,21 @@
+import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
 
-export async function DELETE(_: Request, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest) {
     try {
-        await prisma.contato.delete({ where: { id: params.id } });
-        return NextResponse.json({ message: 'Contato deletado com sucesso' });
+        const id = req.nextUrl.pathname.split('/').pop(); // get ID from URL
+
+        if (!id) {
+            return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+        }
+
+        await prisma.contato.delete({
+            where: { id },
+        });
+
+        return NextResponse.json({ message: `Contato ${id} deletado com sucesso` });
     } catch (error) {
-        console.error('Erro:', error);
-        return NextResponse.json({ error: 'Contato não encontrado' }, { status: 404 });
+        console.error('Erro ao deletar contato:', error);
+        return NextResponse.json({ error: 'Erro ao deletar contato' }, { status: 500 });
     }
 }

@@ -1,3 +1,4 @@
+// src/app/filmes/[slug]/page.tsx
 import FilmeClientPage from './FilmeClientPage';
 
 export default function FilmePageWrapper({ params }: { params: { slug: string } }) {
