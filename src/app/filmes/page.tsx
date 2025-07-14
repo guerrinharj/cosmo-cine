@@ -31,12 +31,22 @@ export default function HomePage() {
 
         fetch('/api/filmes')
             .then((res) => res.json())
-            .then((data: Filme[]) => setFilmes(data));
+            .then((data) => {
+                if (Array.isArray(data)) {
+                    setFilmes(data);
+                } else if (Array.isArray(data.data)) {
+                    setFilmes(data.data);
+                } else {
+                    console.error('Resposta inesperada de /api/filmes:', data);
+                    setFilmes([]);
+                }
+            });
 
         fetch('/api/auth/me', { credentials: 'include' })
             .then(res => res.ok ? res.json() : { authenticated: false })
             .then(data => setIsAuthenticated(data.authenticated));
     }, []);
+
 
     const filmesFiltrados = filtro
         ? filmes.filter(f => f.categoria === filtro)
