@@ -7,7 +7,19 @@ import NavBar from '@/components/NavBar';
 export default function CreateFilmePage() {
     const router = useRouter();
 
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<{ 
+        nome: string;
+        cliente: string;
+        diretor: string;
+        categoria: string;
+        produtoraContratante: string;
+        agencia: string;
+        video_url: string;
+        date: string;
+        thumbnail: string;
+        showable: boolean;
+        [key: string]: string | boolean;
+    }>({
         nome: '',
         cliente: '',
         diretor: '',
@@ -28,7 +40,10 @@ export default function CreateFilmePage() {
     const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target;
+        const target = e.target as HTMLInputElement;
+        const { name, value, type } = target;
+        const checked = target.checked;
+
         setForm((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
@@ -131,7 +146,7 @@ export default function CreateFilmePage() {
                     </div>
 
                     <label className="flex items-center gap-2 md:col-span-2">
-                        <input type="checkbox" name="showable" checked={form.showable} onChange={handleChange} />
+                        <input type="checkbox" name="showable" checked={form.showable as boolean} onChange={handleChange} />
                         Mostrar publicamente
                     </label>
 

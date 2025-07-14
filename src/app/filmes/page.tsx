@@ -5,21 +5,33 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { messages } from '@/lib/i18n';
 
+type Filme = {
+    id: string;
+    slug: string;
+    nome: string;
+    cliente: string;
+    diretor: string;
+    agencia?: string;
+    categoria: string;
+    thumbnail: string;
+    date: string;
+};
+
 export default function HomePage() {
-    const [filmes, setFilmes] = useState([]);
+    const [filmes, setFilmes] = useState<Filme[]>([]);
     const [filtro, setFiltro] = useState<string | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [locale, setLocale] = useState('pt');
+    const [locale, setLocale] = useState<'pt' | 'en'>('pt');
 
     const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
-        const savedLocale = localStorage.getItem('locale') || 'pt';
-        setLocale(savedLocale);
+        const savedLocale = localStorage.getItem('locale') as 'pt' | 'en' | null;
+        setLocale(savedLocale ?? 'pt');
 
         fetch('/api/filmes')
             .then((res) => res.json())
-            .then((data) => setFilmes(data));
+            .then((data: Filme[]) => setFilmes(data));
 
         fetch('/api/auth/me', { credentials: 'include' })
             .then(res => res.ok ? res.json() : { authenticated: false })
@@ -48,7 +60,6 @@ export default function HomePage() {
 
     return (
         <div className="pt-20 pb-10 bg-black text-white min-h-screen">
-
             {/* Criar Button */}
             {isAuthenticated && (
                 <>
@@ -75,7 +86,7 @@ export default function HomePage() {
             <div className="text-center mt-8">
                 <div className="inline-flex gap-4 justify-center items-center">
                     {categorias.map((cat) => {
-                        const key = cat.toLowerCase();
+                        const key = cat.toLowerCase() as keyof typeof t.filmes;
                         const label = t.filmes[key];
                         return (
                             <button
@@ -102,7 +113,7 @@ export default function HomePage() {
                 }}
             >
                 {filmesFiltrados
-                    .sort((a, b) => new Date(b.date) - new Date(a.date))
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .map((filme) => (
                         <Link
                             href={`/filmes/${filme.slug}`}

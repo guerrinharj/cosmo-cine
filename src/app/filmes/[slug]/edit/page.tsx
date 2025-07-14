@@ -8,7 +8,21 @@ export default function EditFilmePage() {
     const router = useRouter();
     const { slug } = useParams();
 
-    const [form, setForm] = useState({
+    type FormFields = {
+        [key: string]: string | boolean;
+        nome: string;
+        cliente: string;
+        diretor: string;
+        categoria: string;
+        produtoraContratante: string;
+        agencia: string;
+        video_url: string;
+        date: string;
+        thumbnail: string;
+        showable: boolean;
+    };
+
+    const [form, setForm] = useState<FormFields>({
         nome: '',
         cliente: '',
         diretor: '',
@@ -47,7 +61,10 @@ export default function EditFilmePage() {
             });
 
             const creditosArray = data.creditos
-                ? Object.entries(data.creditos).map(([funcao, nome]) => ({ funcao, nome }))
+                ? Object.entries(data.creditos).map(([funcao, nome]) => ({
+                    funcao,
+                    nome: nome as string,
+                }))
                 : [];
 
             setCreditos(creditosArray);
@@ -57,7 +74,8 @@ export default function EditFilmePage() {
     }, [slug]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-        const { name, value, type, checked } = e.target;
+        const target = e.target as HTMLInputElement;
+        const { name, value, type, checked } = target;
         setForm((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
@@ -75,7 +93,7 @@ export default function EditFilmePage() {
             return;
         }
 
-        const isVimeoUrl = /^https?:\/\/(www\.)?vimeo\.com\/\d+/.test(form.video_url);
+        const isVimeoUrl = /^https?:\/\/(www\.)?vimeo\.com\/\d+/.test(form.video_url as string);
         if (!isVimeoUrl) {
             setTouched({ ...touched, video_url: true });
             setModalMessage('A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)');
@@ -119,7 +137,7 @@ export default function EditFilmePage() {
         copy[i][key] = value;
         setCreditos(copy);
     };
-    
+
     const removeCredito = (i: number) =>
         setCreditos(creditos.filter((credito, idx) => {
             if (idx === i) {
@@ -127,8 +145,7 @@ export default function EditFilmePage() {
                 return false;
             }
             return true;
-    }));
-
+        }));
 
     const inputStyle = (field: string) =>
         `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
@@ -139,19 +156,19 @@ export default function EditFilmePage() {
             <div className="max-w-5xl mx-auto px-6 py-10">
                 <h1 className="paralucent uppercase text-4xl font-bold mb-8">Editar Filme</h1>
                 <form onSubmit={handleSubmit} className="paralucent grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input name="nome" placeholder="Nome *" value={form.nome} onChange={handleChange} onBlur={() => setTouched({ ...touched, nome: true })} className={inputStyle('nome')} />
-                    <input name="cliente" placeholder="Cliente *" value={form.cliente} onChange={handleChange} onBlur={() => setTouched({ ...touched, cliente: true })} className={inputStyle('cliente')} />
-                    <input name="diretor" placeholder="Diretor *" value={form.diretor} onChange={handleChange} onBlur={() => setTouched({ ...touched, diretor: true })} className={inputStyle('diretor')} />
-                    <select name="categoria" value={form.categoria} onChange={handleChange} onBlur={() => setTouched({ ...touched, categoria: true })} className={inputStyle('categoria')}>
+                    <input name="nome" placeholder="Nome *" value={form.nome as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, nome: true })} className={inputStyle('nome')} />
+                    <input name="cliente" placeholder="Cliente *" value={form.cliente as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, cliente: true })} className={inputStyle('cliente')} />
+                    <input name="diretor" placeholder="Diretor *" value={form.diretor as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, diretor: true })} className={inputStyle('diretor')} />
+                    <select name="categoria" value={form.categoria as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, categoria: true })} className={inputStyle('categoria')}>
                         <option value="">Categoria *</option>
                         <option value="Publicidade">Publicidade</option>
                         <option value="Clipe">Clipe</option>
                         <option value="Conteudo">Conteúdo</option>
                     </select>
-                    <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante} onChange={handleChange} className={inputStyle('produtoraContratante')} />
-                    <input name="agencia" placeholder="Agência" value={form.agencia} onChange={handleChange} className={inputStyle('agencia')} />
-                    <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
-                    <input name="date" type="date" value={form.date} onChange={handleChange} className={inputStyle('date')} />
+                    <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante as string} onChange={handleChange} className={inputStyle('produtoraContratante')} />
+                    <input name="agencia" placeholder="Agência" value={form.agencia as string} onChange={handleChange} className={inputStyle('agencia')} />
+                    <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
+                    <input name="date" type="date" value={form.date as string} onChange={handleChange} className={inputStyle('date')} />
 
                     <div className="md:col-span-2">
                         <p className="mb-2 font-bold">Créditos</p>
@@ -166,7 +183,7 @@ export default function EditFilmePage() {
                     </div>
 
                     <label className="flex items-center gap-2 md:col-span-2">
-                        <input type="checkbox" name="showable" checked={form.showable} onChange={handleChange} />
+                        <input type="checkbox" name="showable" checked={form.showable as boolean} onChange={handleChange} />
                         Mostrar publicamente
                     </label>
 
