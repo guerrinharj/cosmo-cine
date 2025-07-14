@@ -3,44 +3,54 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
+
+type Filme = {
+    id: string;
+    slug: string;
+    cliente: string;
+    nome: string;
+    diretor: string;
+    agencia?: string;
+    video_url?: string;
+    date: string;
+    thumbnail: string;
+    creditos?: Record<string, string>;
+    showable?: boolean;
+};
 
 export default function FilmeClientPage({ slug }: { slug: string }) {
     const router = useRouter();
-    const [filme, setFilme] = useState<any>(null);
-    const [filmes, setFilmes] = useState<any[]>([]);
+    const [filme, setFilme] = useState<Filme | null>(null);
+    const [filmes, setFilmes] = useState<Filme[]>([]);
     const [currentIndex, setCurrentIndex] = useState<number>(-1);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-    // Verifica a sessão do usuário
     useEffect(() => {
         fetch('/api/auth/me', {
             method: 'GET',
-            credentials: 'include', 
+            credentials: 'include',
         })
-        .then(res => res.ok ? res.json() : { authenticated: false })
-        .then(data => setIsAuthenticated(data.authenticated));
+            .then(res => res.ok ? res.json() : { authenticated: false })
+            .then(data => setIsAuthenticated(data.authenticated));
     }, []);
 
-
-
-    // Carrega o filme atual
     useEffect(() => {
         fetch(`/api/filmes/${slug}`)
             .then(res => res.json())
-            .then(data => setFilme(data));
+            .then((data: Filme) => setFilme(data));
     }, [slug]);
 
-    // Carrega todos os filmes
     useEffect(() => {
         fetch('/api/filmes')
             .then(res => res.json())
-            .then(data => {
+            .then((data: Filme[]) => {
                 const ordered = data
-                    .filter((f: any) => f.showable)
-                    .sort((a: any, b: any) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    .filter((f: Filme) => f.showable)
+                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
                 setFilmes(ordered);
-                const index = ordered.findIndex((f: any) => f.slug === slug);
+                const index = ordered.findIndex((f) => f.slug === slug);
                 setCurrentIndex(index);
             });
     }, [slug]);
@@ -62,15 +72,17 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     };
 
     if (!filme) {
-    return (
-        <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
-            <img
-                src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
-                alt="Cosmo Cine Logo"
-                className="w-48 h-auto"
-            />
-        </div>
-    );
+        return (
+            <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
+                <Image
+                    src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
+                    alt="Cosmo Cine Logo"
+                    width={192}
+                    height={96}
+                    priority
+                />
+            </div>
+        );
     }
 
     return (
@@ -80,7 +92,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                 <button
                     onClick={goToPrevious}
                     className="text-2xl transition-transform duration-300 hover:-translate-x-1"
-                    >
+                >
                     &larr;
                 </button>
 
@@ -92,7 +104,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                         viewBox="0 0 24 24"
                         stroke="currentColor"
                         strokeWidth={2}
-                        >
+                    >
                         <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -104,11 +116,10 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                             <button onClick={handleDelete} className="paralucent uppercase text-red-500 hover:underline">Deletar</button>
                         </>
                     )}
-
                     <button
                         onClick={goToNext}
                         className="text-2xl transition-transform duration-300 hover:translate-x-1"
-                        >
+                    >
                         &rarr;
                     </button>
                 </div>
@@ -136,7 +147,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                         Object.entries(filme.creditos).map(([key, value]) => (
                             <div key={key}>
                                 <p className="thunder text-2xl uppercase font-bold">{key}</p>
-                                <p className="paralucent text-xl">{value as string}</p>
+                                <p className="paralucent text-xl">{value}</p>
                             </div>
                         ))}
                 </div>

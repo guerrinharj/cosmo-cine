@@ -31,12 +31,16 @@ export async function POST(req: Request) {
         });
 
         return NextResponse.json(filme, { status: 201 });
-    } catch (error: any) {
-        const rawMessage = error?.message || String(error);
+    } catch (error: unknown) {
+        let rawMessage: string;
 
-        // Expressão regular para extrair a primeira linha com "Argument ..."
+        if (error instanceof Error) {
+            rawMessage = error.message;
+        } else {
+            rawMessage = String(error);
+        }
+
         const match = rawMessage.match(/Argument.*?missing\./);
-
         const cleanMessage = match ? match[0] : 'Erro desconhecido';
 
         console.error('Erro ao criar Filme:', cleanMessage);

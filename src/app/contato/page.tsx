@@ -111,13 +111,12 @@ export default function ContatoPage() {
                                 <p className="paralucent text-1xl text-gray-400 mb-1 uppercase">{contato.funcao}</p>
                             )}
                             <p className="paralucent text-4xl text-xl font-bol hover:underline">{contato.nome}</p>
-                            <a
-                            key={contato.id}
-                            href={`mailto:${contato.email}`}
-                            className="paralucent relative fade-in text-sm lowercase transition text-white hover:underline !important"                              
+                            <button
+                                onClick={() => window.location.href = `mailto:${contato.email}`}
+                                className="paralucent fade-in text-sm lowercase transition text-white hover:underline text-left"
                             >
                                 {contato.email}
-                            </a>
+                            </button>
                         </div>
                     ))}
                 </div>
