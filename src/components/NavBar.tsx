@@ -6,8 +6,10 @@ import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { messages } from '@/lib/i18n';
 
+type Locale = 'pt' | 'en';
+
 export default function NavBar() {
-    const [locale, setLocale] = useState('pt');
+    const [locale, setLocale] = useState<Locale>('pt');
     const [authenticated, setAuthenticated] = useState(false);
     const [mounted, setMounted] = useState(false);
 
@@ -15,8 +17,12 @@ export default function NavBar() {
     const pathname = usePathname();
 
     useEffect(() => {
-        const savedLocale = localStorage.getItem('locale') || 'pt';
-        setLocale(savedLocale);
+        const saved = localStorage.getItem('locale');
+        if (saved === 'pt' || saved === 'en') {
+            setLocale(saved);
+        } else {
+            setLocale('pt');
+        }
         setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
