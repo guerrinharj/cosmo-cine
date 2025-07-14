@@ -16,7 +16,8 @@ export async function DELETE(req: Request) {
     try {
         await prisma.user.delete({ where: { username } });
         return NextResponse.json({ message: `Usuário '${username}' deletado com sucesso` });
-    } catch (_error) {
+    } catch (error) {
+        console.error('Erro:', error);
         return NextResponse.json({ error: `Erro ao deletar o usuário: ${username}` }, { status: 500 });
     }
 }

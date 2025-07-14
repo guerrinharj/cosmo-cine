@@ -5,7 +5,8 @@ export async function DELETE(_: Request, { params }: { params: { id: string } })
     try {
         await prisma.contato.delete({ where: { id: params.id } });
         return NextResponse.json({ message: 'Contato deletado com sucesso' });
-    } catch (_error) {
+    } catch (error) {
+        console.error('Erro:', error);
         return NextResponse.json({ error: 'Contato não encontrado' }, { status: 404 });
     }
 }
