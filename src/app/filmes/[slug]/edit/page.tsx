@@ -119,7 +119,16 @@ export default function EditFilmePage() {
         copy[i][key] = value;
         setCreditos(copy);
     };
-    const removeCredito = (i: number) => setCreditos(creditos.filter((_, idx) => idx !== i));
+    
+    const removeCredito = (i: number) =>
+        setCreditos(creditos.filter((credito, idx) => {
+            if (idx === i) {
+                console.log('Removendo crédito:', credito);
+                return false;
+            }
+            return true;
+    }));
+
 
     const inputStyle = (field: string) =>
         `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
