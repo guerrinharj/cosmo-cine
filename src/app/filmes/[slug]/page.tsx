@@ -7,6 +7,6 @@ type PageProps = {
     };
 };
 
-export default function FilmePageWrapper({ params }: PageProps) {
+export default function FilmePageWrapper({ params }: any) {
     return <FilmeClientPage slug={params.slug} />;
 }
