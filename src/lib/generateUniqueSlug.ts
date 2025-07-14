@@ -1,5 +1,5 @@
 import slugify from 'slugify';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function generateUniqueSlug(nome: string, currentSlug?: string) {
     const baseSlug = slugify(nome, { lower: true, strict: true });
@@ -7,9 +7,20 @@ export async function generateUniqueSlug(nome: string, currentSlug?: string) {
     let count = 1;
 
     while (true) {
-        const existing = await prisma.filme.findUnique({ where: { slug } });
+        const { data: existing, error } = await supabase
+            .from('Filme')
+            .select('slug')
+            .eq('slug', slug)
+            .single();
 
-        if (!existing || existing.slug === currentSlug) break;
+        if (error?.code === 'PGRST116') {
+            // Not found, we're good to break
+            break;
+        }
+
+        if (!existing || existing.slug === currentSlug) {
+            break;
+        }
 
         count++;
         slug = `${baseSlug}-${count}`;

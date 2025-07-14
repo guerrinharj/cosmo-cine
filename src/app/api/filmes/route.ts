@@ -1,20 +1,29 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabaseClient';
 import { generateUniqueSlug } from '@/lib/generateUniqueSlug';
 
 export async function GET() {
-    const filmes = await prisma.filme.findMany();
-    return NextResponse.json(filmes);
+    const { data, error } = await supabase
+        .from('Filme')
+        .select('*')
+        .order('date', { ascending: false });
+
+    if (error) {
+        console.error('Erro ao buscar filmes:', error.message);
+        return NextResponse.json({ error: 'Erro ao buscar filmes' }, { status: 500 });
+    }
+
+    return NextResponse.json(data);
 }
 
 export async function POST(req: Request) {
     const data = await req.json();
+    const slug = await generateUniqueSlug(data.nome); // still OK if it doesn't use Prisma
 
-    const slug = await generateUniqueSlug(data.nome);
-
-    try {
-        const filme = await prisma.filme.create({
-            data: {
+    const { error, data: filme } = await supabase
+        .from('Filme')
+        .insert([
+            {
                 nome: data.nome,
                 cliente: data.cliente,
                 diretor: data.diretor,
@@ -23,34 +32,26 @@ export async function POST(req: Request) {
                 agencia: data.agencia,
                 creditos: data.creditos,
                 slug,
-                date: data.date ? new Date(data.date) : null,
+                date: data.date ? new Date(data.date).toISOString() : null,
                 thumbnail: data.thumbnail,
                 video_url: data.video_url,
                 showable: data.showable,
             },
-        });
+        ])
+        .select()
+        .single(); // ensures we get a single record back
 
-        return NextResponse.json(filme, { status: 201 });
-    } catch (error: unknown) {
-        let rawMessage: string;
-
-        if (error instanceof Error) {
-            rawMessage = error.message;
-        } else {
-            rawMessage = String(error);
-        }
-
-        const match = rawMessage.match(/Argument.*?missing\./);
-        const cleanMessage = match ? match[0] : 'Erro desconhecido';
-
-        console.error('Erro ao criar Filme:', cleanMessage);
+    if (error) {
+        console.error('Erro ao criar Filme:', error.message);
 
         return NextResponse.json(
             {
                 error: 'Failed to create filme',
-                details: cleanMessage,
+                details: error.message,
             },
             { status: 500 }
         );
     }
+
+    return NextResponse.json(filme, { status: 201 });
 }
