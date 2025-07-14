@@ -5,12 +5,16 @@ import NavBar from '@/components/NavBar';
 import Image from 'next/image';
 import { messages } from '@/lib/i18n';
 
+type Locale = 'pt' | 'en';
+
 export default function NotFound() {
-    const [locale, setLocale] = useState('pt');
+    const [locale, setLocale] = useState<Locale>('pt');
 
     useEffect(() => {
-        const savedLocale = localStorage.getItem('locale') || 'pt';
-        setLocale(savedLocale);
+        const saved = localStorage.getItem('locale');
+        if (saved === 'pt' || saved === 'en') {
+            setLocale(saved);
+        }
     }, []);
 
     const t = messages[locale];
