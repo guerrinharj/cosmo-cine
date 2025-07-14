@@ -1,20 +1,49 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
-import { generateUniqueSlug } from '@/lib/generateUniqueSlug';
+import { supabase } from '@/lib/supabaseClient';
+import slugify from 'slugify';
 
+// GET: retorna todos os filmes
 export async function GET() {
-    const filmes = await prisma.filme.findMany();
-    return NextResponse.json(filmes);
+    const { data, error } = await supabase.from('Filme').select('*');
+
+    if (error) {
+        console.error('Erro ao buscar filmes:', error.message);
+        return NextResponse.json({ error: 'Erro ao buscar filmes' }, { status: 500 });
+    }
+
+    if (!data || !Array.isArray(data)) {
+        console.warn('Nenhum dado retornado ou formato inválido.');
+        return NextResponse.json([], { status: 200 });
+    }
+
+    return NextResponse.json(data, { status: 200 });
 }
 
+// POST: cria novo filme
 export async function POST(req: Request) {
     const data = await req.json();
 
-    const slug = await generateUniqueSlug(data.nome);
-
     try {
-        const filme = await prisma.filme.create({
-            data: {
+        // Gera slug único manualmente
+        const baseSlug = slugify(data.nome, { lower: true, strict: true });
+        let slug = baseSlug;
+        let count = 1;
+
+        while (true) {
+            const { data: existing } = await supabase
+                .from('Filme')
+                .select('slug')
+                .eq('slug', slug)
+                .maybeSingle();
+
+            if (!existing) break;
+
+            slug = `${baseSlug}-${count}`;
+            count++;
+        }
+
+        const { data: novoFilme, error } = await supabase.from('Filme').insert([
+            {
                 nome: data.nome,
                 cliente: data.cliente,
                 diretor: data.diretor,
@@ -23,32 +52,27 @@ export async function POST(req: Request) {
                 agencia: data.agencia,
                 creditos: data.creditos,
                 slug,
-                date: data.date ? new Date(data.date) : null,
+                date: data.date ? new Date(data.date).toISOString() : null,
                 thumbnail: data.thumbnail,
                 video_url: data.video_url,
                 showable: data.showable,
             },
-        });
+        ]).select().single();
 
-        return NextResponse.json(filme, { status: 201 });
-    } catch (error: unknown) {
-        let rawMessage: string;
-
-        if (error instanceof Error) {
-            rawMessage = error.message;
-        } else {
-            rawMessage = String(error);
+        if (error) {
+            console.error('Erro ao criar Filme:', error.message);
+            return NextResponse.json({ error: 'Erro ao criar filme' }, { status: 500 });
         }
 
-        const match = rawMessage.match(/Argument.*?missing\./);
-        const cleanMessage = match ? match[0] : 'Erro desconhecido';
-
-        console.error('Erro ao criar Filme:', cleanMessage);
-
+        return NextResponse.json(novoFilme, { status: 201 });
+    } catch (error: unknown) {
+        const message =
+            error instanceof Error ? error.message : String(error);
+        console.error('Erro ao criar Filme:', message);
         return NextResponse.json(
             {
                 error: 'Failed to create filme',
-                details: cleanMessage,
+                details: message,
             },
             { status: 500 }
         );
