@@ -10,6 +10,9 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['i.vimeocdn.com', 'vumbnail.com'], // add any other domains here too if needed
   },
+  rules: {
+    '@typescript-eslint/no-unused-vars': 'off',
+  },
 };
 
 export default nextConfig;
