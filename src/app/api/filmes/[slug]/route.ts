@@ -31,7 +31,8 @@ export async function PUT(req: Request, context: { params: { slug: string } }) {
         });
 
         return NextResponse.json(updated);
-    } catch (_error) {
+    } catch (error) {
+        console.error('Erro:', error);
         return NextResponse.json({ error: 'Failed to update filme' }, { status: 500 });
     }
 }
@@ -43,7 +44,8 @@ export async function DELETE(_: Request, { params }: { params: { slug: string } 
         });
 
         return NextResponse.json({ message: 'Deleted' });
-    } catch (_error) {
+    } catch (error) {
+        console.error('Erro:', error);
         return NextResponse.json({ error: 'Failed to delete filme' }, { status: 500 });
     }
 }
