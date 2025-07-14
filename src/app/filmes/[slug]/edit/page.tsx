@@ -105,7 +105,7 @@ export default function EditFilmePage() {
             } else {
                 setModalMessage(`Erro ao atualizar filme: ${result.details || result.error}`);
             }
-        } catch (err) {
+        } catch (_) {
             setModalMessage('Erro inesperado. Verifique os dados e tente novamente.');
         }
 

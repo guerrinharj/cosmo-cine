@@ -1,11 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation'; // ✅ Importa o router
-import NavBar from '../../../components/NavBar';
+import { useState, ChangeEvent, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import NavBar from '@/components/NavBar';
 
 export default function CreateFilmePage() {
-    const router = useRouter(); // ✅ Instancia o router
+    const router = useRouter();
 
     const [form, setForm] = useState({
         nome: '',
@@ -27,23 +27,20 @@ export default function CreateFilmePage() {
 
     const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
 
-    const handleChange = (e) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value, type, checked } = e.target;
         setForm((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
-        if (name === 'nome') {
-            setForm((prev) => ({ ...prev, nome: value }));
-        }
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
 
         const isValid = requiredFields.every((field) => !!form[field]);
         if (!isValid) {
-            const newTouched = {};
+            const newTouched: { [key: string]: boolean } = {};
             requiredFields.forEach((f) => (newTouched[f] = true));
             setTouched(newTouched);
             return;
@@ -68,18 +65,18 @@ export default function CreateFilmePage() {
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    creditos: Object.fromEntries(creditos.map(c => [c.funcao, c.nome]))
-                })
+                    creditos: Object.fromEntries(creditos.map(c => [c.funcao, c.nome])),
+                }),
             });
 
             const result = await res.json();
             if (res.ok) {
-                router.push('/filmes'); // ✅ Redireciona após sucesso
+                router.push('/filmes');
                 return;
             } else {
                 setModalMessage(`Erro ao criar filme: ${result.details || result.error}`);
             }
-        } catch (err) {
+        } catch {
             setModalMessage('Erro inesperado. Verifique os dados e tente novamente.');
         }
 
@@ -87,14 +84,18 @@ export default function CreateFilmePage() {
     };
 
     const addCredito = () => setCreditos([...creditos, { funcao: '', nome: '' }]);
-    const updateCredito = (i, key, value) => {
+
+    const updateCredito = (i: number, key: 'funcao' | 'nome', value: string) => {
         const copy = [...creditos];
         copy[i][key] = value;
         setCreditos(copy);
     };
-    const removeCredito = (i) => setCreditos(creditos.filter((_, idx) => idx !== i));
 
-    const inputStyle = (field) =>
+    const removeCredito = (i: number) => {
+        setCreditos(creditos.filter((_, idx) => idx !== i));
+    };
+
+    const inputStyle = (field: string) =>
         `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
 
     return (
