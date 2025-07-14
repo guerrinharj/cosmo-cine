@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export default function LoginPage() {
     const router = useRouter();
@@ -29,10 +30,12 @@ export default function LoginPage() {
         <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center px-4">
             {/* Logo Section */}
             <div className="mb-8">
-                <img
-                    src="/logos/COM ICONE/Cosmo_V_negativo_Icone.png"
+                <Image
+                    src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
                     alt="Cosmo Cine Logo"
-                    className="h-20 w-auto"
+                    width={80}
+                    height={80}
+                    priority
                 />
             </div>
 
@@ -56,7 +59,7 @@ export default function LoginPage() {
                 />
                 <button
                     onClick={handleLogin}
-                    className="paralucent w-full bg-black text-white py-2 rounded hover:bg-gray-200  transition"
+                    className="paralucent w-full bg-black text-white py-2 rounded hover:bg-gray-200 transition"
                 >
                     Entrar
                 </button>

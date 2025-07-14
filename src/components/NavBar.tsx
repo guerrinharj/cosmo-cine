@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { messages } from '@/lib/i18n';
 
@@ -30,7 +31,7 @@ export default function NavBar() {
     const switchLocale = () => {
         const newLocale = locale === 'pt' ? 'en' : 'pt';
         localStorage.setItem('locale', newLocale);
-        window.location.reload(); // hard reload
+        window.location.reload();
     };
 
     const handleLogout = async () => {
@@ -51,10 +52,13 @@ export default function NavBar() {
         <nav className="fixed top-0 left-0 z-50 thunder text-4xl uppercase w-full p-4 border-b border-gray-700 flex items-center justify-center bg-black">
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
                 <Link href="/">
-                    <img
+                    <Image
                         src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
                         alt="Cosmo Cine"
-                        className="h-20 transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
+                        width={80}
+                        height={80}
+                        className="transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
+                        priority
                     />
                 </Link>
             </div>

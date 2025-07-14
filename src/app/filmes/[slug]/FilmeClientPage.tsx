@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 
 type Filme = {
     id: string;
@@ -73,10 +74,12 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     if (!filme) {
         return (
             <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
-                <img
+                <Image
                     src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
                     alt="Cosmo Cine Logo"
-                    className="w-48 h-auto"
+                    width={192}
+                    height={96}
+                    priority
                 />
             </div>
         );

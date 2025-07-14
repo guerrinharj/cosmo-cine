@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
     defaultLocale: 'pt',
     localeDetection: false
   },
+  images: {
+    domains: ['i.vimeocdn.com', 'vumbnail.com'], // add any other domains here too if needed
+  },
 };
 
 export default nextConfig;
