@@ -8,11 +8,8 @@ const nextConfig: NextConfig = {
     localeDetection: false
   },
   images: {
-    domains: ['i.vimeocdn.com', 'vumbnail.com'], // add any other domains here too if needed
-  },
-  rules: {
-    '@typescript-eslint/no-unused-vars': 'off',
-  },
+    domains: ['i.vimeocdn.com', 'vumbnail.com']
+  }
 };
 
 export default nextConfig;
