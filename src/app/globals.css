@@ -62,7 +62,6 @@ a {
     letter-spacing: 1px;
 }
 
-/* For Chrome, Edge, Safari */
 ::-webkit-scrollbar {
   width: 1px;
 }
