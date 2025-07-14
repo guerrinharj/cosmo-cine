@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
     localeDetection: false
   },
   images: {
-    domains: ['i.vimeocdn.com', 'vumbnail.com']
+    domains: ['i.vimeocdn.com', 'vumbnail.com', 'vimeo.com']
   }
 };
 
