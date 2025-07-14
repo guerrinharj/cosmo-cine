@@ -6,13 +6,13 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "prisma generate && next build",
-    "postbuild": "echo 'Build complete. Run DB setup separately.'",
     "start": "next start",
     "lint": "next lint",
     "db:reset": "prisma migrate reset --force --skip-seed && prisma db push && prisma db seed",
-    "vercel-build": "prisma generate && next build",
-    "db:setup": "prisma db push && prisma db seed"
+    "db:setup": "prisma db push && prisma db seed",
+    "vercel-build": "prisma generate && next build"
   },
+  "postinstall": "prisma generate",
   "prisma": {
     "seed": "node prisma/seed.js"
   },
