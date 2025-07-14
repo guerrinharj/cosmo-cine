@@ -3,25 +3,17 @@ import { checkApiKey } from '@/lib/checkApiKey';
 import { NextResponse } from 'next/server';
 
 export async function DELETE(req: Request) {
-    let isAuthorized = false;
-
-    try {
-        isAuthorized = checkApiKey(req);
-    } catch {
-        isAuthorized = false;
-    }
-
-    if (!isAuthorized) {
+    if (!checkApiKey(req)) {
         return NextResponse.json({ error: 'Acesso não autorizado' }, { status: 401 });
     }
 
-    let username: string | undefined;
+    let username: string;
 
     try {
         const body = await req.json();
         username = body.username;
-    } catch {
-        return NextResponse.json({ error: 'Corpo da requisição inválido' }, { status: 400 });
+    } catch (err) {
+        return NextResponse.json({ error: 'Corpo da requisição inválido ou ausente' }, { status: 400 });
     }
 
     if (!username) {
@@ -32,7 +24,7 @@ export async function DELETE(req: Request) {
         await prisma.user.delete({ where: { username } });
         return NextResponse.json({ message: `Usuário '${username}' deletado com sucesso` });
     } catch (error) {
-        console.error('Erro ao deletar usuário:', error);
+        console.error('Erro ao deletar o usuário:', error);
         return NextResponse.json({ error: `Erro ao deletar o usuário: ${username}` }, { status: 500 });
     }
 }
