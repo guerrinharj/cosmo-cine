@@ -9,7 +9,7 @@ export async function GET() {
         console.error('❌ DB error:', err);
 
         const errorMessage =
-            err instanceof Error ? err.message : 'Unknown error occurred';
+            err instanceof Error ? err.message : 'Unknown error occurred!';
 
         return NextResponse.json({ error: errorMessage }, { status: 500 });
     }
