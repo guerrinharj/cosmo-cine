@@ -1,22 +1,22 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
 import bcrypt from 'bcrypt';
-import 'dotenv/config'; // Load environment variables
+import dotenv from 'dotenv';
+
+dotenv.config(); // Load environment variables
 
 const prisma = new PrismaClient();
 
 const thumb = 'https://vumbnail.com/1082601305.jpg';
 const videoUrl = 'https://vimeo.com/1082601305';
-const categorias = ['Publicidade', 'Clipe', 'Conteudo'] as const;
+const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
 async function main() {
-    // Delete existing entries
     await prisma.filme.deleteMany();
     await prisma.user.deleteMany();
     await prisma.contato.deleteMany();
     console.log('🧨 Deleted all existing filmes, users, and contatos.');
 
-    // Create default admin user
     const username = process.env.USERNAME || 'admin';
     const rawPassword = process.env.PASSWORD || 'password';
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
@@ -26,7 +26,6 @@ async function main() {
     });
     console.log(`👤 Created default user "${username}".`);
 
-    // Create fake filmes
     const filmes = Array.from({ length: 50 }).map(() => {
         const nome = faker.lorem.words({ min: 2, max: 4 });
         const slug = faker.helpers.slugify(nome.toLowerCase());
@@ -54,7 +53,6 @@ async function main() {
     await prisma.filme.createMany({ data: filmes });
     console.log('🎬 Seeded 50 Filmes.');
 
-    // Create fake contatos
     const contatos = Array.from({ length: 10 }).map(() => ({
         nome: faker.person.fullName(),
         funcao: faker.person.jobTitle(),
@@ -64,7 +62,6 @@ async function main() {
     await prisma.contato.createMany({ data: contatos });
     console.log('📇 Seeded 10 Contatos.');
 }
-
 
 main()
     .catch((e) => {

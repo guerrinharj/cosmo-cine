@@ -1,34 +1,27 @@
 #!/bin/bash
 
+# Exit immediately if any command fails
 set -e
 
-TEMP_ENV_FILE=".env.temp"
-
-echo "📦 Pulling Vercel envs to temporary file..."
-vercel env pull $TEMP_ENV_FILE
-
-echo "🔐 Exporting environment variables..."
-export $(grep -v '^#' $TEMP_ENV_FILE | xargs)
+echo "🔐 Loading env vars from .env.production..."
+export $(grep -v '^#' .env.production | xargs)
 
 echo "🔨 Generating Prisma Client..."
 npx prisma generate
 
-echo "💣 Resetting database (skip seed)..."
+echo "💣 Dropping existing DB (if any)..."
 npx prisma migrate reset --force --skip-seed
 
-echo "🧱 Pushing schema to DB..."
+echo "📦 Pushing DB schema..."
 npx prisma db push
 
 echo "🌱 Seeding database..."
 npx prisma db seed
 
-echo "🏗️ Building app for production..."
+echo "📦 Building app for production..."
 npm run build
 
-echo "🚀 Deploying to Vercel (production)..."
+echo "🚚 Deploying to Vercel (production)..."
 vercel --prod
-
-echo "🧹 Cleaning up..."
-rm $TEMP_ENV_FILE
 
 echo "✅ Done!"

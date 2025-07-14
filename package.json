@@ -10,13 +10,15 @@
     "start": "next start",
     "lint": "next lint",
     "db:reset": "prisma migrate reset --force --skip-seed && prisma db push && prisma db seed",
+    "vercel-build": "prisma generate && next build",
     "db:setup": "prisma db push && prisma db seed"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@prisma/client": "^6.11.1",
+    "@supabase/supabase-js": "^2.50.5",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.0",
     "next": "^15.3.5",
@@ -33,6 +35,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "dotenv-cli": "^8.0.0",
     "eslint": "^9",
     "eslint-config-next": "15.3.5",
     "prisma": "^6.11.1",
