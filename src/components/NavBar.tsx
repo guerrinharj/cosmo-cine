@@ -106,7 +106,12 @@ export default function NavBar() {
                 <div className="fixed inset-0 bg-black bg-opacity-95 flex flex-col items-center justify-center z-40 text-white text-4xl uppercase thunder space-y-10">
                     <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.films}</Link>
                     <Link href="/contato" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.contact}</Link>
-                    <button onClick={switchLocale}>{locale === 'pt' ? 'EN' : 'PT'}</button>
+                    <button
+                        onClick={switchLocale}
+                        className="text-sm tracking-widest uppercase hover:opacity-80"
+                    >
+                        {locale === 'pt' ? 'EN' : 'PT'}
+                    </button>
                     {authenticated && (
                         <button onClick={handleLogout} className="text-red-400">
                             {t.nav.logout}
