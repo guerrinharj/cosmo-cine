@@ -61,8 +61,8 @@ export default function NavBar() {
                     <Image
                         src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
                         alt="Cosmo Cine"
-                        width={80}
-                        height={80}
+                        width={200}
+                        height={200}
                         className="transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
                         priority
                     />
