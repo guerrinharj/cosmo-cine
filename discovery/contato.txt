@@ -1,0 +1,19 @@
+### CONTATOS (GET)
+
+curl --location 'http://localhost:3000/api/contatos'
+
+
+### CRIAR CONTATO (POST)
+
+curl --location 'http://localhost:3000/api/contatos' \
+--header 'Content-Type: application/json' \
+--data-raw '{
+    "nome": "Daniel Paz",
+    "email": "gabriel@example.com",
+    "funcao": "Diretor de Networking"
+}'
+
+
+### DELETAR CONTATO (DELETE)
+
+curl --location --request DELETE 'http://localhost:3000/api/contatos/e0c460c2-fed4-4317-b4fd-904c26132e2e'
