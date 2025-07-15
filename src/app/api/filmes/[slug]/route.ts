@@ -76,21 +76,30 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Slug não fornecido' }, { status: 400 });
     }
 
-    const { data, error } = await supabase
-        .from('Filme')
-        .delete()
-        .eq('slug', slug)
-        .select()
-        .maybeSingle();
+    try {
+        const { data: deletedFilme, error } = await supabase
+            .from('Filme')
+            .delete()
+            .eq('slug', slug)
+            .select()
+            .maybeSingle();
 
-    if (error) {
-        console.error('Erro ao deletar filme:', error.message);
-        return NextResponse.json({ error: 'Erro ao deletar filme' }, { status: 500 });
+        if (error) {
+            console.error('Erro ao deletar filme:', error.message);
+            return NextResponse.json({ error: 'Erro ao deletar filme' }, { status: 500 });
+        }
+
+        if (!deletedFilme) {
+            return NextResponse.json({ error: 'Filme não encontrado para exclusão' }, { status: 404 });
+        }
+
+        return NextResponse.json({
+            message: 'Filme deletado com sucesso',
+            filme: deletedFilme
+        });
+    } catch (err) {
+        console.error('Erro inesperado ao deletar filme:', err);
+        return NextResponse.json({ error: 'Erro inesperado ao deletar filme' }, { status: 500 });
     }
-
-    if (!data) {
-        return NextResponse.json({ error: 'Filme não encontrado para exclusão' }, { status: 404 });
-    }
-
-    return NextResponse.json({ message: 'Filme deletado com sucesso' });
 }
+
