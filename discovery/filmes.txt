@@ -1,0 +1,47 @@
+### FILMES (GET)
+
+curl --location 'http://localhost:3000/api/filmes'
+
+
+### MOSTRAR FILME (GET)
+
+curl --location 'http://localhost:3000/api/filmes/clubito'
+
+### CRIAR FILME (POST)
+
+curl --location 'http://localhost:3000/api/filmes' \
+--header 'Content-Type: application/json' \
+--data '{
+        "nome": "Clubito",
+        "cliente": "Cliente XYZ",
+        "diretor": "Diretora Y",
+        "categoria": "Conteudo",
+        "produtoraContratante": "Cosmo Cine",
+        "video_url": "https://vimeo.com/1082601305",
+        "agencia": "Agência ABC",
+        "creditos": {
+            "roteiro": "Fulano",
+            "edição": "Ciclano"
+        },
+        "slug": "clubclit",
+        "date": "2025-07-10",
+        "thumbnail": "https://exemplo.com/thumb.jpg",
+        "showable": true
+    }'
+
+
+### EDITAR FILME (PUT)
+
+curl --location --request PUT 'http://localhost:3000/api/filmes/filme-teste-atualizado' \
+--header 'Content-Type: application/json' \
+--data '{
+        "nome": "Clubito",
+        "cliente": "Novo Cliente",
+        "diretor": "Nova Diretora",
+        "categoria": "Publicidade"
+    }'
+
+
+### APAGAR FILME (DELETE)
+
+curl --location --request DELETE 'http://localhost:3000/api/filmes/clubito'

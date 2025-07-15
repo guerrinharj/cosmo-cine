@@ -1,16 +1,26 @@
 # 🎬 Cosmo Cine
 
-Este é um CRM (Customer Relationship Manager) feito em **Next.js + Prisma** para a produtora de filmes **Cosmo Cine**. O objetivo é permitir a criação, visualização, edição e exclusão de registros de filmes (`Filme`) produzidos pela empresa, com informações detalhadas sobre cliente, direção, categoria, thumbnails e mais.
+Este é um CRM (Customer Relationship Manager) feito em **Next.js** para a produtora de filmes **Cosmo Cine**. O objetivo é permitir a criação, visualização, edição e exclusão de registros de filmes (`Filme`), além de gerenciar contatos e usuários da produtora.
 
 ---
 
 ## 📁 Estrutura do Projeto
 
 - **Framework:** Next.js (App Router)
-- **Banco de Dados:** PostgreSQL (via Prisma ORM)
+- **Banco de Dados:** Supabase (PostgreSQL gerenciado)
+- **ORM de apoio:** Prisma (usado apenas como schema local)
 - **Estilização:** TailwindCSS
 - **Linguagem:** TypeScript
 - **Deploy recomendado:** Vercel
+
+---
+
+## 🛠️ Supabase + Prisma
+
+Apesar do Prisma estar configurado no projeto com o schema dos modelos (`schema.prisma`), **todas as operações de leitura, escrita e atualização no banco são feitas diretamente via Supabase** (REST API ou client SDK).
+
+- Prisma serve como **referência local de schema** e ajuda no planejamento e geração de tipos.
+- O Supabase é quem efetivamente **armazena os dados** e responde às requisições do app.
 
 ---
 
@@ -32,12 +42,14 @@ npm install
 Edite o arquivo .env e certifique-se de que ele contenha:
 
 ```bash
-DATABASE_URL="file:./dev.db"
-API_KEY="sua-chave-secreta"
+NEXT_PUBLIC_SUPABASE_URL=https://<sua-instancia>.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=<sua-chave-anon>
+USERNAME=admin
+PASSWORD=senha123
 ```
 
 
-4. **Rode as migrações e gere o cliente Prisma**
+4. **Rode as migrações e gere o cliente Prisma inicial**
 ```bash
 npx prisma migrate dev --name init
 npx prisma generate
@@ -56,7 +68,7 @@ Abra http://localhost:3000 no navegador para ver o app.
 O sistema de autenticação do Cosmo Cine CRM foi criado de forma simples, segura e modular. Ele possui dois níveis de acesso:
 
 1. **Sessão via Login**
-Usuários se autenticam através de /api/auth/login, e uma sessão baseada em cookie é criada com validade de 1 hora. Esse cookie é armazenado de forma segura (HttpOnly) e identifica o usuário durante o uso do sistema.
+Usuários se autenticam via /api/auth/login, com cookie seguro (HttpOnly) armazenado por 1 hora. Esse cookie é usado para autorizar acesso a páginas protegidas.
 
 2. **Chave de Acesso (API Key)**
 Algumas rotas administrativas mais sensíveis requerem o envio de uma chave de API no header da requisição (x-api-key). Essa chave está armazenada apenas no .env do projeto e nunca é exposta ao cliente.
@@ -65,15 +77,20 @@ API_KEY=sua-chave-secreta
 ```
 Essa chave é obrigatória para registrar, deletar ou listar usuários, garantindo que somente você tenha esse controle.
 
-3. **Observações**
+3. **Tabelas Supabase**
+- Filme: informações sobre os filmes produzidos
+- Contato: pessoas da equipe (diretor, roteirista, etc)
+- User: usuários autenticados do CRM
 
-A API Key é obrigatória apenas para rotas sensíveis (register, delete, list).
+Certifique-se de criar políticas (RLS) e GRANT corretos para anon e authenticated conforme necessário no painel do Supabase.
 
-A sessão por cookie é usada para ações autenticadas em geral.
+4. **Segurança**
+- Cookies autenticados (HttpOnly)
+- API Key para rotas críticas
+- Dados armazenados com permissões controladas no Supabase (RLS)
+- Supabase REST API usada com permissões explícitas por role (anon, authenticated)
 
-O arquivo de banco de dados dev.db fica local, e a chave de API nunca é exposta no frontend.
-
-### 🧪 Endpoints de Autenticação
+### 🧩 Modelo User / 🧪 Endpoints de Autenticação
 #### POST /api/auth/register
 Registra um novo usuário (requer header x-api-key).
 
@@ -102,16 +119,6 @@ curl -X POST http://localhost:3000/api/auth/logout \
     -b cookie.txt
 ```
 
-#### DELETE /api/auth/delete
-Deleta um usuário (requer API Key e username no body).
-
-```bash
-curl -X DELETE http://localhost:3000/api/auth/delete \
-    -H "x-api-key: sua-chave-secreta" \
-    -H "Content-Type: application/json" \
-    -d '{ "username": "admin" }'
-```
-
 #### GET /api/auth/users
 Retorna todos os usuários cadastrados (requer API Key).
 
@@ -120,7 +127,6 @@ curl http://localhost:3000/api/auth/users \
     -H "x-api-key: sua-chave-secreta"
 
 ```
-
 
 
 ## 🧩 Modelo Filme
@@ -140,6 +146,7 @@ A aplicação trabalha com um único modelo central: Filme.
 | `slug`                 | `String`   | Sim         | Identificador único da URL          |
 | `date`                 | `String`   | Não         | Data do projeto                     |
 | `thumbnail`            | `String`   | Não         | URL de imagem                       |
+| `video_url`            | `String`   | Não         | URL do video                        |
 | `showable`             | `Boolean`  | Não         | Define se será visível publicamente |
 | `createdAt`            | `DateTime` | Sim         | Gerado automaticamente              |
 | `updatedAt`            | `DateTime` | Sim         | Atualizado automaticamente          |
@@ -276,3 +283,9 @@ Exemplo:
   "message": "Contato deletado com sucesso."
 }
 ```
+
+
+
+## Exemplos de cURL
+
+- Em ```cosmo-cine/discovery``` você encontrara exemplos de cURL (locais) para exemplificar.

@@ -1,0 +1,33 @@
+### VER USUARIOS (GET)
+
+curl --location 'http://localhost:3000/api/auth/users'
+
+### REGISTRAR USUARIOS (POST)
+
+curl --location 'http://localhost:3000/api/auth/register' \
+--header 'Content-Type: application/json' \
+--header 'x-api-key: sua-chave-secreta' \
+--data '{
+    "username": "administrador",
+    "password": "bananadepijamas"
+}'
+
+
+### LOGIN (POST)
+
+curl --location 'http://localhost:3000/api/auth/login' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "new_admin_2",
+    "password": "bananadepijamas"
+}'
+
+
+### LOGOUT (POST)
+
+curl --location 'http://localhost:3000/api/auth/logout' \
+--header 'Content-Type: application/json' \
+--data '{
+    "username": "new_admin_2",
+    "password": "bananadepijamas"
+}'
