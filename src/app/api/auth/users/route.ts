@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabaseClient';
 import { NextResponse } from 'next/server';
 import { checkApiKey } from '@/lib/checkApiKey';
 
@@ -7,13 +7,15 @@ export async function GET(req: Request) {
         return NextResponse.json({ error: 'Acesso não autorizado' }, { status: 401 });
     }
 
-    const users = await prisma.user.findMany({
-        select: {
-            id: true,
-            username: true,
-            createdAt: true
-        }
-    });
+    const { data: users, error } = await supabase
+        .from('User')
+        .select('id, username, createdAt')
+        .order('createdAt', { ascending: false });
+
+    if (error) {
+        console.error('Erro ao buscar usuários:', error.message);
+        return NextResponse.json({ error: 'Erro ao buscar usuários' }, { status: 500 });
+    }
 
     return NextResponse.json(users);
 }

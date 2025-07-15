@@ -1,21 +1,28 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
+import { supabase } from '@/lib/supabaseClient';
 
 export async function DELETE(req: NextRequest) {
-    try {
-        const id = req.nextUrl.pathname.split('/').pop(); // get ID from URL
+    const id = req.nextUrl.pathname.split('/').pop();
 
-        if (!id) {
-            return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
-        }
+    if (!id) {
+        return NextResponse.json({ error: 'ID não fornecido' }, { status: 400 });
+    }
 
-        await prisma.contato.delete({
-            where: { id },
-        });
+    const { data, error } = await supabase
+        .from('Contato')
+        .delete()
+        .eq('id', id)
+        .select()
+        .maybeSingle();
 
-        return NextResponse.json({ message: `Contato ${id} deletado com sucesso` });
-    } catch (error) {
-        console.error('Erro ao deletar contato:', error);
+    if (error) {
+        console.error('Erro ao deletar contato:', error.message);
         return NextResponse.json({ error: 'Erro ao deletar contato' }, { status: 500 });
     }
+
+    if (!data) {
+        return NextResponse.json({ error: 'Contato não encontrado para exclusão' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: `Contato ${id} deletado com sucesso` });
 }
