@@ -72,7 +72,7 @@ export default function NavBar() {
             </div>
 
             {/* Desktop Nav Links */}
-            <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder">
+            <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                 <Link href="/" className={linkClass('/')}>
                     {t.nav.films}
                 </Link>
