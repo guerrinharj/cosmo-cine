@@ -43,3 +43,8 @@ next-env.d.ts
 /src/generated/prisma
 dev.db
 .env*.local
+
+
+
+cosmo-cine/prisma/seed.js
+cosmo-cine/prisma/dev.db
