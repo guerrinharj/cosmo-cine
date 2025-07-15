@@ -95,30 +95,37 @@ export default function NavBar() {
 
             {/* Mobile Hamburger Button */}
             <button
-                className="md:hidden text-white text-3xl z-50"
+                className={`md:hidden text-white text-3xl z-50 transition-transform duration-300 ${
+                    isMobileMenuOpen ? 'rotate-90' : 'rotate-0'
+                }`}
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             >
                 ☰
             </button>
 
             {/* Mobile Modal Menu */}
-            {isMobileMenuOpen && (
-                <div className="fixed inset-0 bg-black bg-opacity-95 flex flex-col items-center justify-center z-40 text-white text-4xl uppercase thunder space-y-10">
-                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.films}</Link>
-                    <Link href="/contato" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.contact}</Link>
-                    <button
-                        onClick={switchLocale}
-                        className="text-sm tracking-widest uppercase hover:opacity-80"
-                    >
-                        {locale === 'pt' ? 'EN' : 'PT'}
+            <div
+                className={`
+                    fixed inset-0 z-40 flex flex-col items-center justify-center
+                    text-white text-4xl uppercase thunder space-y-10
+                    transition-all duration-300 ease-in-out
+                    ${isMobileMenuOpen ? 'opacity-100 translate-y-0 scale-100 bg-black bg-opacity-95 pointer-events-auto' : 'opacity-0 -translate-y-4 scale-95 pointer-events-none'}
+                `}
+            >
+                <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.films}</Link>
+                <Link href="/contato" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.contact}</Link>
+                <button
+                    onClick={switchLocale}
+                    className="text-base tracking-widest uppercase hover:opacity-80"
+                >
+                    {locale === 'pt' ? 'EN' : 'PT'}
+                </button>
+                {authenticated && (
+                    <button onClick={handleLogout} className="text-red-400">
+                        {t.nav.logout}
                     </button>
-                    {authenticated && (
-                        <button onClick={handleLogout} className="text-red-400">
-                            {t.nav.logout}
-                        </button>
-                    )}
-                </div>
-            )}
+                )}
+            </div>
         </nav>
     );
 }
