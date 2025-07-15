@@ -93,7 +93,7 @@ export default function HomePage() {
             )}
 
             {/* Filtro de Categorias */}
-            <div className="text-center mt-8">
+            <div className="text-center mt-10">
                 <div className="inline-flex gap-4 justify-center items-center">
                     {categorias.map((cat) => {
                         const key = cat.toLowerCase() as keyof typeof t.filmes;
@@ -102,7 +102,7 @@ export default function HomePage() {
                             <button
                                 key={cat}
                                 onClick={() => setFiltro(filtro === cat ? null : cat)}
-                                className={`paralucent text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
+                                className={`paralucent text-base md:text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
                                     filtro === cat
                                         ? 'border-white'
                                         : 'border-transparent hover:border-white'
@@ -110,6 +110,7 @@ export default function HomePage() {
                             >
                                 {label}
                             </button>
+
                         );
                     })}
                 </div>
