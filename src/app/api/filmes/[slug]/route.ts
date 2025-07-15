@@ -57,6 +57,10 @@ export async function PUT(req: NextRequest) {
             return NextResponse.json({ error: 'Erro ao atualizar filme' }, { status: 500 });
         }
 
+        if (!updated) {
+            return NextResponse.json({ error: 'Filme não encontrado para atualização' }, { status: 404 });
+        }
+
         return NextResponse.json(updated);
     } catch (error: any) {
         console.error('Erro ao atualizar filme:', error);
@@ -72,14 +76,20 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Slug não fornecido' }, { status: 400 });
     }
 
-    const { error } = await supabase
+    const { data, error } = await supabase
         .from('Filme')
         .delete()
-        .eq('slug', slug);
+        .eq('slug', slug)
+        .select()
+        .maybeSingle();
 
     if (error) {
         console.error('Erro ao deletar filme:', error.message);
         return NextResponse.json({ error: 'Erro ao deletar filme' }, { status: 500 });
+    }
+
+    if (!data) {
+        return NextResponse.json({ error: 'Filme não encontrado para exclusão' }, { status: 404 });
     }
 
     return NextResponse.json({ message: 'Filme deletado com sucesso' });
