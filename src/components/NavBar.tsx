@@ -12,6 +12,7 @@ export default function NavBar() {
     const [locale, setLocale] = useState<Locale>('pt');
     const [authenticated, setAuthenticated] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -55,9 +56,10 @@ export default function NavBar() {
         }`;
 
     return (
-        <nav className="fixed top-0 left-0 z-50 thunder text-4xl uppercase w-full p-4 border-b border-gray-700 flex items-center justify-center bg-black">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2">
-                <Link href="/">
+        <nav className="fixed top-0 left-0 z-50 w-full bg-black border-b border-gray-700 p-4 flex items-center justify-between">
+            {/* Left: Logo (always visible) */}
+            <div className="z-50">
+                <Link href="/" className="block mx-auto">
                     <Image
                         src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
                         alt="Cosmo Cine"
@@ -69,7 +71,8 @@ export default function NavBar() {
                 </Link>
             </div>
 
-            <div className="flex gap-6 items-center text-white">
+            {/* Desktop Nav Links */}
+            <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder">
                 <Link href="/" className={linkClass('/')}>
                     {t.nav.films}
                 </Link>
@@ -78,7 +81,8 @@ export default function NavBar() {
                 </Link>
             </div>
 
-            <div className="text-white absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-4">
+            {/* Desktop Right Controls */}
+            <div className="hidden md:flex items-center gap-4 text-white">
                 <button onClick={switchLocale} className="hover:underline">
                     {locale === 'pt' ? 'EN' : 'PT'}
                 </button>
@@ -88,6 +92,28 @@ export default function NavBar() {
                     </button>
                 )}
             </div>
+
+            {/* Mobile Hamburger Button */}
+            <button
+                className="md:hidden text-white text-3xl z-50"
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            >
+                ☰
+            </button>
+
+            {/* Mobile Modal Menu */}
+            {isMobileMenuOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-95 flex flex-col items-center justify-center z-40 text-white text-4xl uppercase thunder space-y-10">
+                    <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.films}</Link>
+                    <Link href="/contato" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.contact}</Link>
+                    <button onClick={switchLocale}>{locale === 'pt' ? 'EN' : 'PT'}</button>
+                    {authenticated && (
+                        <button onClick={handleLogout} className="text-red-400">
+                            {t.nav.logout}
+                        </button>
+                    )}
+                </div>
+            )}
         </nav>
     );
 }
