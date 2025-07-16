@@ -48,3 +48,6 @@ dev.db
 
 cosmo-cine/prisma/seed.js
 cosmo-cine/prisma/dev.db
+
+reset.sh
+cosmo-cine/instructions/
