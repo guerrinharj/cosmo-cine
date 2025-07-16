@@ -14,7 +14,7 @@ const videoUrl = 'https://vimeo.com/1082601305';
 const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
 async function main() {
-    // Delete all existing data (if needed)
+    // Delete all existing data
     await supabase.from('Filme').delete().neq('id', '');
     await supabase.from('User').delete().neq('id', '');
     await supabase.from('Contato').delete().neq('id', '');
@@ -25,8 +25,15 @@ async function main() {
     const rawPassword = process.env.PASSWORD || 'password';
     const hashedPassword = await bcrypt.hash(rawPassword, 10);
 
-    await supabase.from('User').insert({ username, password: hashedPassword });
-    console.log(`👤 Created default user "${username}".`);
+    const { error: userError } = await supabase
+        .from('User')
+        .insert({ username, password: hashedPassword });
+
+    if (userError) {
+        console.error('❌ Error inserting user:', userError);
+    } else {
+        console.log(`👤 Created default user "${username}".`);
+    }
 
     // Seed filmes
     const filmes = Array.from({ length: 50 }).map(() => {
@@ -40,7 +47,7 @@ async function main() {
             categoria: faker.helpers.arrayElement(categorias),
             produtoraContratante: 'Cosmo Cine',
             agencia: faker.company.name(),
-            creditos: `Direção: ${faker.person.fullName()}, Edição: ${faker.person.fullName()}, Roteiro: ${faker.person.fullName()}`, // as string
+            creditos: `Direção: ${faker.person.fullName()}, Edição: ${faker.person.fullName()}, Roteiro: ${faker.person.fullName()}`,
             is_service: faker.datatype.boolean(),
             slug,
             date: faker.date.past({ years: 2 }).toISOString(),
@@ -50,10 +57,16 @@ async function main() {
         };
     });
 
+    let filmeCount = 0;
     for (const filme of filmes) {
-        await supabase.from('Filme').insert(filme);
+        const { error } = await supabase.from('Filme').insert(filme);
+        if (error) {
+            console.error(`❌ Error inserting filme "${filme.nome}":`, error);
+        } else {
+            filmeCount++;
+        }
     }
-    console.log('🎬 Seeded 50 Filmes.');
+    console.log(`🎬 Seeded ${filmeCount} Filmes.`);
 
     // Seed contatos
     const contatos = Array.from({ length: 10 }).map(() => ({
@@ -62,13 +75,19 @@ async function main() {
         email: faker.internet.email(),
     }));
 
+    let contatoCount = 0;
     for (const contato of contatos) {
-        await supabase.from('Contato').insert(contato);
+        const { error } = await supabase.from('Contato').insert(contato);
+        if (error) {
+            console.error(`❌ Error inserting contato "${contato.nome}":`, error);
+        } else {
+            contatoCount++;
+        }
     }
-    console.log('📇 Seeded 10 Contatos.');
+    console.log(`📇 Seeded ${contatoCount} Contatos.`);
 }
 
 main().catch((e) => {
-    console.error(e);
+    console.error('🚨 Fatal error in seed script:', e);
     process.exit(1);
 });
