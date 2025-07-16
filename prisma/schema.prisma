@@ -15,7 +15,8 @@ model Filme {
   categoria            Categoria
   produtoraContratante String?
   agencia              String?
-  creditos             Json?
+  creditos             String   // changed from Json? to String
+  is_service           Boolean  // new required field
   slug                 String   @unique
   date                 DateTime?
   thumbnail            String
@@ -24,6 +25,7 @@ model Filme {
   createdAt            DateTime @default(now())
   updatedAt            DateTime @updatedAt
 }
+
 
 enum Categoria {
   Publicidade

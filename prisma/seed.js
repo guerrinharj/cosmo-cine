@@ -40,11 +40,8 @@ async function main() {
             categoria: faker.helpers.arrayElement(categorias),
             produtoraContratante: 'Cosmo Cine',
             agencia: faker.company.name(),
-            creditos: {
-                direcao: faker.person.fullName(),
-                edicao: faker.person.fullName(),
-                roteiro: faker.person.fullName(),
-            },
+            creditos: `Direção: ${faker.person.fullName()}, Edição: ${faker.person.fullName()}, Roteiro: ${faker.person.fullName()}`, // as string
+            is_service: faker.datatype.boolean(),
             slug,
             date: faker.date.past({ years: 2 }).toISOString(),
             thumbnail: thumb,
