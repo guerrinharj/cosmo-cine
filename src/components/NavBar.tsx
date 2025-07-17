@@ -12,22 +12,17 @@ export default function NavBar() {
     const [locale, setLocale] = useState<Locale>('pt');
     const [authenticated, setAuthenticated] = useState(false);
     const [mounted, setMounted] = useState(false);
-    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
     const router = useRouter();
     const pathname = usePathname();
 
     useEffect(() => {
         const saved = localStorage.getItem('locale');
-        if (saved === 'pt' || saved === 'en') {
-            setLocale(saved);
-        } else {
-            setLocale('pt');
-        }
+        setLocale(saved === 'pt' || saved === 'en' ? saved : 'pt');
         setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => res.ok ? res.json() : Promise.resolve({ authenticated: false }))
+            .then(res => res.ok ? res.json() : { authenticated: false })
             .then(data => setAuthenticated(data.authenticated));
     }, []);
 
@@ -56,76 +51,83 @@ export default function NavBar() {
         }`;
 
     return (
-        <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black px-4 flex items-center justify-between">
-            {/* Left: Logo (always visible) */}
-            <div className="z-50">
-                <Link href="/" className="block mx-auto">
-                    <Image
-                        src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
-                        alt="Cosmo Cine"
-                        width={200}
-                        height={200}
-                        className="transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
-                        priority
-                    />
-                </Link>
-            </div>
+        <>
+            <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black flex items-center justify-between px-4">
+                {/* Mobile Nav */}
+                <div className="flex md:hidden items-center justify-between w-full text-white h-20 relative">
+                    {/* Centered: FILMES - LOGO - CONTATO */}
+                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder items-center">
+                        <Link href="/" className={linkClass('/')}>
+                            {t.nav.films}
+                        </Link>
+                        <Link href="/" className="w-14 h-14 flex items-center justify-center">
+                            <Image
+                                src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
+                                alt="Cosmo Cine"
+                                width={60}
+                                height={60}
+                                className="transition-transform duration-300 hover:scale-110"
+                            />
+                        </Link>
+                        <Link href="/contato" className={linkClass('/contato')}>
+                            {t.nav.contact}
+                        </Link>
+                    </div>
 
-            {/* Desktop Nav Links */}
-            <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Link href="/" className={linkClass('/')}>
-                    {t.nav.films}
-                </Link>
-                <Link href="/contato" className={linkClass('/contato')}>
-                    {t.nav.contact}
-                </Link>
-            </div>
+                    {/* Locale toggle */}
+                    <div className="ml-auto text-sm uppercase tracking-wider z-10">
+                        <button onClick={switchLocale} className="hover:underline">
+                            {locale === 'pt' ? 'EN' : 'PT'}
+                        </button>
+                    </div>
+                </div>
 
-            {/* Desktop Right Controls */}
-            <div className="hidden md:flex items-center gap-4 text-white">
-                <button onClick={switchLocale} className="hover:underline">
-                    {locale === 'pt' ? 'EN' : 'PT'}
-                </button>
-                {authenticated && (
-                    <button onClick={handleLogout} className="text-red-400 hover:underline">
-                        {t.nav.logout}
+                {/* Desktop Nav Centered */}
+                <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <Link href="/" className={linkClass('/')}>
+                        {t.nav.films}
+                    </Link>
+                    <Link href="/contato" className={linkClass('/contato')}>
+                        {t.nav.contact}
+                    </Link>
+                </div>
+
+                {/* Desktop Left Logo */}
+                <div className="hidden md:block z-50">
+                    <Link href="/" className="block">
+                        <Image
+                            src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
+                            alt="Cosmo Cine"
+                            width={200}
+                            height={200}
+                            className="transition-transform duration-300 hover:scale-x-[-1] hover:opacity-80"
+                            priority
+                        />
+                    </Link>
+                </div>
+
+                {/* Desktop Controls */}
+                <div className="hidden md:flex items-center gap-4 text-white">
+                    <button onClick={switchLocale} className="hover:underline">
+                        {locale === 'pt' ? 'EN' : 'PT'}
                     </button>
-                )}
-            </div>
+                    {authenticated && (
+                        <button onClick={handleLogout} className="text-red-400 hover:underline">
+                            {t.nav.logout}
+                        </button>
+                    )}
+                </div>
+            </nav>
 
-            {/* Mobile Hamburger Button */}
-            <button
-                className={`md:hidden text-white text-3xl z-50 transition-transform duration-300 ${
-                    isMobileMenuOpen ? 'rotate-90' : 'rotate-0'
-                }`}
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            >
-                ☰
-            </button>
-
-            {/* Mobile Modal Menu */}
-            <div
-                className={`
-                    fixed inset-0 z-40 flex flex-col items-center justify-center
-                    text-white text-4xl uppercase thunder space-y-10
-                    transition-all duration-300 ease-in-out
-                    ${isMobileMenuOpen ? 'opacity-100 translate-y-0 scale-100 bg-black bg-opacity-95 pointer-events-auto' : 'opacity-0 -translate-y-4 scale-95 pointer-events-none'}
-                `}
-            >
-                <Link href="/" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.films}</Link>
-                <Link href="/contato" onClick={() => setIsMobileMenuOpen(false)}>{t.nav.contact}</Link>
-                <button
-                    onClick={switchLocale}
-                    className="text-base tracking-widest uppercase hover:opacity-80"
+            {/* Criar (+) Button for Authenticated Users */}
+            {authenticated && (
+                <Link
+                    href="/criar"
+                    className="fixed bottom-6 right-6 bg-white text-black text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
                 >
-                    {locale === 'pt' ? 'EN' : 'PT'}
-                </button>
-                {authenticated && (
-                    <button onClick={handleLogout} className="text-red-400">
-                        {t.nav.logout}
-                    </button>
-                )}
-            </div>
-        </nav>
+                    +
+                </Link>
+            )}
+        </>
     );
 }

@@ -24,7 +24,7 @@ export default function CategoriaFiltro({
     const t = messages[locale];
 
     return (
-        <div className="sticky top-16 bg-black z-40 px-4 py-2">
+        <div className="sticky top-16 bg-black z-40 px-4 py-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 {/* Categoria buttons (left) */}
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
