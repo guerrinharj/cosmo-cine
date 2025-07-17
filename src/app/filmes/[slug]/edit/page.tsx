@@ -20,6 +20,7 @@ export default function EditFilmePage() {
         date: string;
         thumbnail: string;
         showable: boolean;
+        is_service: boolean;
     };
 
     const [form, setForm] = useState<FormFields>({
@@ -33,6 +34,7 @@ export default function EditFilmePage() {
         date: '',
         thumbnail: '',
         showable: false,
+        is_service: false,
     });
 
     const [creditos, setCreditos] = useState<{ funcao: string; nome: string }[]>([]);
@@ -58,6 +60,7 @@ export default function EditFilmePage() {
                 date: data.date?.slice(0, 10) || '',
                 thumbnail: data.thumbnail || '',
                 showable: data.showable,
+                is_service: data.is_service || false,
             });
 
             const creditosArray = data.creditos
@@ -113,6 +116,7 @@ export default function EditFilmePage() {
                     ...form,
                     thumbnail: thumbnailUrl,
                     creditos: Object.fromEntries(creditos.map((c) => [c.funcao, c.nome])),
+                    is_service: form.is_service,
                 }),
             });
 
@@ -132,6 +136,7 @@ export default function EditFilmePage() {
     };
 
     const addCredito = () => setCreditos([...creditos, { funcao: '', nome: '' }]);
+
     const updateCredito = (i: number, key: 'funcao' | 'nome', value: string) => {
         const copy = [...creditos];
         copy[i][key] = value;
@@ -139,13 +144,7 @@ export default function EditFilmePage() {
     };
 
     const removeCredito = (i: number) =>
-        setCreditos(creditos.filter((credito, idx) => {
-            if (idx === i) {
-                console.log('Removendo crédito:', credito);
-                return false;
-            }
-            return true;
-        }));
+        setCreditos(creditos.filter((_, idx) => idx !== i));
 
     const inputStyle = (field: string) =>
         `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
@@ -181,6 +180,11 @@ export default function EditFilmePage() {
                         ))}
                         <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">Adicionar Crédito</button>
                     </div>
+
+                    <label className="flex items-center gap-2 md:col-span-2">
+                        <input type="checkbox" name="is_service" checked={form.is_service as boolean} onChange={handleChange} />
+                        É um Service?
+                    </label>
 
                     <label className="flex items-center gap-2 md:col-span-2">
                         <input type="checkbox" name="showable" checked={form.showable as boolean} onChange={handleChange} />
