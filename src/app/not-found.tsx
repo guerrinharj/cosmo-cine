@@ -1,5 +1,3 @@
-'use client';
-
 import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Image from 'next/image';
