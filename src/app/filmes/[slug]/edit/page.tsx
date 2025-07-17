@@ -167,6 +167,14 @@ export default function EditFilmePage() {
                     <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante as string} onChange={handleChange} className={inputStyle('produtoraContratante')} />
                     <input name="agencia" placeholder="Agência" value={form.agencia as string} onChange={handleChange} className={inputStyle('agencia')} />
                     <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
+                    <input
+                        name="thumbnail"
+                        placeholder="Thumbnail URL (opcional)"
+                        value={form.thumbnail as string}
+                        onChange={handleChange}
+                        className={inputStyle('thumbnail')}
+                    />
+
                     <input name="date" type="date" value={form.date as string} onChange={handleChange} className={inputStyle('date')} />
 
                     <div className="md:col-span-2">
