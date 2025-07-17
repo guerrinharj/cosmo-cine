@@ -56,7 +56,7 @@ export default function NavBar() {
         }`;
 
     return (
-        <nav className="fixed top-0 left-0 z-50 w-full bg-black border-b border-gray-700 p-4 flex items-center justify-between">
+        <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black px-4 flex items-center justify-between">
             {/* Left: Logo (always visible) */}
             <div className="z-50">
                 <Link href="/" className="block mx-auto">
