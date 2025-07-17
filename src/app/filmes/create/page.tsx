@@ -18,6 +18,7 @@ export default function CreateFilmePage() {
         date: string;
         thumbnail: string;
         showable: boolean;
+        is_service: boolean;
         [key: string]: string | boolean;
     }>({
         nome: '',
@@ -30,6 +31,7 @@ export default function CreateFilmePage() {
         date: '',
         thumbnail: '',
         showable: false,
+        is_service: false
     });
 
     const [creditos, setCreditos] = useState<string[]>([]);
@@ -74,13 +76,21 @@ export default function CreateFilmePage() {
             const oembed = await oembedRes.json();
             const thumbnailUrl = oembed.thumbnail_url;
 
+            console.log('Payload:', {
+                ...form,
+                thumbnail: thumbnailUrl,
+                creditos,
+                is_service: form.is_service
+            });
+
             const res = await fetch('/api/filmes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    creditos
+                    creditos,
+                    is_service: form.is_service
                 }),
             });
 
@@ -148,6 +158,12 @@ export default function CreateFilmePage() {
                         ))}
                         <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">Adicionar Crédito</button>
                     </div>
+
+                    <label className="flex items-center gap-2 md:col-span-2">
+                        <input type="checkbox" name="is_service" checked={form.is_service as boolean} onChange={handleChange} />
+                        É um Service?
+                    </label>
+
 
 
                     <label className="flex items-center gap-2 md:col-span-2">

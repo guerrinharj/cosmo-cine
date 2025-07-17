@@ -15,9 +15,8 @@ model Filme {
   categoria            Categoria
   produtoraContratante String?
   agencia              String?
-  creditos             String   // changed from Json? to String
-  is_service           Boolean  // new required field
-  slug                 String   @unique
+  creditos             String 
+  is_service           Boolean @default(false)
   date                 DateTime?
   thumbnail            String
   video_url            String

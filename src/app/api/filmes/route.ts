@@ -56,6 +56,7 @@ export async function POST(req: Request) {
                 thumbnail: data.thumbnail,
                 video_url: data.video_url,
                 showable: data.showable,
+                is_service: data.is_service
             },
         ]).select().single();
 
