@@ -11,7 +11,7 @@ export const messages = {
             conteudo: 'Conteudo',
             clipe: 'Clipes',
             service: 'Service',
-            not_service: 'Original',
+            not_service: 'Cosmo',
         },
         notFound: {
             notFound: "Não para ser visto aqui."
@@ -28,7 +28,7 @@ export const messages = {
             conteudo: 'Movies',
             clipe: 'Music Videos',
             service: 'Service',
-            not_service: 'Original',
+            not_service: 'Cosmo',
         },
         notFound: {
             notFound: "Nothing to be seen here."
