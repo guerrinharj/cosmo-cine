@@ -1,19 +1,11 @@
-import { useEffect, useState } from 'react';
 import NavBar from '@/components/NavBar';
 import Image from 'next/image';
 import { messages } from '@/lib/i18n';
 
-type Locale = 'pt' | 'en';
-
 export default function NotFound() {
-    const [locale, setLocale] = useState<Locale>('pt');
-
-    useEffect(() => {
-        const saved = localStorage.getItem('locale');
-        if (saved === 'pt' || saved === 'en') {
-            setLocale(saved);
-        }
-    }, []);
+    const locale = typeof window !== 'undefined'
+        ? (localStorage.getItem('locale') === 'en' ? 'en' : 'pt')
+        : 'pt';
 
     const t = messages[locale];
 
@@ -30,9 +22,6 @@ export default function NotFound() {
                 />
                 <div className="text-center">
                     <h1 className="thunder text-5xl font-bold">404</h1>
-                    <h3 className="paralucent text-lg mt-2 text-gray-300">
-                        {t.notFound.notFound}
-                    </h3>
                 </div>
             </div>
         </div>
