@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { messages } from '@/lib/i18n';
+import CategoriaFiltro from '../../components/CategoriasFiltro';
+
 
 type Filme = {
     id: string;
@@ -93,28 +95,13 @@ export default function HomePage() {
             )}
 
             {/* Filtro de Categorias */}
-            <div className="text-center mt-10">
-                <div className="inline-flex gap-4 justify-center items-center">
-                    {categorias.map((cat) => {
-                        const key = cat.toLowerCase() as keyof typeof t.filmes;
-                        const label = t.filmes[key];
-                        return (
-                            <button
-                                key={cat}
-                                onClick={() => setFiltro(filtro === cat ? null : cat)}
-                                className={`paralucent text-base md:text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
-                                    filtro === cat
-                                        ? 'border-white'
-                                        : 'border-transparent hover:border-white'
-                                }`}
-                            >
-                                {label}
-                            </button>
-
-                        );
-                    })}
-                </div>
-            </div>
+            <CategoriaFiltro
+                categorias={categorias}
+                filtro={filtro}
+                setFiltro={setFiltro}
+                locale={locale}
+                messages={messages}
+            />
 
             {/* Lista de Filmes */}
             <div
