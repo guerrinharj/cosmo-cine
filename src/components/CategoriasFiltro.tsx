@@ -6,6 +6,8 @@ type CategoriaFiltroProps = {
     categorias: string[];
     filtro: string | null;
     setFiltro: (categoria: string | null) => void;
+    isService: boolean | null;
+    setIsService: (value: boolean | null) => void;
     locale: 'pt' | 'en';
     messages: any;
 };
@@ -14,15 +16,18 @@ export default function CategoriaFiltro({
     categorias,
     filtro,
     setFiltro,
+    isService,
+    setIsService,
     locale,
     messages
 }: CategoriaFiltroProps) {
     const t = messages[locale];
 
     return (
-        <div className="sticky top-16 bg-black z-40">
-            <div className="text-center py-4">
-                <div className="inline-flex gap-4 justify-center items-center">
+        <div className="sticky top-16 bg-black z-40 px-4 py-2">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+                {/* Categoria buttons (left) */}
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                     {categorias.map((cat) => {
                         const key = cat.toLowerCase() as keyof typeof t.filmes;
                         const label = t.filmes[key];
@@ -30,16 +35,40 @@ export default function CategoriaFiltro({
                             <button
                                 key={cat}
                                 onClick={() => setFiltro(filtro === cat ? null : cat)}
-                                className={`paralucent text-base md:text-xl uppercase px-3 py-1 border-b-2 transition-all duration-300 ${
+                                className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
                                     filtro === cat
-                                        ? 'border-white'
-                                        : 'border-transparent hover:border-white'
+                                        ? 'bg-white text-black border-white'
+                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                                 }`}
                             >
                                 {label}
                             </button>
                         );
                     })}
+                </div>
+
+                {/* is_service buttons (right) */}
+                <div className="flex gap-2 justify-center md:justify-end">
+                    <button
+                        onClick={() => setIsService(isService === true ? null : true)}
+                        className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
+                            isService === true
+                                ? 'bg-white text-black border-white'
+                                : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
+                        }`}
+                    >
+                        {t.filmes.service}
+                    </button>
+                    <button
+                        onClick={() => setIsService(isService === false ? null : false)}
+                        className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
+                            isService === false
+                                ? 'bg-white text-black border-white'
+                                : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
+                        }`}
+                    >
+                        {t.filmes.not_service}
+                    </button>
                 </div>
             </div>
         </div>
