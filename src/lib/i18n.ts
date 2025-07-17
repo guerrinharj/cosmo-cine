@@ -10,6 +10,8 @@ export const messages = {
             publicidade: 'Publicidade',
             conteudo: 'Conteudo',
             clipe: 'Clipes',
+            service: 'Service',
+            not_service: 'Original',
         },
         notFound: {
             notFound: "Não para ser visto aqui."
@@ -25,6 +27,8 @@ export const messages = {
             publicidade: 'Advertising',
             conteudo: 'Movies',
             clipe: 'Music Videos',
+            service: 'Service',
+            not_service: 'Original',
         },
         notFound: {
             notFound: "Nothing to be seen here."

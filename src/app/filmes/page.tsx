@@ -6,7 +6,6 @@ import Image from 'next/image';
 import { messages } from '@/lib/i18n';
 import CategoriaFiltro from '../../components/CategoriasFiltro';
 
-
 type Filme = {
     id: string;
     slug: string;
@@ -17,11 +16,13 @@ type Filme = {
     categoria: string;
     thumbnail: string;
     date: string;
+    is_service?: boolean;
 };
 
 export default function HomePage() {
     const [filmes, setFilmes] = useState<Filme[]>([]);
     const [filtro, setFiltro] = useState<string | null>(null);
+    const [isService, setIsService] = useState<boolean | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [locale, setLocale] = useState<'pt' | 'en'>('pt');
 
@@ -49,10 +50,9 @@ export default function HomePage() {
             .then(data => setIsAuthenticated(data.authenticated));
     }, []);
 
-
-    const filmesFiltrados = filtro
-        ? filmes.filter(f => f.categoria === filtro)
-        : filmes;
+    const filmesFiltrados = filmes
+        .filter(f => (filtro ? f.categoria === filtro : true))
+        .filter(f => (isService === null ? true : f.is_service === isService));
 
     const t = messages[locale];
 
@@ -99,6 +99,8 @@ export default function HomePage() {
                 categorias={categorias}
                 filtro={filtro}
                 setFiltro={setFiltro}
+                isService={isService}
+                setIsService={setIsService}
                 locale={locale}
                 messages={messages}
             />
