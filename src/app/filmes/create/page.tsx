@@ -32,7 +32,7 @@ export default function CreateFilmePage() {
         showable: false,
     });
 
-    const [creditos, setCreditos] = useState<{ funcao: string; nome: string }[]>([]);
+    const [creditos, setCreditos] = useState<string[]>([]);
     const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -80,7 +80,7 @@ export default function CreateFilmePage() {
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    creditos: Object.fromEntries(creditos.map(c => [c.funcao, c.nome])),
+                    creditos
                 }),
             });
 
@@ -98,11 +98,11 @@ export default function CreateFilmePage() {
         setShowModal(true);
     };
 
-    const addCredito = () => setCreditos([...creditos, { funcao: '', nome: '' }]);
+    const addCredito = () => setCreditos([...creditos, '']);
 
-    const updateCredito = (i: number, key: 'funcao' | 'nome', value: string) => {
+    const updateCredito = (i: number, value: string) => {
         const copy = [...creditos];
-        copy[i][key] = value;
+        copy[i] = value;
         setCreditos(copy);
     };
 
@@ -137,13 +137,18 @@ export default function CreateFilmePage() {
                         <p className="mb-2 font-bold">Créditos</p>
                         {creditos.map((c, i) => (
                             <div key={i} className="flex gap-2 mb-2">
-                                <input placeholder="Função" value={c.funcao} onChange={(e) => updateCredito(i, 'funcao', e.target.value)} className="flex-1 px-3 py-2 rounded border border-gray-300" />
-                                <input placeholder="Nome da pessoa" value={c.nome} onChange={(e) => updateCredito(i, 'nome', e.target.value)} className="flex-1 px-3 py-2 rounded border border-gray-300" />
+                                <textarea
+                                    placeholder="Texto do crédito"
+                                    value={c}
+                                    onChange={(e) => updateCredito(i, e.target.value)}
+                                    className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px]"
+                                />
                                 <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">✕</button>
                             </div>
                         ))}
                         <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">Adicionar Crédito</button>
                     </div>
+
 
                     <label className="flex items-center gap-2 md:col-span-2">
                         <input type="checkbox" name="showable" checked={form.showable as boolean} onChange={handleChange} />
