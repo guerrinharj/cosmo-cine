@@ -15,7 +15,7 @@ type Filme = {
     video_url?: string;
     date: string;
     thumbnail: string;
-    creditos?: string; // atualizado: string em vez de Record<string, string>
+    creditos?: string;
     showable?: boolean;
 };
 
@@ -142,12 +142,18 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     </div>
                 )}
 
-                {/* Créditos */}
+                {/* Créditos com destaque no prefixo */}
                 {filme.creditos && (
                     <div className="mt-10 text-sm space-y-2">
-                        {filme.creditos.split(',').map((linha, index) => (
-                            <p key={index} className="paralucent text-xl">{linha.trim()}</p>
-                        ))}
+                        {filme.creditos.split(',').map((linha, index) => {
+                            const [before, after] = linha.split(':');
+                            return (
+                                <p key={index} className="text-sm">
+                                    <span className="font-bold">{before.trim()}:</span>{' '}
+                                    {after?.trim()}
+                                </p>
+                            );
+                        })}
                     </div>
                 )}
             </div>
