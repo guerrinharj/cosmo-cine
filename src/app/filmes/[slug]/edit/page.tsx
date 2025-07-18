@@ -37,7 +37,7 @@ export default function EditFilmePage() {
         is_service: false,
     });
 
-    const [creditos, setCreditos] = useState<{ funcao: string; nome: string }[]>([]);
+    const [creditos, setCreditos] = useState<string[]>([]);
     const [touched, setTouched] = useState<{ [key: string]: boolean }>({});
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -63,11 +63,9 @@ export default function EditFilmePage() {
                 is_service: data.is_service || false,
             });
 
-            const creditosArray = data.creditos
-                ? Object.entries(data.creditos).map(([funcao, nome]) => ({
-                    funcao,
-                    nome: nome as string,
-                }))
+            // Assume que créditos é uma string separada por vírgula
+            const creditosArray = typeof data.creditos === 'string'
+                ? data.creditos.split(',').map((c: string) => c.trim())
                 : [];
 
             setCreditos(creditosArray);
@@ -115,7 +113,7 @@ export default function EditFilmePage() {
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    creditos: Object.fromEntries(creditos.map((c) => [c.funcao, c.nome])),
+                    creditos: creditos.filter(c => c.trim() !== '').join(', '), // transforma para string
                     is_service: form.is_service,
                 }),
             });
@@ -135,16 +133,17 @@ export default function EditFilmePage() {
         setShowModal(true);
     };
 
-    const addCredito = () => setCreditos([...creditos, { funcao: '', nome: '' }]);
+    const addCredito = () => setCreditos([...creditos, '']);
 
-    const updateCredito = (i: number, key: 'funcao' | 'nome', value: string) => {
+    const updateCredito = (i: number, value: string) => {
         const copy = [...creditos];
-        copy[i][key] = value;
+        copy[i] = value;
         setCreditos(copy);
     };
 
-    const removeCredito = (i: number) =>
+    const removeCredito = (i: number) => {
         setCreditos(creditos.filter((_, idx) => idx !== i));
+    };
 
     const inputStyle = (field: string) =>
         `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
@@ -167,23 +166,26 @@ export default function EditFilmePage() {
                     <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante as string} onChange={handleChange} className={inputStyle('produtoraContratante')} />
                     <input name="agencia" placeholder="Agência" value={form.agencia as string} onChange={handleChange} className={inputStyle('agencia')} />
                     <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
-                    <input
-                        name="thumbnail"
-                        placeholder="Thumbnail URL (opcional)"
-                        value={form.thumbnail as string}
-                        onChange={handleChange}
-                        className={inputStyle('thumbnail')}
-                    />
-
+                    <input name="thumbnail" placeholder="Thumbnail URL (opcional)" value={form.thumbnail as string} onChange={handleChange} className={inputStyle('thumbnail')} />
                     <input name="date" type="date" value={form.date as string} onChange={handleChange} className={inputStyle('date')} />
 
+                    {/* Créditos */}
                     <div className="md:col-span-2">
                         <p className="mb-2 font-bold">Créditos</p>
                         {creditos.map((c, i) => (
-                            <div key={i} className="flex gap-2 mb-2">
-                                <input placeholder="Função" value={c.funcao} onChange={(e) => updateCredito(i, 'funcao', e.target.value)} className="flex-1 px-3 py-2 rounded border border-gray-300" />
-                                <input placeholder="Nome da pessoa" value={c.nome} onChange={(e) => updateCredito(i, 'nome', e.target.value)} className="flex-1 px-3 py-2 rounded border border-gray-300" />
-                                <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">✕</button>
+                            <div key={i} className="flex gap-2 mb-2 flex-col">
+                                <div className="flex gap-2">
+                                    <textarea
+                                        placeholder="Texto do crédito"
+                                        value={c}
+                                        onChange={(e) => updateCredito(i, e.target.value)}
+                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px]"
+                                    />
+                                    <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">✕</button>
+                                </div>
+                                {c.trim() && (
+                                    <p className="text-sm text-gray-400 mt-1">{c.trim()}</p>
+                                )}
                             </div>
                         ))}
                         <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">Adicionar Crédito</button>
