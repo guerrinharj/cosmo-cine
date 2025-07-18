@@ -15,7 +15,7 @@ type Filme = {
     video_url?: string;
     date: string;
     thumbnail: string;
-    creditos?: Record<string, string>;
+    creditos?: string; // atualizado: string em vez de Record<string, string>
     showable?: boolean;
 };
 
@@ -142,15 +142,14 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     </div>
                 )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-10 text-sm">
-                    {filme.creditos &&
-                        Object.entries(filme.creditos).map(([key, value]) => (
-                            <div key={key}>
-                                <p className="thunder text-2xl uppercase font-bold">{key}</p>
-                                <p className="paralucent text-xl">{value}</p>
-                            </div>
+                {/* Créditos */}
+                {filme.creditos && (
+                    <div className="mt-10 text-sm space-y-2">
+                        {filme.creditos.split(',').map((linha, index) => (
+                            <p key={index} className="paralucent text-xl">{linha.trim()}</p>
                         ))}
-                </div>
+                    </div>
+                )}
             </div>
         </div>
     );
