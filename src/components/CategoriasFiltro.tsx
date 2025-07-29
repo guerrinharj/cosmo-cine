@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 
 type CategoriaFiltroProps = {
     categorias: string[];
-    filtro: string | null;
-    setFiltro: (categoria: string | null) => void;
+    filtro: string[]; // agora é um array
+    setFiltro: (categoria: string[]) => void;
     isService: boolean | null;
     setIsService: (value: boolean | null) => void;
     locale: 'pt' | 'en';
@@ -23,6 +23,14 @@ export default function CategoriaFiltro({
 }: CategoriaFiltroProps) {
     const t = messages[locale];
 
+    const toggleCategoria = (cat: string) => {
+        if (filtro.includes(cat)) {
+            setFiltro(filtro.filter(c => c !== cat));
+        } else {
+            setFiltro([...filtro, cat]);
+        }
+    };
+
     return (
         <div className="sticky top-16 bg-black z-40 px-4 py-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
@@ -30,13 +38,16 @@ export default function CategoriaFiltro({
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
                     {categorias.map((cat) => {
                         const key = cat.toLowerCase() as keyof typeof t.filmes;
-                        const label = t.filmes[key];
+                        const label = t.filmes[key] || cat;
+
+                        const isActive = filtro.includes(cat);
+
                         return (
                             <button
                                 key={cat}
-                                onClick={() => setFiltro(filtro === cat ? null : cat)}
+                                onClick={() => toggleCategoria(cat)}
                                 className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
-                                    filtro === cat
+                                    isActive
                                         ? 'bg-white text-black border-white'
                                         : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                                 }`}
