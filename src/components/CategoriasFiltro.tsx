@@ -4,10 +4,10 @@ import { useEffect, useState } from 'react';
 
 type CategoriaFiltroProps = {
     categorias: string[];
-    filtro: string[]; // agora é um array
+    filtro: string[];
     setFiltro: (categoria: string[]) => void;
-    isService: boolean | null;
-    setIsService: (value: boolean | null) => void;
+    isService: boolean[];
+    setIsService: (value: boolean[]) => void;
     locale: 'pt' | 'en';
     messages: any;
 };
@@ -28,6 +28,14 @@ export default function CategoriaFiltro({
             setFiltro(filtro.filter(c => c !== cat));
         } else {
             setFiltro([...filtro, cat]);
+        }
+    };
+
+    const toggleIsService = (value: boolean) => {
+        if (isService.includes(value)) {
+            setIsService(isService.filter(v => v !== value));
+        } else {
+            setIsService([...isService, value]);
         }
     };
 
@@ -61,9 +69,9 @@ export default function CategoriaFiltro({
                 {/* is_service buttons (right) */}
                 <div className="flex gap-2 justify-center md:justify-end">
                     <button
-                        onClick={() => setIsService(isService === true ? null : true)}
+                        onClick={() => toggleIsService(true)}
                         className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
-                            isService === true
+                            isService.includes(true)
                                 ? 'bg-white text-black border-white'
                                 : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                         }`}
@@ -71,9 +79,9 @@ export default function CategoriaFiltro({
                         {t.filmes.service}
                     </button>
                     <button
-                        onClick={() => setIsService(isService === false ? null : false)}
+                        onClick={() => toggleIsService(false)}
                         className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
-                            isService === false
+                            isService.includes(false)
                                 ? 'bg-white text-black border-white'
                                 : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                         }`}

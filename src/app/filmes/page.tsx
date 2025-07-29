@@ -22,7 +22,7 @@ type Filme = {
 export default function HomePage() {
     const [filmes, setFilmes] = useState<Filme[]>([]);
     const [filtro, setFiltro] = useState<string[]>([]);
-    const [isService, setIsService] = useState<boolean | null>(null);
+    const [isService, setIsService] = useState<boolean[]>([]);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [locale, setLocale] = useState<'pt' | 'en'>('pt');
 
@@ -52,7 +52,7 @@ export default function HomePage() {
 
     const filmesFiltrados = filmes
         .filter(f => (filtro.length > 0 ? filtro.includes(f.categoria) : true))
-        .filter(f => (isService === null ? true : f.is_service === isService));
+        .filter(f => (isService.length > 0 ? isService.includes(f.is_service ?? false) : true));
 
     const t = messages[locale];
 
