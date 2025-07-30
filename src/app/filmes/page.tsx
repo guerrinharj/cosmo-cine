@@ -107,10 +107,7 @@ export default function HomePage() {
 
             {/* Lista de Filmes */}
             <div
-                className="grid gap-6 mt-10 px-4 fade-in"
-                style={{
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-                }}
+                className="grid gap-6 mt-10 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
                 {filmesFiltrados
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
