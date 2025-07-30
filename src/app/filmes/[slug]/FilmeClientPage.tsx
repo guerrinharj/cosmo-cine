@@ -144,11 +144,11 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
                 {/* Créditos com destaque no prefixo */}
                 {filme.creditos && (
-                    <div className="mt-10 text-sm space-y-2">
+                    <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
                         {filme.creditos.split(',').map((linha, index) => {
                             const [before, after] = linha.split(':');
                             return (
-                                <p key={index} className="text-sm">
+                                <p key={index}>
                                     <span className="font-bold">{before.trim()}:</span>{' '}
                                     {after?.trim()}
                                 </p>
