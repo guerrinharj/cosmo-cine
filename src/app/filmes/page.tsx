@@ -12,6 +12,7 @@ type Filme = {
     nome: string;
     cliente: string;
     diretor: string;
+    produtoraContratante: string;
     agencia?: string;
     categoria: string;
     thumbnail: string;
@@ -126,9 +127,9 @@ export default function HomePage() {
                                 />
                             </div>
                             <p className="mt-2 text-sm uppercase tracking-tight">
-                                {filme.cliente} | <strong>{filme.nome}</strong>
+                                <strong>{filme.nome}</strong>
                             </p>
-                            <p className="text-xs text-gray-400 hover:underline">{filme.diretor}</p>
+                            <p className="text-xs text-gray-400 hover:underline">{filme.cliente}</p>
                             {filme.agencia && (
                                 <p className="text-xs text-gray-500">{filme.agencia}</p>
                             )}
