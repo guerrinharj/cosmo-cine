@@ -40,7 +40,7 @@ export default function CategoriaFiltro({
     };
 
     return (
-        <div className="sticky top-16 bg-black z-40 px-4 py-4">
+        <div className="fixed bottom-4 right-4 border border-white bg-black bg-opacity-90 z-50 px-4 py-4 rounded-xl shadow-lg max-w-[90vw]">
             <div className="flex flex-col md:flex-row justify-between items-center gap-4">
                 {/* Categoria buttons (left) */}
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start">
@@ -92,4 +92,5 @@ export default function CategoriaFiltro({
             </div>
         </div>
     );
+
 }
