@@ -27,6 +27,12 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
+        if (filme?.nome) {
+            document.title = `${filme.nome} | Cosmo Cine`.toUpperCase();
+        }
+    }, [filme]);
+
+    useEffect(() => {
         fetch('/api/auth/me', {
             method: 'GET',
             credentials: 'include',
