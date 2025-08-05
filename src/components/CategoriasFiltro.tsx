@@ -40,10 +40,10 @@ export default function CategoriaFiltro({
     };
 
     return (
-        <div className="fixed bottom-4 right-4 border border-white bg-black bg-opacity-90 z-50 px-4 py-4 rounded-xl shadow-lg max-w-[90vw]">
-            <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                {/* Categoria buttons (left) */}
-                <div className="flex flex-wrap gap-2 justify-center md:justify-start">
+        <div className="fixed bottom-0 left-0 w-full border-t border-white bg-black bg-opacity-90 z-50 px-4 py-3">
+            <div className="flex flex-col md:flex-row justify-between items-center gap-3 w-full max-w-screen-xl mx-auto">
+                {/* Categoria buttons */}
+                <div className="flex flex-wrap gap-2 justify-center md:justify-start w-full md:w-auto">
                     {categorias.map((cat) => {
                         const key = cat.toLowerCase() as keyof typeof t.filmes;
                         const label = t.filmes[key] || cat;
@@ -54,7 +54,7 @@ export default function CategoriaFiltro({
                             <button
                                 key={cat}
                                 onClick={() => toggleCategoria(cat)}
-                                className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
+                                className={`text-xs md:text-sm px-3 py-1 rounded-full border transition-all duration-300 ${
                                     isActive
                                         ? 'bg-white text-black border-white'
                                         : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
@@ -66,11 +66,11 @@ export default function CategoriaFiltro({
                     })}
                 </div>
 
-                {/* is_service buttons (right) */}
-                <div className="flex gap-2 justify-center md:justify-end">
+                {/* is_service buttons */}
+                <div className="flex flex-wrap gap-2 justify-center md:justify-end w-full md:w-auto">
                     <button
                         onClick={() => toggleIsService(true)}
-                        className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
+                        className={`text-xs md:text-sm px-3 py-1 rounded-full border transition-all duration-300 ${
                             isService.includes(true)
                                 ? 'bg-white text-black border-white'
                                 : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
@@ -80,7 +80,7 @@ export default function CategoriaFiltro({
                     </button>
                     <button
                         onClick={() => toggleIsService(false)}
-                        className={`text-sm md:text-base px-3 py-1 rounded-full border transition-all duration-300 ${
+                        className={`text-xs md:text-sm px-3 py-1 rounded-full border transition-all duration-300 ${
                             isService.includes(false)
                                 ? 'bg-white text-black border-white'
                                 : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
@@ -92,5 +92,4 @@ export default function CategoriaFiltro({
             </div>
         </div>
     );
-
 }
