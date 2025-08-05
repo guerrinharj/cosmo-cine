@@ -27,6 +27,12 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
     useEffect(() => {
+        if (filme?.nome) {
+            document.title = `${filme.nome} | Cosmo Cine`.toUpperCase();
+        }
+    }, [filme]);
+
+    useEffect(() => {
         fetch('/api/auth/me', {
             method: 'GET',
             credentials: 'include',
@@ -90,7 +96,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             {/* Control Bar */}
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
                 <button
-                    onClick={goToPrevious}
+                    onClick={goToNext}
                     className="text-2xl transition-transform duration-300 hover:-translate-x-1"
                 >
                     &larr;
@@ -117,7 +123,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                         </>
                     )}
                     <button
-                        onClick={goToNext}
+                        onClick={goToPrevious}
                         className="text-2xl transition-transform duration-300 hover:translate-x-1"
                     >
                         &rarr;
