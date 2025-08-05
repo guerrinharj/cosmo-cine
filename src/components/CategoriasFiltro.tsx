@@ -54,7 +54,7 @@ export default function CategoriaFiltro({
                             <button
                                 key={cat}
                                 onClick={() => toggleCategoria(cat)}
-                                className={`text-xs md:text-sm px-3 py-1  transition-all duration-300 ${
+                                className={`text-xs md:text-sm px-3 py-1 rounded-sm transition-all duration-300 ${
                                     isActive
                                         ? 'bg-white text-black border-white'
                                         : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
@@ -70,20 +70,20 @@ export default function CategoriaFiltro({
                 <div className="flex flex-wrap gap-2 justify-center md:justify-end w-full md:w-auto">
                     <button
                         onClick={() => toggleIsService(false)}
-                        className={`text-xs md:text-sm px-3 py-1  transition-all duration-300 ${
+                        className={`text-xs md:text-sm px-3 py-1 rounded-sm transition-all duration-300 ${
                             isService.includes(false)
-                                ? 'bg-white text-black border-white'
-                                : 'bg-transparent text-white  hover:bg-white hover:text-black'
+                                        ? 'bg-white text-black border-white'
+                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                         }`}
                     >
                         {t.filmes.not_service}
                     </button>
                     <button
                         onClick={() => toggleIsService(true)}
-                        className={`text-xs md:text-sm px-3 py-1   transition-all duration-300 ${
+                        className={`text-xs md:text-sm px-3 py-1 rounded-sm  transition-all duration-300 ${
                             isService.includes(true)
-                                ? 'bg-white text-black border-white'
-                                : 'bg-transparent text-white hover:bg-white hover:text-black'
+                                        ? 'bg-white text-black border-white'
+                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
                         }`}
                     >
                         {t.filmes.service}
