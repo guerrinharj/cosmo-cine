@@ -44,7 +44,6 @@ export default function EditFilmePage() {
 
     const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
 
-    // --- helper: split credits only when a new Label: begins (allowing & and accents) ---
     const splitCreditos = (str: string) =>
         str
             .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
@@ -76,7 +75,6 @@ export default function EditFilmePage() {
         }
 
         fetchFilme();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -120,7 +118,6 @@ export default function EditFilmePage() {
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    // join roles with semicolons so commas inside names are preserved
                     creditos: creditos
                         .map(c => c.trim())
                         .filter(Boolean)
@@ -250,7 +247,7 @@ export default function EditFilmePage() {
                                         placeholder="Texto do crédito (ex.: Direção: Fulano; Arte & Design: Sicrana, Beltrano)"
                                         value={c}
                                         onChange={e => updateCredito(i, e.target.value)}
-                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] text-black"
+                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] text-white placeholder-white"
                                     />
                                     <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">
                                         ✕
