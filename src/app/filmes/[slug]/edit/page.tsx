@@ -44,6 +44,13 @@ export default function EditFilmePage() {
 
     const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
 
+    // --- helper: split credits only when a new Label: begins (allowing & and accents) ---
+    const splitCreditos = (str: string) =>
+        str
+            .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
+            .map(s => s.trim())
+            .filter(Boolean);
+
     useEffect(() => {
         async function fetchFilme() {
             const res = await fetch(`/api/filmes/${slug}`);
@@ -63,21 +70,19 @@ export default function EditFilmePage() {
                 is_service: data.is_service || false,
             });
 
-            // Assume que créditos é uma string separada por vírgula
-            const creditosArray = typeof data.creditos === 'string'
-                ? data.creditos.split(',').map((c: string) => c.trim())
-                : [];
-
+            const creditosArray =
+                typeof data.creditos === 'string' ? splitCreditos(data.creditos) : [];
             setCreditos(creditosArray);
         }
 
         fetchFilme();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [slug]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const target = e.target as HTMLInputElement;
         const { name, value, type, checked } = target;
-        setForm((prev) => ({
+        setForm(prev => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
@@ -86,10 +91,10 @@ export default function EditFilmePage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const isValid = requiredFields.every((field) => !!form[field]);
+        const isValid = requiredFields.every(field => !!form[field]);
         if (!isValid) {
             const newTouched: { [key: string]: boolean } = {};
-            requiredFields.forEach((f) => (newTouched[f] = true));
+            requiredFields.forEach(f => (newTouched[f] = true));
             setTouched(newTouched);
             return;
         }
@@ -97,7 +102,9 @@ export default function EditFilmePage() {
         const isVimeoUrl = /^https?:\/\/(www\.)?vimeo\.com\/\d+/.test(form.video_url as string);
         if (!isVimeoUrl) {
             setTouched({ ...touched, video_url: true });
-            setModalMessage('A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)');
+            setModalMessage(
+                'A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)',
+            );
             setShowModal(true);
             return;
         }
@@ -113,7 +120,11 @@ export default function EditFilmePage() {
                 body: JSON.stringify({
                     ...form,
                     thumbnail: thumbnailUrl,
-                    creditos: creditos.filter(c => c.trim() !== '').join(', '), // transforma para string
+                    // join roles with semicolons so commas inside names are preserved
+                    creditos: creditos
+                        .map(c => c.trim())
+                        .filter(Boolean)
+                        .join('; '),
                     is_service: form.is_service,
                 }),
             });
@@ -146,7 +157,9 @@ export default function EditFilmePage() {
     };
 
     const inputStyle = (field: string) =>
-        `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
+        `w-full px-3 py-2 rounded border ${
+            touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'
+        }`;
 
     return (
         <div className="bg-black text-white min-h-screen">
@@ -154,20 +167,78 @@ export default function EditFilmePage() {
             <div className="max-w-5xl mx-auto px-6 py-10">
                 <h1 className="paralucent uppercase text-4xl font-bold mb-8">Editar Filme</h1>
                 <form onSubmit={handleSubmit} className="paralucent grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input name="nome" placeholder="Nome *" value={form.nome as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, nome: true })} className={inputStyle('nome')} />
-                    <input name="cliente" placeholder="Cliente *" value={form.cliente as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, cliente: true })} className={inputStyle('cliente')} />
-                    <input name="diretor" placeholder="Diretor *" value={form.diretor as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, diretor: true })} className={inputStyle('diretor')} />
-                    <select name="categoria" value={form.categoria as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, categoria: true })} className={inputStyle('categoria')}>
+                    <input
+                        name="nome"
+                        placeholder="Nome *"
+                        value={form.nome as string}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, nome: true })}
+                        className={inputStyle('nome')}
+                    />
+                    <input
+                        name="cliente"
+                        placeholder="Cliente *"
+                        value={form.cliente as string}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, cliente: true })}
+                        className={inputStyle('cliente')}
+                    />
+                    <input
+                        name="diretor"
+                        placeholder="Diretor *"
+                        value={form.diretor as string}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, diretor: true })}
+                        className={inputStyle('diretor')}
+                    />
+                    <select
+                        name="categoria"
+                        value={form.categoria as string}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, categoria: true })}
+                        className={inputStyle('categoria')}
+                    >
                         <option value="">Categoria *</option>
                         <option value="Publicidade">Publicidade</option>
                         <option value="Clipe">Clipe</option>
                         <option value="Conteudo">Conteúdo</option>
                     </select>
-                    <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante as string} onChange={handleChange} className={inputStyle('produtoraContratante')} />
-                    <input name="agencia" placeholder="Agência" value={form.agencia as string} onChange={handleChange} className={inputStyle('agencia')} />
-                    <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url as string} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
-                    <input name="thumbnail" placeholder="Thumbnail URL (opcional)" value={form.thumbnail as string} onChange={handleChange} className={inputStyle('thumbnail')} />
-                    <input name="date" type="date" value={form.date as string} onChange={handleChange} className={inputStyle('date')} />
+                    <input
+                        name="produtoraContratante"
+                        placeholder="Produtora Contratante"
+                        value={form.produtoraContratante as string}
+                        onChange={handleChange}
+                        className={inputStyle('produtoraContratante')}
+                    />
+                    <input
+                        name="agencia"
+                        placeholder="Agência"
+                        value={form.agencia as string}
+                        onChange={handleChange}
+                        className={inputStyle('agencia')}
+                    />
+                    <input
+                        name="video_url"
+                        placeholder="Vídeo URL * (Vimeo)"
+                        value={form.video_url as string}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, video_url: true })}
+                        className={inputStyle('video_url')}
+                    />
+                    <input
+                        name="thumbnail"
+                        placeholder="Thumbnail URL (opcional)"
+                        value={form.thumbnail as string}
+                        onChange={handleChange}
+                        className={inputStyle('thumbnail')}
+                    />
+                    <input
+                        name="date"
+                        type="date"
+                        value={form.date as string}
+                        onChange={handleChange}
+                        className={inputStyle('date')}
+                    />
 
                     {/* Créditos */}
                     <div className="md:col-span-2">
@@ -176,19 +247,21 @@ export default function EditFilmePage() {
                             <div key={i} className="flex gap-2 mb-2 flex-col">
                                 <div className="flex gap-2">
                                     <textarea
-                                        placeholder="Texto do crédito"
+                                        placeholder="Texto do crédito (ex.: Direção: Fulano; Arte & Design: Sicrana, Beltrano)"
                                         value={c}
-                                        onChange={(e) => updateCredito(i, e.target.value)}
-                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px]"
+                                        onChange={e => updateCredito(i, e.target.value)}
+                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] text-black"
                                     />
-                                    <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">✕</button>
+                                    <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">
+                                        ✕
+                                    </button>
                                 </div>
-                                {c.trim() && (
-                                    <p className="text-sm text-gray-400 mt-1">{c.trim()}</p>
-                                )}
+                                {c.trim() && <p className="text-sm text-gray-400 mt-1">{c.trim()}</p>}
                             </div>
                         ))}
-                        <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">Adicionar Crédito</button>
+                        <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">
+                            Adicionar Crédito
+                        </button>
                     </div>
 
                     <label className="flex items-center gap-2 md:col-span-2">
@@ -202,7 +275,12 @@ export default function EditFilmePage() {
                     </label>
 
                     <div className="md:col-span-2 flex justify-end">
-                        <button type="submit" className="px-6 py-2 bg-white text-black rounded hover:bg-gray-200 transition">Salvar Alterações</button>
+                        <button
+                            type="submit"
+                            className="px-6 py-2 bg-white text-black rounded hover:bg-gray-200 transition"
+                        >
+                            Salvar Alterações
+                        </button>
                     </div>
                 </form>
             </div>
@@ -211,7 +289,12 @@ export default function EditFilmePage() {
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
                     <div className="bg-white text-black rounded-lg p-6 w-full max-w-md text-center">
                         <p className="mb-4">{modalMessage}</p>
-                        <button onClick={() => setShowModal(false)} className="mt-2 px-4 py-2 bg-black text-white rounded hover:bg-gray-800">Fechar</button>
+                        <button
+                            onClick={() => setShowModal(false)}
+                            className="mt-2 px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                        >
+                            Fechar
+                        </button>
                     </div>
                 </div>
             )}
