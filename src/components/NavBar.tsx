@@ -118,16 +118,6 @@ export default function NavBar() {
                     )}
                 </div>
             </nav>
-
-            {/* Criar (+) Button for Authenticated Users */}
-            {authenticated && (
-                <Link
-                    href="/criar"
-                    className="fixed bottom-6 right-6 bg-white text-black text-3xl rounded-full w-12 h-12 flex items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
-                >
-                    +
-                </Link>
-            )}
         </>
     );
 }
