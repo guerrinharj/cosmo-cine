@@ -87,7 +87,7 @@ export default function HomePage() {
 
                     <Link
                         href="/filmes/create"
-                        className="paralucent hidden md:flex fixed bottom-6 right-6 border border-white bg-black text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
+                        className="paralucent hidden md:flex fixed bottom-4 right-6 border border-white bg-black text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
                         title="Criar novo filme"
                     >
                         +
