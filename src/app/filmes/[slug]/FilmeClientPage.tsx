@@ -148,21 +148,31 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     </div>
                 )}
 
-                {/* Créditos com destaque no prefixo */}
-                {filme.creditos && (
-                    <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
-                        {filme.creditos.split(',').map((linha, index) => {
-                            const [before, after] = linha.split(':');
-                            return (
-                                <p key={index}>
-                                    <span className="font-bold">{before.trim()}:</span>{' '}
-                                    {after?.trim()}
-                                </p>
-                            );
-                        })}
-                    </div>
-                )}
+        {/* Créditos com destaque no prefixo */}
+        {filme.creditos && (
+            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-sm">
+                {(
+                filme.creditos
+                    // split on ";" OR on "," only when the next chunk starts with a label ending in ":"
+                    .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]*:)/)
+                    .map(s => s.trim())
+                    .filter(Boolean)
+                ).map((entry, idx) => {
+                // split only on the FIRST ":" to keep values intact
+                const colonIdx = entry.indexOf(':');
+                const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
+                const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
+
+                return (
+                    <p key={idx}>
+                    {label ? <span className="font-bold">{label}:</span> : null}{' '}
+                    {value}
+                    </p>
+                );
+                })}
             </div>
+        )}
         </div>
+    </div>
     );
 }
