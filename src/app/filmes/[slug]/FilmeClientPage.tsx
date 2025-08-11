@@ -150,27 +150,28 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
         {/* Créditos com destaque no prefixo */}
         {filme.creditos && (
-            <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                {(
-                filme.creditos
-                    // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
-                    .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ\s]*:)/)
-                    .map(s => s.trim())
-                    .filter(Boolean)
-                ).map((entry, idx) => {
-                const colonIdx = entry.indexOf(':');
-                const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
-                const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+            {(
+            filme.creditos
+                // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
+                .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
+                .map(s => s.trim())
+                .filter(Boolean)
+            ).map((entry, idx) => {
+            const colonIdx = entry.indexOf(':');
+            const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
+            const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
 
-                return (
-                    <div key={idx} className="flex flex-col">
-                        {label && <span className="font-bold">{label}:</span>}
-                        {value && <span className="block">{value}</span>}
-                    </div>
-                );
-                })}
-            </div>
-            )}
+            return (
+                <div key={idx} className="flex flex-col">
+                {label && <span className="font-bold">{label}:</span>}
+                {value && <span className="block">{value}</span>}
+                </div>
+            );
+            })}
+        </div>
+        )}
+
 
         </div>
     </div>
