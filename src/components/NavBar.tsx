@@ -22,7 +22,7 @@ export default function NavBar() {
         setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => res.ok ? res.json() : { authenticated: false })
+            .then(res => (res.ok ? res.json() : { authenticated: false }))
             .then(data => setAuthenticated(data.authenticated));
     }, []);
 
@@ -37,10 +37,7 @@ export default function NavBar() {
     };
 
     const handleLogout = async () => {
-        await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include',
-        });
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
         setAuthenticated(false);
         router.push('/login');
     };
@@ -52,21 +49,12 @@ export default function NavBar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black flex items-center px-4 relative">
+            <nav className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative">
                 {/* Mobile center group */}
                 <div className="flex md:hidden items-center justify-center w-full text-white h-20">
-                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder-light items-center">
+                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-4xl uppercase thunder-light items-center">
                         <Link href="/" className={linkClass('/')}>
                             {t.nav.films}
-                        </Link>
-                        <Link href="/" className="w-14 h-14 flex items-center justify-center">
-                            <Image
-                                src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
-                                alt="Cosmo Cine"
-                                width={60}
-                                height={60}
-                                className="transition-transform duration-300 hover:scale-110"
-                            />
                         </Link>
                         <Link href="/contato" className={linkClass('/contato')}>
                             {t.nav.contact}
@@ -98,7 +86,7 @@ export default function NavBar() {
                     </Link>
                 </div>
 
-                {/* Locale toggle — fixed to right, independent of flex */}
+                {/* Locale toggle — absolute on the right */}
                 <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50">
                     <button
                         onClick={switchLocale}
@@ -108,7 +96,7 @@ export default function NavBar() {
                     </button>
                 </div>
 
-                {/* Logout (if needed) — sits left of the locale toggle, also absolute */}
+                {/* Logout — absolute, left of locale */}
                 {authenticated && (
                     <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
                         <button onClick={handleLogout} className="text-red-400 hover:underline">
