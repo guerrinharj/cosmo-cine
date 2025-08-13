@@ -52,10 +52,9 @@ export default function NavBar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black flex items-center justify-between px-4">
-                {/* Mobile Nav */}
-                <div className="flex md:hidden items-center justify-between w-full text-white h-20 relative">
-                    {/* Centered: FILMES - LOGO - CONTATO */}
+            <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black flex items-center px-4 relative">
+                {/* Mobile center group */}
+                <div className="flex md:hidden items-center justify-center w-full text-white h-20">
                     <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder-light items-center">
                         <Link href="/" className={linkClass('/')}>
                             {t.nav.films}
@@ -73,16 +72,9 @@ export default function NavBar() {
                             {t.nav.contact}
                         </Link>
                     </div>
-
-                    {/* Locale toggle */}
-                    <div className="ml-auto text-sm uppercase tracking-wider z-10">
-                        <button onClick={switchLocale} className="hover:underline">
-                            {locale === 'pt' ? 'EN' : 'PT'}
-                        </button>
-                    </div>
                 </div>
 
-                {/* Desktop Nav Centered */}
+                {/* Desktop centered links */}
                 <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder-light absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Link href="/" className={linkClass('/')}>
                         {t.nav.films}
@@ -92,8 +84,8 @@ export default function NavBar() {
                     </Link>
                 </div>
 
-                {/* Desktop Left Logo */}
-                <div className="hidden md:block z-50">
+                {/* Desktop left logo */}
+                <div className="hidden md:block">
                     <Link href="/" className="block">
                         <Image
                             src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
@@ -106,17 +98,24 @@ export default function NavBar() {
                     </Link>
                 </div>
 
-                {/* Desktop Controls */}
-                <div className="hidden md:flex items-center gap-4 text-white">
-                    <button onClick={switchLocale} className="hover:underline">
+                {/* Locale toggle — fixed to right, independent of flex */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50">
+                    <button
+                        onClick={switchLocale}
+                        className="text-white text-sm md:text-base uppercase tracking-wider hover:underline"
+                    >
                         {locale === 'pt' ? 'EN' : 'PT'}
                     </button>
-                    {authenticated && (
+                </div>
+
+                {/* Logout (if needed) — sits left of the locale toggle, also absolute */}
+                {authenticated && (
+                    <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
                         <button onClick={handleLogout} className="text-red-400 hover:underline">
                             {t.nav.logout}
                         </button>
-                    )}
-                </div>
+                    </div>
+                )}
             </nav>
         </>
     );
