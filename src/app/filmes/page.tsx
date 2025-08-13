@@ -126,7 +126,7 @@ export default function HomePage() {
                                     className="object-cover group-hover:opacity-80 transition"
                                 />
                             </div>
-                            <p className="mt-2 text-lg uppercase tracking-tight">
+                            <p className="mt-2 text-lg uppercase">
                                 <strong>{filme.nome}</strong>
                             </p>
                             <p className="text-base text-gray-400 hover:underline">{filme.cliente}</p>
