@@ -60,7 +60,7 @@ export default function CategoriaFiltro({
                                         : 'bg-transparent text-white hover:bg-white hover:text-black'
                                 }`}
                             >
-                                <span className="paralucent text-base md:text-lg">{label}</span>
+                                <span className="paralucent text-sm md:text-lg">{label}</span>
                                 {isActive && (
                                     <span className="font-bold text-lg leading-none">×</span>
                                 )}
@@ -79,7 +79,7 @@ export default function CategoriaFiltro({
                                 : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        <span className="paralucent text-base md:text-lg">{t.filmes.not_service}</span>
+                        <span className="paralucent text-sm md:text-lg">{t.filmes.not_service}</span>
                         {isService.includes(false) && (
                             <span className="font-bold text-lg leading-none">×</span>
                         )}
@@ -93,7 +93,7 @@ export default function CategoriaFiltro({
                                 : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        <span className="paralucent text-base md:text-lg">{t.filmes.service}</span>
+                        <span className="paralucent text-sm md:text-lg">{t.filmes.service}</span>
                         {isService.includes(true) && (
                             <span className="font-bold text-lg leading-none">×</span>
                         )}
