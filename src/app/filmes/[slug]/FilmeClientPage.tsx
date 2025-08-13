@@ -134,7 +134,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
                 <h1 className="paralucent text-4xl font-bold uppercase">{filme.nome}</h1>
-                <p className="thunder text-4xl mt-1 uppercase">{filme.cliente}</p>
+                <p className="thunder-light text-4xl mt-1 uppercase">{filme.cliente}</p>
                 {filme.agencia && <p className="paralucent text-xl text-gray-400">{filme.agencia}</p>}
 
                 {filme.video_url && (

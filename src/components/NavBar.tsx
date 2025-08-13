@@ -56,7 +56,7 @@ export default function NavBar() {
                 {/* Mobile Nav */}
                 <div className="flex md:hidden items-center justify-between w-full text-white h-20 relative">
                     {/* Centered: FILMES - LOGO - CONTATO */}
-                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder items-center">
+                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder-light items-center">
                         <Link href="/" className={linkClass('/')}>
                             {t.nav.films}
                         </Link>
@@ -83,7 +83,7 @@ export default function NavBar() {
                 </div>
 
                 {/* Desktop Nav Centered */}
-                <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder-light absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Link href="/" className={linkClass('/')}>
                         {t.nav.films}
                     </Link>

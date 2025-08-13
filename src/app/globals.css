@@ -50,6 +50,14 @@ a {
     font-display: swap;
 }
 
+@font-face {
+    font-family: 'Thunder Light';
+    src: url('/fonts/THUNDER/Fonts/OpenType-PS/Thunder-MediumLC.otf') format('opentype');
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+}
+
 
 .paralucent {
     font-family: 'Paralucent', sans-serif;
@@ -59,6 +67,12 @@ a {
 
 .thunder {
     font-family: 'Thunder', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.thunder-light {
+    font-family: 'Thunder Light', sans-serif;
     font-weight: 600;
     letter-spacing: 1px;
 }
