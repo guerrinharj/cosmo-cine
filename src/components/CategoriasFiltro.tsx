@@ -42,25 +42,28 @@ export default function CategoriaFiltro({
     return (
         <div className="fixed bottom-0 left-0 w-full border-t border-white bg-black bg-opacity-90 z-50 px-4 py-3">
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 w-full max-w-screen-xl mx-auto">
+                
                 {/* Categoria buttons */}
                 <div className="flex flex-wrap gap-2 justify-center md:justify-start w-full md:w-auto">
                     {categorias.map((cat) => {
                         const key = cat.toLowerCase() as keyof typeof t.filmes;
                         const label = t.filmes[key] || cat;
-
                         const isActive = filtro.includes(cat);
 
                         return (
                             <button
                                 key={cat}
                                 onClick={() => toggleCategoria(cat)}
-                                className={`text-xs md:text-sm px-3 py-1 rounded-sm transition-all duration-300 ${
+                                className={`flex items-center gap-1 text-xs md:text-sm px-3 py-1 rounded-full transition-all duration-300 ${
                                     isActive
-                                        ? 'bg-white text-black border-white'
-                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
+                                        ? 'bg-white text-black border border-white'
+                                        : 'bg-transparent text-white hover:bg-white hover:text-black'
                                 }`}
                             >
-                                {label}
+                                <span>{label}</span>
+                                {isActive && (
+                                    <span className="font-bold text-lg leading-none">×</span>
+                                )}
                             </button>
                         );
                     })}
@@ -70,23 +73,30 @@ export default function CategoriaFiltro({
                 <div className="flex flex-wrap gap-2 justify-center md:justify-end w-full md:w-auto">
                     <button
                         onClick={() => toggleIsService(false)}
-                        className={`text-xs md:text-sm px-3 py-1 rounded-sm transition-all duration-300 ${
+                        className={`flex items-center gap-1 text-xs md:text-sm px-3 py-1 rounded-full transition-all duration-300 ${
                             isService.includes(false)
-                                        ? 'bg-white text-black border-white'
-                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
+                                ? 'bg-white text-black border border-white'
+                                : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        {t.filmes.not_service}
+                        <span>{t.filmes.not_service}</span>
+                        {isService.includes(false) && (
+                            <span className="font-bold text-lg leading-none">×</span>
+                        )}
                     </button>
+
                     <button
                         onClick={() => toggleIsService(true)}
-                        className={`text-xs md:text-sm px-3 py-1 rounded-sm  transition-all duration-300 ${
+                        className={`flex items-center gap-1 text-xs md:text-sm px-3 py-1 rounded-full transition-all duration-300 ${
                             isService.includes(true)
-                                        ? 'bg-white text-black border-white'
-                                        : 'bg-transparent text-white border-white hover:bg-white hover:text-black'
+                                ? 'bg-white text-black border border-white'
+                                : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        {t.filmes.service}
+                        <span>{t.filmes.service}</span>
+                        {isService.includes(true) && (
+                            <span className="font-bold text-lg leading-none">×</span>
+                        )}
                     </button>
                 </div>
             </div>
