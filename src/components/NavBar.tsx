@@ -22,7 +22,7 @@ export default function NavBar() {
         setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => res.ok ? res.json() : { authenticated: false })
+            .then(res => (res.ok ? res.json() : { authenticated: false }))
             .then(data => setAuthenticated(data.authenticated));
     }, []);
 
@@ -37,10 +37,7 @@ export default function NavBar() {
     };
 
     const handleLogout = async () => {
-        await fetch('/api/auth/logout', {
-            method: 'POST',
-            credentials: 'include',
-        });
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
         setAuthenticated(false);
         router.push('/login');
     };
@@ -52,38 +49,21 @@ export default function NavBar() {
 
     return (
         <>
-            <nav className="fixed top-0 left-0 z-50 w-full h-20 bg-black flex items-center justify-between px-4">
-                {/* Mobile Nav */}
-                <div className="flex md:hidden items-center justify-between w-full text-white h-20 relative">
-                    {/* Centered: FILMES - LOGO - CONTATO */}
-                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-2xl uppercase thunder items-center">
+            <nav className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative">
+                {/* Mobile center group */}
+                <div className="flex md:hidden items-center justify-center w-full text-white h-20">
+                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-4xl uppercase thunder-light items-center">
                         <Link href="/" className={linkClass('/')}>
                             {t.nav.films}
-                        </Link>
-                        <Link href="/" className="w-14 h-14 flex items-center justify-center">
-                            <Image
-                                src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
-                                alt="Cosmo Cine"
-                                width={60}
-                                height={60}
-                                className="transition-transform duration-300 hover:scale-110"
-                            />
                         </Link>
                         <Link href="/contato" className={linkClass('/contato')}>
                             {t.nav.contact}
                         </Link>
                     </div>
-
-                    {/* Locale toggle */}
-                    <div className="ml-auto text-sm uppercase tracking-wider z-10">
-                        <button onClick={switchLocale} className="hover:underline">
-                            {locale === 'pt' ? 'EN' : 'PT'}
-                        </button>
-                    </div>
                 </div>
 
-                {/* Desktop Nav Centered */}
-                <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                {/* Desktop centered links */}
+                <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder-light absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Link href="/" className={linkClass('/')}>
                         {t.nav.films}
                     </Link>
@@ -92,8 +72,8 @@ export default function NavBar() {
                     </Link>
                 </div>
 
-                {/* Desktop Left Logo */}
-                <div className="hidden md:block z-50">
+                {/* Desktop left logo */}
+                <div className="hidden md:block">
                     <Link href="/" className="block">
                         <Image
                             src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
@@ -106,17 +86,24 @@ export default function NavBar() {
                     </Link>
                 </div>
 
-                {/* Desktop Controls */}
-                <div className="hidden md:flex items-center gap-4 text-white">
-                    <button onClick={switchLocale} className="hover:underline">
+                {/* Locale toggle — absolute on the right */}
+                <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50">
+                    <button
+                        onClick={switchLocale}
+                        className="text-white text-sm md:text-base uppercase tracking-wider hover:underline"
+                    >
                         {locale === 'pt' ? 'EN' : 'PT'}
                     </button>
-                    {authenticated && (
+                </div>
+
+                {/* Logout — absolute, left of locale */}
+                {authenticated && (
+                    <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
                         <button onClick={handleLogout} className="text-red-400 hover:underline">
                             {t.nav.logout}
                         </button>
-                    )}
-                </div>
+                    </div>
+                )}
             </nav>
         </>
     );

@@ -26,7 +26,7 @@ export const messages = {
         filmes: {
             publicidade: 'Advertising',
             conteudo: 'Movies',
-            clipe: 'Music Videos',
+            clipe: 'Music',
             service: 'Service',
             not_service: 'Cosmo',
         },

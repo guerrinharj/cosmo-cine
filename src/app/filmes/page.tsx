@@ -72,7 +72,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="pt-20 pb-10 bg-black text-white min-h-screen">
+        <div className="pb-20 bg-black text-white min-h-screen">
             {/* Criar Button */}
             {isAuthenticated && (
                 <>
@@ -108,7 +108,7 @@ export default function HomePage() {
 
             {/* Lista de Filmes */}
             <div
-                className="grid gap-6 mt-10 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
+                className="grid gap-6 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
             >
                 {filmesFiltrados
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
@@ -126,12 +126,12 @@ export default function HomePage() {
                                     className="object-cover group-hover:opacity-80 transition"
                                 />
                             </div>
-                            <p className="mt-2 text-sm uppercase tracking-tight">
+                            <p className="mt-2 text-lg uppercase">
                                 <strong>{filme.nome}</strong>
                             </p>
-                            <p className="text-xs text-gray-400 hover:underline">{filme.cliente}</p>
+                            <p className="text-base text-gray-400 hover:underline">{filme.cliente}</p>
                             {filme.agencia && (
-                                <p className="text-xs text-gray-500">{filme.agencia}</p>
+                                <p className="text-sm text-gray-500">{filme.agencia}</p>
                             )}
                         </Link>
                     ))}

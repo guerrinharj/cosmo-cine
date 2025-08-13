@@ -54,13 +54,13 @@ export default function CategoriaFiltro({
                             <button
                                 key={cat}
                                 onClick={() => toggleCategoria(cat)}
-                                className={`flex items-center gap-1 text-xs md:text-sm px-3 py-1 rounded-full transition-all duration-300 ${
+                                className={`paralucent flex items-center gap-1 text-xs md:text-sm px-3 py-1 rounded-full transition-all duration-300 ${
                                     isActive
                                         ? 'bg-white text-black border border-white'
                                         : 'bg-transparent text-white hover:bg-white hover:text-black'
                                 }`}
                             >
-                                <span>{label}</span>
+                                <span className="paralucent text-sm md:text-lg">{label}</span>
                                 {isActive && (
                                     <span className="font-bold text-lg leading-none">×</span>
                                 )}
@@ -79,7 +79,7 @@ export default function CategoriaFiltro({
                                 : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        <span>{t.filmes.not_service}</span>
+                        <span className="paralucent text-sm md:text-lg">{t.filmes.not_service}</span>
                         {isService.includes(false) && (
                             <span className="font-bold text-lg leading-none">×</span>
                         )}
@@ -93,7 +93,7 @@ export default function CategoriaFiltro({
                                 : 'bg-transparent text-white hover:bg-white hover:text-black'
                         }`}
                     >
-                        <span>{t.filmes.service}</span>
+                        <span className="paralucent text-sm md:text-lg">{t.filmes.service}</span>
                         {isService.includes(true) && (
                             <span className="font-bold text-lg leading-none">×</span>
                         )}

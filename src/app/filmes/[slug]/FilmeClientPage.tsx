@@ -134,7 +134,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
                 <h1 className="paralucent text-4xl font-bold uppercase">{filme.nome}</h1>
-                <p className="thunder text-4xl mt-1 uppercase">{filme.cliente}</p>
+                <p className="thunder-light text-4xl mt-1 uppercase">{filme.cliente}</p>
                 {filme.agencia && <p className="paralucent text-xl text-gray-400">{filme.agencia}</p>}
 
                 {filme.video_url && (
@@ -150,7 +150,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
         {/* Créditos com destaque no prefixo */}
         {filme.creditos && (
-        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+        <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
             {(
             filme.creditos
                 // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
@@ -164,7 +164,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             return (
                 <div key={idx} className="flex flex-col">
-                {label && <span className="font-bold">{label}:</span>}
+                {label && <span className="font-bold text-gray-400">{label}:</span>}
                 {value && <span className="block">{value}</span>}
                 </div>
             );
