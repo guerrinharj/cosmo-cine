@@ -21,7 +21,7 @@ export default function NotFound() {
                     priority
                 />
                 <div className="text-center">
-                    <h1 className="thunder-light text-5xl font-bold">404</h1>
+                    <h1 className="paralucent text-5xl font-bold">404</h1>
                 </div>
             </div>
         </div>
