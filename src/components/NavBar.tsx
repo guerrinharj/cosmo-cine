@@ -49,7 +49,7 @@ export default function NavBar() {
 
     return (
         <>
-            <nav className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative">
+            <nav className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative border-b border-white">
                 {/* Mobile center group */}
                 <div className="flex md:hidden items-center justify-center w-full text-white h-20">
                     <div className="absolute left-0 right-0 flex justify-center gap-6 text-lg uppercase paralucent items-center">
