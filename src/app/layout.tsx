@@ -35,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.png" />
+        <link rel="icon" href="/logos/COM ICONE/Cosmo_V_positivo_Icone.png" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
