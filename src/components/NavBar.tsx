@@ -53,7 +53,7 @@ export default function NavBar() {
                 {/* Mobile center group */}
                 <div className="flex md:hidden items-center justify-center w-full text-white h-20">
                     <div className="absolute left-0 right-0 flex justify-center gap-6 text-4xl uppercase thunder-light items-center">
-                        <Link href="/" className={linkClass('/')}>
+                        <Link href="/filmes" className={linkClass('/filmes')}>
                             {t.nav.films}
                         </Link>
                         <Link href="/contato" className={linkClass('/contato')}>
@@ -64,7 +64,7 @@ export default function NavBar() {
 
                 {/* Desktop centered links */}
                 <div className="hidden md:flex gap-6 items-center text-white text-4xl uppercase thunder-light absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                    <Link href="/" className={linkClass('/')}>
+                    <Link href="/filmes" className={linkClass('/filmes')}>
                         {t.nav.films}
                     </Link>
                     <Link href="/contato" className={linkClass('/contato')}>
