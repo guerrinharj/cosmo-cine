@@ -94,7 +94,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
-            <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-gray-700 z-50 flex items-center justify-between px-4">
+            <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-white z-50 flex items-center justify-between px-4">
                 <button
                     onClick={goToNext}
                     className="text-2xl transition-transform duration-300 hover:-translate-x-1"
@@ -133,8 +133,8 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                <h1 className="paralucent text-4xl font-bold uppercase">{filme.nome}</h1>
-                <p className="paralucent text-4xl text-gray-400 mt-1 uppercase">{filme.cliente}</p>
+                <h1 className="paralucent text-2xl md-text-4xl font-bold uppercase">{filme.nome}</h1>
+                <p className="paralucent text-2xl md-text-4xl text-gray-400 mt-1 uppercase">{filme.cliente}</p>
                 {filme.agencia && <p className="paralucent text-xl text-gray-400">{filme.agencia}</p>}
 
                 {filme.video_url && (
