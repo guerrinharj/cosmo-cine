@@ -40,7 +40,7 @@ export default function CategoriaFiltro({
     };
 
     return (
-        <div className="fixed bottom-0 left-0 w-full border-t border-white bg-black bg-opacity-90 z-50 px-4 py-3">
+        <div className="fixed bottom-0 left-0 w-full border-t border-white bg-opacity-90 z-50 px-4 py-3 bg-black/90 backdrop-blur-sm">
             <div className="flex flex-col md:flex-row justify-between items-center gap-3 w-full max-w-screen-xl mx-auto">
                 
                 {/* Categoria buttons */}
