@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import './HomePage.css'; // create this CSS file in the same folder
+import './HomePage.css';
 
 export default function HomePage() {
     const router = useRouter();

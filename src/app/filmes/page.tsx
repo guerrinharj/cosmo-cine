@@ -126,12 +126,16 @@ export default function HomePage() {
                                     className="object-cover group-hover:opacity-80 transition"
                                 />
                             </div>
-                            <p className="mt-2 text-lg uppercase">
+                            <p className="mt-2 text-lg uppercase leading-tight">
                                 <strong>{filme.nome}</strong>
                             </p>
-                            <p className="text-base text-gray-400 hover:underline">{filme.cliente}</p>
+                            <p className="text-base text-gray-400 hover:underline leading-snug">
+                                {filme.cliente}
+                            </p>
                             {filme.agencia && (
-                                <p className="text-sm text-gray-500">{filme.agencia}</p>
+                                <p className="text-sm text-gray-500 leading-snug">
+                                    {filme.agencia}
+                                </p>
                             )}
                         </Link>
                     ))}
