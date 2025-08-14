@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
+import './HomePage.css'; // create this CSS file in the same folder
 
 export default function HomePage() {
     const router = useRouter();
@@ -21,14 +22,14 @@ export default function HomePage() {
         router.push('/filmes');
     };
 
-    if (isMobile === false) return null; // Prevent flash on desktop redirect
+    if (isMobile === false) return null;
 
     return (
         <div
             className="fixed inset-0 bg-black flex items-center justify-center"
             style={{ height: '100vh', width: '100vw' }}
         >
-            <button onClick={handleClick} className="focus:outline-none">
+            <button onClick={handleClick} className="focus:outline-none fade-in">
                 <Image
                     src="/logos/COM ICONE/Cosmo_V_negativo_Icone.png"
                     alt="Cosmo Cine Logo"
