@@ -52,7 +52,7 @@ export default function NavBar() {
             <nav className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative">
                 {/* Mobile center group */}
                 <div className="flex md:hidden items-center justify-center w-full text-white h-20">
-                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-base uppercase paralucent items-center">
+                    <div className="absolute left-0 right-0 flex justify-center gap-6 text-lg uppercase paralucent items-center">
                         <Link href="/filmes" className={linkClass('/filmes')}>
                             {t.nav.films}
                         </Link>
@@ -63,7 +63,7 @@ export default function NavBar() {
                 </div>
 
                 {/* Desktop centered links */}
-                <div className="hidden md:flex gap-6 items-center text-white text-base uppercase paralucent absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                <div className="hidden md:flex gap-6 items-center text-white text-lg uppercase paralucent absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Link href="/filmes" className={linkClass('/filmes')}>
                         {t.nav.films}
                     </Link>
