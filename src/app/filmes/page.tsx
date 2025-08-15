@@ -72,7 +72,7 @@ export default function HomePage() {
     }
 
     return (
-        <div className="pb-20 bg-black text-white min-h-screen">
+        <div className="pb-20 mt-10 bg-black text-white min-h-screen">
             {/* Criar Button */}
             {isAuthenticated && (
                 <>
