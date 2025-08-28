@@ -7,22 +7,17 @@ import './HomePage.css';
 
 export default function HomePage() {
     const router = useRouter();
-    const [isMobile, setIsMobile] = useState<boolean | null>(null);
+    const [ready, setReady] = useState(false);
 
     useEffect(() => {
-        const mobileCheck = window.innerWidth <= 768;
-        setIsMobile(mobileCheck);
-
-        if (!mobileCheck) {
-            router.replace('/filmes');
-        }
-    }, [router]);
+        setReady(true);
+    }, []);
 
     const handleClick = () => {
-        router.push('/filmes');
+        router.push('/');
     };
 
-    if (isMobile === false) return null;
+    if (!ready) return null;
 
     return (
         <div
