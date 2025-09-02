@@ -107,9 +107,7 @@ export default function HomePage() {
             />
 
             {/* Lista de Filmes */}
-            <div
-                className="grid gap-6 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
-            >
+            <div className="grid gap-6 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {filmesFiltrados
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
                     .map((filme) => (
@@ -118,25 +116,28 @@ export default function HomePage() {
                             key={filme.id}
                             className="paralucent text-2xl flex flex-col cursor-pointer group"
                         >
-                            <div className="w-full aspect-video relative rounded-lg overflow-hidden">
-                                <Image
-                                    src={filme.thumbnail}
-                                    alt={filme.nome}
-                                    fill
-                                    className="object-cover group-hover:opacity-80 transition"
-                                />
-                            </div>
-                            <p className="mt-2 text-lg uppercase leading-tight">
-                                <strong>{filme.nome}</strong>
-                            </p>
-                            <p className="text-base text-gray-400 hover:underline leading-snug">
-                                {filme.cliente}
-                            </p>
-                            {filme.agencia && (
-                                <p className="text-sm text-gray-500 leading-snug">
-                                    {filme.agencia}
+                            
+                            <div className="rubber-hover">
+                                <div className="w-full aspect-video relative rounded-lg overflow-hidden">
+                                    <Image
+                                        src={filme.thumbnail}
+                                        alt={filme.nome}
+                                        fill
+                                        className="object-cover group-hover:opacity-80 transition"
+                                    />
+                                </div>
+                                <p className="mt-2 text-lg uppercase leading-tight">
+                                    <strong>{filme.nome}</strong>
                                 </p>
-                            )}
+                                <p className="text-base text-gray-400 hover:underline leading-snug">
+                                    {filme.cliente}
+                                </p>
+                                {filme.agencia && (
+                                    <p className="text-sm text-gray-500 leading-snug">
+                                        {filme.agencia}
+                                    </p>
+                                )}
+                            </div>
                         </Link>
                     ))}
             </div>
