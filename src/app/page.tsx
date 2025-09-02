@@ -49,11 +49,11 @@ export default function HomePage() {
 
         const logoSize = Math.max(56, Math.min(96, Math.floor(Math.min(state.vw, state.vh) * 0.08)));
 
-        // Ball speed profile (way slower on mobile)
+        // Ball speed profile 
         let ballSpeed = isMobile
-            ? Math.max(280, Math.floor(Math.min(state.vw, state.vh) * 0.18)) // 🐢 very slow base
-            : Math.max(520, Math.floor(Math.min(state.vw, state.vh) * 0.55)); // 🚀 fast on desktop
-        const accelFactor = isMobile ? 1.03 : 1.12;  // gentler acceleration on mobile
+            ? Math.max(280, Math.floor(Math.min(state.vw, state.vh) * 0.18)) 
+            : Math.max(430, Math.floor(Math.min(state.vw, state.vh) * 0.55));
+        const accelFactor = isMobile ? 1.03 : 1.12; 
         const maxBallSpeed = isMobile ? ballSpeed * 1.6 : ballSpeed * 2.5;
 
         // paddles
@@ -120,7 +120,6 @@ export default function HomePage() {
         let last = performance.now();
 
         // simple AI for left paddle (mobile only)
-        // follows the ball's Y with capped reaction speed
         const aiMaxSpeed = Math.max(420, state.vh * 0.6); // px/s
         const aiLag = 0.18; // smoothing factor
 
@@ -247,7 +246,7 @@ export default function HomePage() {
         >
             {!pongActive ? (
                 <button
-                    className="focus:outline-none fade-in"
+                    className="group relative focus:outline-none fade-in"
                     onClick={() => setPongActive(true)}
                     aria-label="Start Pong"
                     title="Click to start"
@@ -260,6 +259,22 @@ export default function HomePage() {
                         className="w-48 h-auto md:w-64 rubber-hover"
                         priority
                     />
+                    {/* hover hint: desktop only */}
+                    <span
+                        className="
+                            pointer-events-none
+                            hidden md:block
+                            paralucent
+                            absolute left-1/2 -translate-x-1/2
+                            top-[calc(100%+8px)]
+                            text-[10px] md:text-xs
+                            text-gray-200/25
+                            opacity-0 group-hover:opacity-100
+                            transition-opacity duration-300
+                        "
+                    >
+                        pong?
+                    </span>
                 </button>
             ) : (
                 <>
@@ -272,7 +287,7 @@ export default function HomePage() {
                     {/* Desktop-only minimal overlay remains hidden on mobile */}
                     <div className="pointer-events-none absolute inset-0 hidden md:flex items-center justify-center">
                         <div className="paralucent text-center leading-relaxed text-gray-200/15 text-sm md:text-base lg:text-lg px-4">
-                            W / S
+                            W / S 
                         </div>
                         <div className="paralucent text-center leading-relaxed text-gray-200/15 text-sm md:text-base lg:text-lg px-4">
                             ↑ / ↓
