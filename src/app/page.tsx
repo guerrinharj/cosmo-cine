@@ -7,6 +7,8 @@ import './HomePage.css';
 export default function HomePage() {
     const [ready, setReady] = useState(false);
     const [pongActive, setPongActive] = useState(false);
+    const [leftScore, setLeftScore] = useState(0);
+    const [rightScore, setRightScore] = useState(0);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
     useEffect(() => {
@@ -123,6 +125,10 @@ export default function HomePage() {
         const aiMaxSpeed = Math.max(420, state.vh * 0.6); // px/s
         const aiLag = 0.18; // smoothing factor
 
+        // local counters (avoid re-running effect on each point)
+        let leftPoints = leftScore;
+        let rightPoints = rightScore;
+
         function resetBall(dir: 1 | -1) {
             x = state.vw / 2 - logoSize / 2;
             y = state.vh / 2 - logoSize / 2;
@@ -203,8 +209,17 @@ export default function HomePage() {
             }
 
             // score (off-screen)
-            if (x + logoSize < 0) resetBall(1);
-            else if (x > state.vw) resetBall(-1);
+            if (x + logoSize < 0) {
+                // right player scores
+                rightPoints += 1;
+                setRightScore(rightPoints);
+                resetBall(1); // serve to right
+            } else if (x > state.vw) {
+                // left player scores
+                leftPoints += 1;
+                setLeftScore(leftPoints);
+                resetBall(-1); // serve to left
+            }
 
             // draw
             ctx.fillStyle = bg;
@@ -235,7 +250,8 @@ export default function HomePage() {
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
         };
-    }, [pongActive]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pongActive]); // ← don't depend on scores to avoid restarting animation
 
     if (!ready) return null;
 
@@ -247,7 +263,7 @@ export default function HomePage() {
             {!pongActive ? (
                 <button
                     className="group relative focus:outline-none fade-in"
-                    onClick={() => setPongActive(true)}
+                    onClick={() => { setLeftScore(0); setRightScore(0); setPongActive(true); }}
                     aria-label="Start Pong"
                     title="Click to start"
                 >
@@ -284,12 +300,25 @@ export default function HomePage() {
                         aria-label="Pong canvas"
                         style={{ touchAction: 'none' }} // prevent scroll on mobile
                     />
-                    {/* Desktop-only minimal overlay remains hidden on mobile */}
-                    <div className="pointer-events-none absolute inset-0 hidden md:flex items-center justify-center">
-                        <div className="paralucent text-center leading-relaxed text-gray-200/15 text-sm md:text-base lg:text-lg px-4">
-                            W / S 
+
+                    {/* SCORE OVERLAY (both mobile + desktop) */}
+                    <div className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2
+                                    w-[72%] md:w-[52%] lg:w-[40%]
+                                    flex items-center justify-between">
+                        <div className="paralucent text-gray-200/12 select-none text-6xl md:text-7xl lg:text-8xl">
+                            {leftScore}
                         </div>
-                        <div className="paralucent text-center leading-relaxed text-gray-200/15 text-sm md:text-base lg:text-lg px-4">
+                        <div className="paralucent text-gray-200/12 select-none text-6xl md:text-7xl lg:text-8xl">
+                            {rightScore}
+                        </div>
+                    </div>
+
+                    {/* Desktop-only minimal controls (kept subtle) */}
+                    <div className="pointer-events-none absolute inset-0 hidden md:flex items-end justify-center pb-6">
+                        <div className="paralucent text-center leading-relaxed text-gray-200/15 text-xs md:text-sm lg:text-base px-4">
+                            W / S
+                        </div>
+                        <div className="paralucent text-center leading-relaxed text-gray-200/15 text-xs md:text-sm lg:text-base px-4">
                             ↑ / ↓
                         </div>
                     </div>
