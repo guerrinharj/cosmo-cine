@@ -19,6 +19,10 @@ export default function ContatoPage() {
     const [email, setEmail] = useState('');
 
     useEffect(() => {
+        document.title = '| COSMO CINE DO BRASIL |';
+    }, []);
+
+    useEffect(() => {
         fetchContatos();
         checkAuth();
     }, []);
