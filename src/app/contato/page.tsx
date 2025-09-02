@@ -30,16 +30,13 @@ export default function ContatoPage() {
 
     const checkAuth = async () => {
         const res = await fetch('/api/auth/me', { credentials: 'include' });
-
         if (!res.ok) {
             setIsAuthenticated(false);
             return;
         }
-
         const data = await res.json();
         setIsAuthenticated(data.authenticated === true);
     };
-
 
     const createContato = async () => {
         const res = await fetch('/api/contatos', {
@@ -62,10 +59,7 @@ export default function ContatoPage() {
     const deleteContato = async (id: string) => {
         if (!confirm('Tem certeza que deseja deletar este contato?')) return;
 
-        const res = await fetch(`/api/contatos/${id}`, {
-            method: 'DELETE',
-        });
-
+        const res = await fetch(`/api/contatos/${id}`, { method: 'DELETE' });
         if (res.ok) {
             fetchContatos();
         } else {
@@ -75,11 +69,10 @@ export default function ContatoPage() {
 
     return (
         <div className="bg-black text-white min-h-screen">
-
             <div className="max-w-5xl mx-auto px-6 py-8">
                 {isAuthenticated && (
                     <>
-                        {/* Mobile version (centered button) */}
+                        {/* Mobile: centered button */}
                         <div className="flex justify-center mb-6 md:hidden">
                             <button
                                 onClick={() => setShowModal(true)}
@@ -89,7 +82,7 @@ export default function ContatoPage() {
                             </button>
                         </div>
 
-                        {/* Desktop version (floating icon button) */}
+                        {/* Desktop: floating icon button */}
                         <button
                             onClick={() => setShowModal(true)}
                             className="hidden md:flex fixed bottom-6 right-6 bg-white text-black text-2xl rounded-full w-12 h-12 items-center justify-center shadow-lg hover:bg-gray-300 transition z-40"
@@ -100,10 +93,10 @@ export default function ContatoPage() {
                     </>
                 )}
 
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {/* Contacts Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
                     {contatos.map((contato) => (
-                        <div key={contato.id} className="relative p-4 fade-in">
+                        <div key={contato.id} className="relative py-4 fade-in">
                             {isAuthenticated && (
                                 <button
                                     className="absolute top-2 right-2 text-red-400 hover:text-red-600"
@@ -118,7 +111,7 @@ export default function ContatoPage() {
                             )}
                             <p className="paralucent text-4xl text-xl font-bol hover:underline">{contato.nome}</p>
                             <button
-                                onClick={() => window.location.href = `mailto:${contato.email}`}
+                                onClick={() => (window.location.href = `mailto:${contato.email}`)}
                                 className="paralucent fade-in text-sm lowercase transition text-white hover:underline text-left"
                             >
                                 {contato.email}
@@ -126,8 +119,52 @@ export default function ContatoPage() {
                         </div>
                     ))}
                 </div>
-            </div>
 
+                {/* Static Info Section (below contacts) */}
+                <div className="paralucent leading-relaxed border-t text-gray-100 text-xl md:text-3xl border-gray-800">
+                    {/* E-mail + ícone de envelope */}
+                    <div className="mt-4">
+                        <span className="group inline-flex items-center gap-2">
+                            <a
+                                href="mailto:contato@cosmocine.com"
+                                className="
+                                    inline-block relative
+                                    hover:[text-decoration-line:underline]
+                                    underline-offset-4 decoration-white/70
+                                    after:absolute after:left-0 after:-bottom-[2px] after:h-px after:w-0 after:bg-current after:transition-all
+                                    hover:after:w-full
+                                "
+                            >
+                                contato@cosmocine.com
+                            </a>
+                        </span>
+                    </div>
+
+                    {/* Telefone + WhatsApp logo */}
+                    <div className="mt-1">
+                        <span className="group inline-flex items-center gap-2">
+                            <a
+                                href="tel:+5521991008837"
+                                className="
+                                    inline-block relative
+                                    hover:[text-decoration-line:underline]
+                                    underline-offset-4 decoration-white/70
+                                    after:absolute after:left-0 after:-bottom-[2px] after:h-px after:w-0 after:bg-current after:transition-all
+                                    hover:after:w-full
+                                "
+                            >
+                                +55 21 99100-8837
+                            </a>
+                        </span>
+                    </div>
+
+                    <div className="text-base md:text-xl mt-2">
+                        R. Marituba, 308 - Rio de Janeiro, Brasil
+                    </div>
+                </div>
+
+
+            </div>
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
@@ -141,7 +178,6 @@ export default function ContatoPage() {
                             onChange={(e) => setNome(e.target.value)}
                             className="w-full mb-3 px-3 py-2 border border-gray-300 rounded"
                         />
-
                         <input
                             type="text"
                             placeholder="Função"
@@ -149,7 +185,6 @@ export default function ContatoPage() {
                             onChange={(e) => setFuncao(e.target.value)}
                             className="w-full mb-3 px-3 py-2 border border-gray-300 rounded"
                         />
-
                         <input
                             type="email"
                             placeholder="E-mail"
