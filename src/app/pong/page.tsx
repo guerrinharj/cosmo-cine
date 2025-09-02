@@ -4,25 +4,26 @@
 import { useEffect, useRef, useState } from 'react'
 
 export default function PongPage() {
-
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => {
-            
             document.body.style.overflow = ''
         }
     }, [])
 
-
-
     return (
         <div
-            className="bg-black w-screen overflow-y-hidden"
-            style={{ height: 'calc(100vh - 64px)'  }}
+            className="bg-black w-screen overflow-y-hidden relative"
+            style={{ height: 'calc(100vh - 64px)' }}
         >
             <main className="h-full">
                 <PongCanvas />
             </main>
+
+            {/* Controles no rodapé */}
+            <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 paralucent text-gray-200/20 text-sm md:text-base select-none">
+                W / S
+            </div>
         </div>
     )
 }
@@ -183,7 +184,6 @@ function PongCanvas() {
             drawScoreOverlay()
         }
 
-        // teclado
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === 'w') state.keys.w = true
             if (e.key === 's') state.keys.s = true
@@ -193,7 +193,6 @@ function PongCanvas() {
             if (e.key === 's') state.keys.s = false
         }
 
-        // toque
         const onTouchMove = (e: TouchEvent) => {
             if (e.touches.length > 0) {
                 const y = e.touches[0].clientY
