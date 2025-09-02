@@ -53,11 +53,25 @@ export default function NavBar() {
     return (
         <motion.nav
             key={pathname}
-            initial={isHome ? { y: -64, opacity: 0 } : false} // start above & hidden (reverse of before)
-            animate={isHome ? { y: 0, opacity: 1 } : {}}     // slide down into place only on '/'
+            initial={isHome ? { y: -64, opacity: 0 } : false}
+            animate={isHome ? { y: 0, opacity: 1 } : {}}
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative border-b border-white"
         >
+            {/* Mobile left logo */}
+            <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-50">
+                <Link href="/" className="block">
+                    <Image
+                        src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
+                        alt="Cosmo Cine"
+                        width={40}
+                        height={40}
+                        className="w-10 h-auto transition-transform duration-300 active:scale-95"
+                        priority
+                    />
+                </Link>
+            </div>
+
             {/* Mobile center group */}
             <div className="flex md:hidden items-center justify-center w-full text-white h-20">
                 <div className="absolute left-0 right-0 flex justify-center gap-6 text-lg uppercase paralucent items-center">
