@@ -81,7 +81,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         return (
             <div className="fixed inset-0 flex items-center justify-center bg-black z-50">
                 <Image
-                    src="/logos/HORIZONTAL/Cosmo_H_negativo_assina01.png"
+                    src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
                     alt="Cosmo Cine Logo"
                     width={192}
                     height={96}
