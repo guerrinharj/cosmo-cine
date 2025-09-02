@@ -151,10 +151,13 @@ function PongCanvas() {
         function drawScoreOverlay() {
             ctx.save()
             ctx.fillStyle = 'rgba(200,200,200,0.1)'
-            ctx.font = 'bold 64px system-ui'
+
+            // Make font smaller on mobile (<640px)
+            const fontSize = state.vw < 640 ? 36 : 64
+            ctx.font = `bold ${fontSize}px system-ui`
             ctx.textBaseline = 'top'
 
-            const offset = state.vw < 640 ? 100 : 200
+            const offset = state.vw < 640 ? 80 : 200
 
             ctx.textAlign = 'left'
             ctx.fillText(String(state.leftScore), state.vw / 2 - offset, 30)
