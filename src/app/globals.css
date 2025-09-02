@@ -118,3 +118,18 @@ a {
         opacity: 0;
     }
 }
+
+
+@keyframes rubberyDiagonal {
+  0%   { transform: translate(0, 0)  }
+  30%  { transform: translate(3px, -3px)  }
+  60%  { transform: translate(-2px, 2px)  }
+  100% { transform: translate(0, 0) }
+}
+
+.rubber-hover {
+  will-change: transform;
+}
+.rubber-hover:hover {
+  animation: rubberyDiagonal 360ms ease-out both;
+}

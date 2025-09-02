@@ -25,7 +25,7 @@ export default function HomePage() {
                     alt="Cosmo Cine Logo"
                     width={200}
                     height={200}
-                    className="w-48 h-auto md:w-64"
+                    className="w-48 h-auto md:w-64 rubber-hover"
                 />
             </Link>
         </div>
