@@ -133,3 +133,8 @@ a {
 .rubber-hover:hover {
   animation: rubberyDiagonal 360ms ease-out both;
 }
+
+
+.no-scroll {
+    overflow: hidden;
+}

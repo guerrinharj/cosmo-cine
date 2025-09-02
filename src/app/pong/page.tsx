@@ -4,10 +4,21 @@
 import { useEffect, useRef, useState } from 'react'
 
 export default function PongPage() {
+
+    useEffect(() => {
+        document.body.style.overflow = 'hidden'
+        return () => {
+            
+            document.body.style.overflow = ''
+        }
+    }, [])
+
+
+
     return (
         <div
             className="bg-black w-screen overflow-y-hidden"
-            style={{ height: 'calc(100vh - 64px)' }}
+            style={{ height: 'calc(100vh - 64px)'  }}
         >
             <main className="h-full">
                 <PongCanvas />
