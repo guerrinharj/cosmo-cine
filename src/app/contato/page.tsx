@@ -144,7 +144,7 @@ export default function ContatoPage() {
                     <div className="mt-1">
                         <span className="group inline-flex items-center gap-2">
                             <a
-                                href="tel:+5521991008837"
+                                href="https://api.whatsapp.com/send?phone=5521991008837"
                                 className="
                                     inline-block relative
                                     hover:[text-decoration-line:underline]
@@ -160,6 +160,23 @@ export default function ContatoPage() {
 
                     <div className="text-base md:text-xl mt-2">
                         R. Marituba, 308 - Rio de Janeiro, Brasil
+                    </div>
+
+                    <div className="mt-2">
+                        <span className="">
+                            <a
+                                href="https://www.instagram.com/cosmocine/"
+                                className="inline-block relative"
+                            >
+                                <img width="32" height="32" src="https://img.icons8.com/glyph-neue/64/FFFFFF/instagram-new--v1.png" alt="instagram-new--v1"/>
+                            </a>
+                            <a
+                                href="https://www.facebook.com/cosmocine/"
+                                className="inline-block relative"
+                            >
+                                <img width="32" height="32" src="https://img.icons8.com/ios-filled/50/FFFFFF/facebook--v1.png" alt="facebook--v1"/>
+                            </a>
+                        </span>
                     </div>
                 </div>
 
