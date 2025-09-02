@@ -23,7 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="icon" href="/logos/COM%20ICONE/Cosmo_V_positivo_Icone.png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {!hideNavBar && <NavBar />}
+        {!hideNavBar && <NavBar key={pathname} />}
         {children}
       </body>
     </html>
