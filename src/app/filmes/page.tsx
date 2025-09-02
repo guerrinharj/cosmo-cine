@@ -30,6 +30,11 @@ export default function HomePage() {
     const categorias = ['Publicidade', 'Clipe', 'Conteudo'];
 
     useEffect(() => {
+        document.title = '| COSMO CINE DO BRASIL |';
+    }, []);
+
+
+    useEffect(() => {
         const savedLocale = localStorage.getItem('locale') as 'pt' | 'en' | null;
         setLocale(savedLocale ?? 'pt');
 
