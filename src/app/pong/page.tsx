@@ -14,7 +14,7 @@ export default function PongPage() {
     return (
         <div
             className="bg-black w-screen overflow-y-hidden relative"
-            style={{ height: 'calc(100vh - 64px)' }}
+            style={{ height: 'calc(100vh - 86px)' }}
         >
             <main className="h-full">
                 <PongCanvas />
