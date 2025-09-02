@@ -53,7 +53,7 @@ export default function HomePage() {
 
         // Ball speed profile 
         let ballSpeed = isMobile
-            ? Math.max(280, Math.floor(Math.min(state.vw, state.vh) * 0.18)) 
+            ? Math.max(280, Math.floor(Math.min(state.vw, state.vh) * 0.18))
             : Math.max(430, Math.floor(Math.min(state.vw, state.vh) * 0.55));
         const accelFactor = isMobile ? 1.03 : 1.12; 
         const maxBallSpeed = isMobile ? ballSpeed * 1.6 : ballSpeed * 2.5;
@@ -64,14 +64,35 @@ export default function HomePage() {
         const leftX = paddlePad;
         const rightX = state.vw - paddlePad - paddleW;
 
-        // ball (logo)
+        // ball position
         let x = state.vw / 2 - logoSize / 2;
         let y = state.vh / 2 - logoSize / 2;
 
-        // random initial direction
-        const angle = Math.random() * Math.PI * 2;
-        let dx = Math.cos(angle) * ballSpeed;
-        let dy = Math.sin(angle) * ballSpeed;
+        // velocities (set by launchers)
+        let dx = 0;
+        let dy = 0;
+
+        // random launcher (start + every reset) —— RANDOM left/right
+        function launchRandom() {
+            // choose random left (-1) or right (+1)
+            const dir: 1 | -1 = Math.random() < 0.5 ? -1 : 1;
+            // restrict angle to a small spread off horizontal so play stays fun
+            const spread = isMobile ? 0.5 : 0.35; // radians
+            let a = (Math.random() * spread) - spread / 2; // -spread/2 .. +spread/2
+            // horizontal base with slight vertical angle
+            dx = Math.cos(a) * ballSpeed * dir;
+            dy = Math.sin(a) * ballSpeed;
+
+            // avoid boring flat starts
+            const minVy = ballSpeed * 0.12;
+            if (Math.abs(dy) < minVy) {
+                dy = (Math.random() < 0.5 ? -1 : 1) * minVy;
+                // re-normalize to exact ballSpeed
+                const v = Math.hypot(dx, dy);
+                dx = (dx / v) * ballSpeed;
+                dy = (dy / v) * ballSpeed;
+            }
+        }
 
         // keyboard controls (desktop only)
         const keys: Record<string, boolean> = { w: false, s: false, ArrowUp: false, ArrowDown: false };
@@ -83,12 +104,10 @@ export default function HomePage() {
         // touch / pointer controls (mobile: right paddle only)
         let rightActive = false;
         function clamp(v: number, a: number, b: number) { return Math.max(a, Math.min(b, v)); }
-
         function setRightPaddleFromY(clientY: number) {
             const targetY = clientY - canvas.getBoundingClientRect().top;
             rightY = clamp(targetY - paddleH / 2, 0, state.vh - paddleH);
         }
-
         function onPointerDown(e: PointerEvent) {
             if (!isMobile) return;
             const rect = canvas.getBoundingClientRect();
@@ -115,6 +134,7 @@ export default function HomePage() {
         window.addEventListener('pointerup', onPointerUp, { passive: false });
         window.addEventListener('pointercancel', onPointerUp, { passive: false });
 
+        // logo as ball
         const logo = new window.Image();
         logo.src = '/logos/COM ICONE/Cosmo_V_negativo_Icone.png';
 
@@ -125,18 +145,17 @@ export default function HomePage() {
         const aiMaxSpeed = Math.max(420, state.vh * 0.6); // px/s
         const aiLag = 0.18; // smoothing factor
 
-        // local counters (avoid re-running effect on each point)
+        // local counters (avoid effect re-run on each point)
         let leftPoints = leftScore;
         let rightPoints = rightScore;
 
-        function resetBall(dir: 1 | -1) {
+        function resetBallRandom() {
+            // center ball
             x = state.vw / 2 - logoSize / 2;
             y = state.vh / 2 - logoSize / 2;
-            // slight cooldown on score so it's playable
+            // slight cooldown to keep playable, then relaunch RANDOMLY
             ballSpeed = Math.max(isMobile ? 150 : 450, ballSpeed * 0.9);
-            const a = (Math.random() * 0.6 - 0.3) + (dir === 1 ? 0 : Math.PI);
-            dx = Math.cos(a) * ballSpeed * dir;
-            dy = Math.sin(a) * ballSpeed;
+            launchRandom();
         }
 
         function drawRoundedRect(
@@ -158,14 +177,14 @@ export default function HomePage() {
             const dt = (now - last) / 1000;
             last = now;
 
-            // paddles: desktop keyboard
+            // paddles
             if (!isMobile) {
                 if (keys.w) leftY -= paddleSpeed * dt;
                 if (keys.s) leftY += paddleSpeed * dt;
                 if (keys.ArrowUp) rightY -= paddleSpeed * dt;
                 if (keys.ArrowDown) rightY += paddleSpeed * dt;
             } else {
-                // mobile: left paddle AI follows ball center with lag and speed cap
+                // mobile AI: left follows ball center with lag + speed cap
                 const target = (y + logoSize / 2) - (paddleH / 2);
                 const diff = target - leftY;
                 const desired = diff * aiLag / Math.max(0.016, dt); // normalize
@@ -174,7 +193,6 @@ export default function HomePage() {
                 leftY = clamp(leftY + stepY, 0, state.vh - paddleH);
             }
 
-            // clamp both paddles
             leftY = clamp(leftY, 0, state.vh - paddleH);
             rightY = clamp(rightY, 0, state.vh - paddleH);
 
@@ -186,10 +204,9 @@ export default function HomePage() {
             if (y <= 0) { y = 0; dy = Math.abs(dy); }
             else if (y + logoSize >= state.vh) { y = state.vh - logoSize; dy = -Math.abs(dy); }
 
-            // paddle collisions + speed-up on hit (gentler on mobile)
             const hitBoost = accelFactor;
 
-            // left
+            // left paddle collision
             if (x <= leftX + paddleW && x + logoSize >= leftX && y + logoSize >= leftY && y <= leftY + paddleH) {
                 x = leftX + paddleW;
                 const centerDelta = (y + logoSize / 2) - (leftY + paddleH / 2);
@@ -198,7 +215,8 @@ export default function HomePage() {
                 ballSpeed = Math.min(maxBallSpeed, ballSpeed * hitBoost);
                 const v = Math.hypot(dx, dy), scale = ballSpeed / v; dx *= scale; dy *= scale;
             }
-            // right
+
+            // right paddle collision
             if (x + logoSize >= rightX && x <= rightX + paddleW && y + logoSize >= rightY && y <= rightY + paddleH) {
                 x = rightX - logoSize;
                 const centerDelta = (y + logoSize / 2) - (rightY + paddleH / 2);
@@ -208,17 +226,17 @@ export default function HomePage() {
                 const v = Math.hypot(dx, dy), scale = ballSpeed / v; dx *= scale; dy *= scale;
             }
 
-            // score (off-screen)
+            // scoring (off-screen)
             if (x + logoSize < 0) {
                 // right player scores
                 rightPoints += 1;
                 setRightScore(rightPoints);
-                resetBall(1); // serve to right
+                resetBallRandom(); // RANDOM relaunch
             } else if (x > state.vw) {
                 // left player scores
                 leftPoints += 1;
                 setLeftScore(leftPoints);
-                resetBall(-1); // serve to left
+                resetBallRandom(); // RANDOM relaunch
             }
 
             // draw
@@ -236,7 +254,15 @@ export default function HomePage() {
             rafId = requestAnimationFrame(step);
         }
 
-        const start = () => { last = performance.now(); rafId = requestAnimationFrame(step); };
+        // initial random launch once the logo is ready
+        function start() {
+            // center ball and launch randomly
+            x = state.vw / 2 - logoSize / 2;
+            y = state.vh / 2 - logoSize / 2;
+            launchRandom();
+            last = performance.now();
+            rafId = requestAnimationFrame(step);
+        }
         if (logo.complete) start(); else logo.onload = start;
 
         // cleanup
@@ -250,8 +276,8 @@ export default function HomePage() {
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
         };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [pongActive]); // ← don't depend on scores to avoid restarting animation
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [pongActive]); // don't depend on scores to avoid restarting animation
 
     if (!ready) return null;
 
@@ -301,10 +327,12 @@ export default function HomePage() {
                         style={{ touchAction: 'none' }} // prevent scroll on mobile
                     />
 
-                    {/* SCORE OVERLAY (both mobile + desktop) */}
-                    <div className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2
-                                    w-[72%] md:w-[52%] lg:w-[40%]
-                                    flex items-center justify-between">
+                    {/* SCORE OVERLAY — centered container */}
+                    <div
+                        className="pointer-events-none absolute inset-y-0 left-1/2 -translate-x-1/2
+                                   w-[72%] md:w-[52%] lg:w-[40%]
+                                   flex items-center justify-between"
+                    >
                         <div className="paralucent text-gray-200/12 select-none text-6xl md:text-7xl lg:text-8xl">
                             {leftScore}
                         </div>
@@ -313,10 +341,10 @@ export default function HomePage() {
                         </div>
                     </div>
 
-                    {/* Desktop-only minimal controls (kept subtle) */}
+                    {/* Desktop-only minimal controls */}
                     <div className="pointer-events-none absolute inset-0 hidden md:flex items-end justify-center pb-6">
                         <div className="paralucent text-center leading-relaxed text-gray-200/15 text-xs md:text-sm lg:text-base px-4">
-                            W / S
+                            W / S 
                         </div>
                         <div className="paralucent text-center leading-relaxed text-gray-200/15 text-xs md:text-sm lg:text-base px-4">
                             ↑ / ↓
