@@ -132,10 +132,10 @@ export default function HomePage() {
                                     />
                                 </div>
                                 <p className="mt-2 text-lg uppercase leading-tight">
-                                    <strong>{filme.nome}</strong>
+                                    <strong>{filme.nome} |  {filme.cliente}</strong>
                                 </p>
                                 <p className="text-base text-gray-400 hover:underline leading-snug">
-                                    {filme.cliente}
+                                    {filme.diretor}
                                 </p>
                                 {filme.agencia && (
                                     <p className="text-sm text-gray-500 leading-snug">
