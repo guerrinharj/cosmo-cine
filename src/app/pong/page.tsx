@@ -87,7 +87,14 @@ function PongCanvas() {
         function resetBall(initial = false) {
             state.ballX = state.vw / 2
             state.ballY = state.vh / 2
-            const angles = [-0.35 * Math.PI, -0.25 * Math.PI, -0.15 * Math.PI, 0.15 * Math.PI, 0.25 * Math.PI, 0.35 * Math.PI]
+            const angles = [
+                -0.35 * Math.PI,
+                -0.25 * Math.PI,
+                -0.15 * Math.PI,
+                0.15 * Math.PI,
+                0.25 * Math.PI,
+                0.35 * Math.PI,
+            ]
             const ang = angles[Math.floor(Math.random() * angles.length)]
             const dir = Math.random() < 0.5 ? -1 : 1
             const speed = randomServeSpeed()
@@ -95,8 +102,10 @@ function PongCanvas() {
             state.vy = Math.sin(ang) * speed
         }
 
-        state.logoImg.onload = () => { state.logoLoaded = true }
-        state.logoImg.src = encodeURI('/logos/COM ICONE/Cosmo_V_negativo_Icone.png')
+        state.logoImg.onload = () => {
+            state.logoLoaded = true
+        }
+        state.logoImg.src = encodeURI('/logos/OUTLINE/sem_letras.png')
 
         function step() {
             const paddleSpeed = Math.max(6, state.vh * 0.012)
@@ -167,17 +176,56 @@ function PongCanvas() {
             ctx.restore()
         }
 
+        // Draw a capsule (pill) shape that perfectly rounds the short side.
+        function capsule(
+            ctx2d: CanvasRenderingContext2D,
+            x: number,
+            y: number,
+            w: number,
+            h: number
+        ) {
+            const r = Math.min(w, h) / 2
+            ctx2d.beginPath()
+            // Top edge (left to right, stopping before corner)
+            ctx2d.moveTo(x + r, y)
+            ctx2d.lineTo(x + w - r, y)
+            // Top-right arc
+            ctx2d.arc(x + w - r, y + r, r, -Math.PI / 2, 0)
+            // Right edge
+            ctx2d.lineTo(x + w, y + h - r)
+            // Bottom-right arc
+            ctx2d.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
+            // Bottom edge
+            ctx2d.lineTo(x + r, y + h)
+            // Bottom-left arc
+            ctx2d.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
+            // Left edge
+            ctx2d.lineTo(x, y + r)
+            // Top-left arc
+            ctx2d.arc(x + r, y + r, r, Math.PI, (3 * Math.PI) / 2)
+            ctx2d.closePath()
+            ctx2d.fill()
+        }
+
         function draw() {
             ctx.fillStyle = '#000'
             ctx.fillRect(0, 0, state.vw, state.vh)
 
+            // Pill-shaped paddles
             ctx.fillStyle = '#fff'
-            ctx.fillRect(40, state.leftY, state.paddleW, state.paddleH)
-            ctx.fillRect(state.vw - 40 - state.paddleW, state.rightY, state.paddleW, state.paddleH)
+            capsule(ctx, 40, state.leftY, state.paddleW, state.paddleH)
+            capsule(ctx, state.vw - 40 - state.paddleW, state.rightY, state.paddleW, state.paddleH)
 
+            // Ball (logo or circle fallback)
             if (state.logoLoaded) {
                 const size = state.ballR * 2
-                ctx.drawImage(state.logoImg, state.ballX - size / 2, state.ballY - size / 2, size, size)
+                ctx.drawImage(
+                    state.logoImg,
+                    state.ballX - size / 2,
+                    state.ballY - size / 2,
+                    size,
+                    size
+                )
             } else {
                 ctx.beginPath()
                 ctx.arc(state.ballX, state.ballY, state.ballR, 0, Math.PI * 2)
@@ -199,7 +247,10 @@ function PongCanvas() {
         const onTouchMove = (e: TouchEvent) => {
             if (e.touches.length > 0) {
                 const y = e.touches[0].clientY
-                state.leftY = Math.max(0, Math.min(state.vh - state.paddleH, y - state.paddleH / 2))
+                state.leftY = Math.max(
+                    0,
+                    Math.min(state.vh - state.paddleH, y - state.paddleH / 2)
+                )
             }
         }
 

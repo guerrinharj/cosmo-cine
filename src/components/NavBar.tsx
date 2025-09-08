@@ -102,7 +102,7 @@ export default function NavBar() {
                         alt="Cosmo Cine"
                         width={200}
                         height={200}
-                        className="duration-300 hover:opacity-80"
+                        className="duration-300 hover:opacity-80 w-40"
                         priority
                     />
                 </Link>
