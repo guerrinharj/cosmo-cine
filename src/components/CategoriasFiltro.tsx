@@ -69,9 +69,6 @@ export default function CategoriaFiltro({
                                 }`}
                             >
                                 <span className="paralucent text-sm md:text-lg">{label}</span>
-                                {isActive && (
-                                    <span className="font-bold text-lg leading-none">×</span>
-                                )}
                             </button>
                         );
                     })}
@@ -88,9 +85,6 @@ export default function CategoriaFiltro({
                         }`}
                     >
                         <span className="paralucent text-sm md:text-lg">{t.filmes.not_service}</span>
-                        {isService.includes(false) && (
-                            <span className="font-bold text-lg leading-none">×</span>
-                        )}
                     </button>
 
                     <button
@@ -102,9 +96,6 @@ export default function CategoriaFiltro({
                         }`}
                     >
                         <span className="paralucent text-sm md:text-lg">{t.filmes.service}</span>
-                        {isService.includes(true) && (
-                            <span className="font-bold text-lg leading-none">×</span>
-                        )}
                     </button>
                 </div>
             </div>
