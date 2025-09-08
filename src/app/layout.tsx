@@ -20,7 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/logos/COM%20ICONE/Cosmo_V_positivo_Icone.png" />
+        <link rel="icon" href="/logos/OUTLINE/com_letras.png" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         {!hideNavBar && <NavBar key={pathname} />}

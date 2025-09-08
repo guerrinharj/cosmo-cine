@@ -17,11 +17,11 @@ export default function HomePage() {
                 title="Jogar Pong"
             >
                 <NextImage
-                    src="/logos/COM ICONE/Cosmo_V_negativo_Icone.png"
+                    src="/logos/OUTLINE/com_letras.png"
                     alt="Cosmo Cine Logo"
                     width={200}
                     height={200}
-                    className="w-48 h-auto md:w-64 rubber-hover"
+                    className="w-44 h-auto md:w-46 rubber-hover"
                     priority
                 />
 
