@@ -19,19 +19,6 @@ type Filme = {
     showable?: boolean;
 };
 
-// Helper to robustly extract a Vimeo numeric ID from various URL shapes
-function vimeoIdFromUrl(url?: string): string | null {
-    if (!url) return null;
-
-    // Already a player URL? e.g., https://player.vimeo.com/video/12345
-    const player = url.match(/player\.vimeo\.com\/video\/(\d+)/);
-    if (player?.[1]) return player[1];
-
-    // Generic share/admin/watch URLs: grab the last numeric segment
-    const generic = url.match(/vimeo\.com\/(?:.*\/)?(\d+)(?:$|[?/])/);
-    return generic?.[1] ?? null;
-}
-
 export default function FilmeClientPage({ slug }: { slug: string }) {
     const router = useRouter();
     const [filme, setFilme] = useState<Filme | null>(null);
@@ -106,6 +93,15 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
     const titleText = `${filme.nome}${filme.cliente ? ` | ${filme.cliente}` : ''}`;
 
+    // --- Minimal, robust src: use as-is if already a player URL; otherwise convert once.
+    const rawUrl = filme.video_url ?? '';
+    const src =
+        rawUrl.includes('player.vimeo.com')
+            ? rawUrl
+            : rawUrl.startsWith('https://vimeo.com/')
+                ? rawUrl.replace('https://vimeo.com/', 'https://player.vimeo.com/video/')
+                : rawUrl;
+
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
@@ -158,38 +154,23 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                {/* Video first (robust poster + robust height even without aspect plugin) */}
+                {/* Video first - simple, no extra logic; ensure visible height with ratio wrapper */}
                 <div className="relative w-full mt-6" style={{ paddingTop: '56.25%' }}>
-                    {(() => {
-                        const raw = filme.video_url ?? '';
-                        const isPlayer = /player\.vimeo\.com\/video\/\d+/.test(raw);
-                        const id = isPlayer
-                            ? raw.match(/video\/(\d+)/)?.[1] ?? null
-                            : vimeoIdFromUrl(raw);
-
-                        if (!id) {
-                            return (
-                                <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
-                                    Vídeo inválido: não foi possível extrair o ID do Vimeo.
-                                </div>
-                            );
-                        }
-
-                        const src = isPlayer ? raw : `https://player.vimeo.com/video/${id}`;
-
-                        return (
-                            <iframe
-                                key={id}
-                                src={src}
-                                className="absolute inset-0 w-full h-full"
-                                allow="autoplay; fullscreen; picture-in-picture"
-                                allowFullScreen
-                                loading="lazy"
-                                frameBorder={0}
-                                title={filme.nome}
-                            />
-                        );
-                    })()}
+                    {src ? (
+                        <iframe
+                            src={src}
+                            className="absolute inset-0 w-full h-full"
+                            allow="autoplay; fullscreen; picture-in-picture"
+                            allowFullScreen
+                            loading="lazy"
+                            frameBorder={0}
+                            title={filme.nome}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
+                            Vídeo indisponível.
+                        </div>
+                    )}
                 </div>
 
                 {/* Titles BELOW the video */}
