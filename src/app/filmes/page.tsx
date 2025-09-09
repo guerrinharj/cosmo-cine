@@ -10,7 +10,7 @@ type Filme = {
     id: string;
     slug: string;
     nome: string;
-    cliente: string;
+    cliente?: string;
     diretor: string;
     produtoraContratante: string;
     agencia?: string;
@@ -132,7 +132,10 @@ export default function HomePage() {
                                     />
                                 </div>
                                 <p className="mt-2 text-lg uppercase leading-tight">
-                                    <strong>{filme.nome} |  {filme.cliente}</strong>
+                                    <strong>
+                                        {filme.nome}
+                                        {filme.cliente ? ` | ${filme.cliente}` : ''}
+                                    </strong>
                                 </p>
                                 <p className="text-base text-gray-400 hover:underline leading-snug">
                                     {filme.diretor}
