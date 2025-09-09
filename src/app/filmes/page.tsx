@@ -122,7 +122,7 @@ export default function HomePage() {
                             className="paralucent text-2xl flex flex-col cursor-pointer group"
                         >
                             
-                            <div className="rubber-hover">
+                            <div>
                                 <div className="w-full aspect-video relative rounded-lg overflow-hidden">
                                     <Image
                                         src={filme.thumbnail}
@@ -131,13 +131,11 @@ export default function HomePage() {
                                         className="object-cover group-hover:opacity-80 transition"
                                     />
                                 </div>
-                                <p className="mt-2 text-lg uppercase leading-tight">
-                                    <strong>
-                                        {filme.nome}
-                                        {filme.cliente ? ` | ${filme.cliente}` : ''}
-                                    </strong>
+                                <p className="mt-2 text-base uppercase leading-tight">
+                                    {filme.nome}
+                                    {filme.cliente ? ` | ${filme.cliente}` : ''}
                                 </p>
-                                <p className="text-base text-gray-400 hover:underline leading-snug">
+                                <p className="text-sm text-gray-400 hover:underline leading-snug">
                                     {filme.diretor}
                                 </p>
                                 {filme.agencia && (
