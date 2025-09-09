@@ -4,23 +4,25 @@ import { useState, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 
+type FilmeForm = {
+    nome: string;
+    cliente: string;                 // optional for UI, may be ''
+    diretor: string;
+    categoria: string;
+    produtoraContratante: string;    // optional for UI, may be ''
+    agencia: string;                 // optional for UI, may be ''
+    video_url: string;
+    date: string;                    // optional for UI, may be ''
+    thumbnail: string;
+    showable: boolean;
+    is_service: boolean;
+    [key: string]: string | boolean;
+};
+
 export default function CreateFilmePage() {
     const router = useRouter();
 
-    const [form, setForm] = useState<{ 
-        nome: string;
-        cliente: string;
-        diretor: string;
-        categoria: string;
-        produtoraContratante: string;
-        agencia: string;
-        video_url: string;
-        date: string;
-        thumbnail: string;
-        showable: boolean;
-        is_service: boolean;
-        [key: string]: string | boolean;
-    }>({
+    const [form, setForm] = useState<FilmeForm>({
         nome: '',
         cliente: '',
         diretor: '',
@@ -39,7 +41,8 @@ export default function CreateFilmePage() {
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
+    // 'cliente' is NOT required anymore
+    const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const target = e.target as HTMLInputElement;
@@ -74,17 +77,24 @@ export default function CreateFilmePage() {
         try {
             const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
             const oembed = await oembedRes.json();
-            const thumbnailUrl = oembed.thumbnail_url;
+            const thumbnailUrl = oembed.thumbnail_url as string;
+
+            // Omit optional empty fields by sending undefined (JSON.stringify removes undefined keys)
+            const payload = {
+                ...form,
+                thumbnail: thumbnailUrl,
+                creditos: creditos.filter(c => c.trim() !== '').join(', '),
+                cliente: form.cliente.trim() || undefined,
+                agencia: form.agencia.trim() || undefined,
+                produtoraContratante: form.produtoraContratante.trim() || undefined,
+                date: form.date || undefined,
+                is_service: form.is_service
+            };
 
             const res = await fetch('/api/filmes', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...form,
-                    thumbnail: thumbnailUrl,
-                    creditos: creditos.filter(c => c.trim() !== '').join(', '), // 👈 transforma em string
-                    is_service: form.is_service
-                }),
+                body: JSON.stringify(payload),
             });
 
             const result = await res.json();
@@ -122,19 +132,78 @@ export default function CreateFilmePage() {
             <div className="max-w-5xl mx-auto px-6 py-10">
                 <h1 className="paralucent text-3xl font-bold mb-8 uppercase">Criar Filme</h1>
                 <form onSubmit={handleSubmit} className="paralucent grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input name="nome" placeholder="Nome *" value={form.nome} onChange={handleChange} onBlur={() => setTouched({ ...touched, nome: true })} className={inputStyle('nome')} />
-                    <input name="cliente" placeholder="Cliente *" value={form.cliente} onChange={handleChange} onBlur={() => setTouched({ ...touched, cliente: true })} className={inputStyle('cliente')} />
-                    <input name="diretor" placeholder="Diretor *" value={form.diretor} onChange={handleChange} onBlur={() => setTouched({ ...touched, diretor: true })} className={inputStyle('diretor')} />
-                    <select name="categoria" value={form.categoria} onChange={handleChange} onBlur={() => setTouched({ ...touched, categoria: true })} className={inputStyle('categoria')}>
+                    <input
+                        name="nome"
+                        placeholder="Nome *"
+                        value={form.nome}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, nome: true })}
+                        className={inputStyle('nome')}
+                    />
+
+                    {/* cliente is OPTIONAL now (no asterisk, no required blur) */}
+                    <input
+                        name="cliente"
+                        placeholder="Cliente"
+                        value={form.cliente}
+                        onChange={handleChange}
+                        className={inputStyle('cliente')}
+                    />
+
+                    <input
+                        name="diretor"
+                        placeholder="Diretor *"
+                        value={form.diretor}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, diretor: true })}
+                        className={inputStyle('diretor')}
+                    />
+
+                    <select
+                        name="categoria"
+                        value={form.categoria}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, categoria: true })}
+                        className={inputStyle('categoria')}
+                    >
                         <option value="">Categoria *</option>
                         <option value="Publicidade">Publicidade</option>
                         <option value="Clipe">Clipe</option>
                         <option value="Conteudo">Conteúdo</option>
                     </select>
-                    <input name="produtoraContratante" placeholder="Produtora Contratante" value={form.produtoraContratante} onChange={handleChange} className={inputStyle('produtoraContratante')} />
-                    <input name="agencia" placeholder="Agência" value={form.agencia} onChange={handleChange} className={inputStyle('agencia')} />
-                    <input name="video_url" placeholder="Vídeo URL * (Vimeo)" value={form.video_url} onChange={handleChange} onBlur={() => setTouched({ ...touched, video_url: true })} className={inputStyle('video_url')} />
-                    <input name="date" type="date" value={form.date} onChange={handleChange} className={inputStyle('date')} />
+
+                    <input
+                        name="produtoraContratante"
+                        placeholder="Produtora Contratante"
+                        value={form.produtoraContratante}
+                        onChange={handleChange}
+                        className={inputStyle('produtoraContratante')}
+                    />
+
+                    <input
+                        name="agencia"
+                        placeholder="Agência"
+                        value={form.agencia}
+                        onChange={handleChange}
+                        className={inputStyle('agencia')}
+                    />
+
+                    <input
+                        name="video_url"
+                        placeholder="Vídeo URL * (Vimeo)"
+                        value={form.video_url}
+                        onChange={handleChange}
+                        onBlur={() => setTouched({ ...touched, video_url: true })}
+                        className={inputStyle('video_url')}
+                    />
+
+                    <input
+                        name="date"
+                        type="date"
+                        value={form.date}
+                        onChange={handleChange}
+                        className={inputStyle('date')}
+                    />
 
                     {/* Créditos */}
                     <div className="md:col-span-2">
