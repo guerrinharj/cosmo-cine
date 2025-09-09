@@ -9,8 +9,8 @@ type Filme = {
     id: string;
     slug: string;
     nome: string;
-    cliente?: string;           // made optional
-    diretor?: string;           // treat as optional
+    cliente?: string;
+    diretor?: string;
     agencia?: string;
     video_url?: string;
     date: string;
@@ -93,6 +93,15 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
     const titleText = `${filme.nome}${filme.cliente ? ` | ${filme.cliente}` : ''}`;
 
+    // --- Minimal, robust src: use as-is if already a player URL; otherwise convert once.
+    const rawUrl = filme.video_url ?? '';
+    const src =
+        rawUrl.includes('player.vimeo.com')
+            ? rawUrl
+            : rawUrl.startsWith('https://vimeo.com/')
+                ? rawUrl.replace('https://vimeo.com/', 'https://player.vimeo.com/video/')
+                : rawUrl;
+
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
@@ -145,16 +154,24 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                {/* Video first */}
-                {filme.video_url && (
-                    <div className="w-full aspect-video mt-6">
+                {/* Video first - simple, no extra logic; ensure visible height with ratio wrapper */}
+                <div className="relative w-full mt-6" style={{ paddingTop: '56.25%' }}>
+                    {src ? (
                         <iframe
-                            src={filme.video_url.replace('vimeo.com', 'player.vimeo.com/video')}
-                            className="w-full h-full"
+                            src={src}
+                            className="absolute inset-0 w-full h-full"
+                            allow="autoplay; fullscreen; picture-in-picture"
                             allowFullScreen
-                        ></iframe>
-                    </div>
-                )}
+                            loading="lazy"
+                            frameBorder={0}
+                            title={filme.nome}
+                        />
+                    ) : (
+                        <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
+                            Vídeo indisponível.
+                        </div>
+                    )}
+                </div>
 
                 {/* Titles BELOW the video */}
                 <h1 className="paralucent text-2xl md:text-4xl font-bold uppercase mt-6">
