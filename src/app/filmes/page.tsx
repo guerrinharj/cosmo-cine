@@ -12,7 +12,7 @@ type Filme = {
     nome: string;
     cliente?: string;
     diretor: string;
-    produtoraContratante: string;
+    produtoraContratante?: string;
     agencia?: string;
     categoria: string;
     thumbnail: string;
@@ -32,7 +32,6 @@ export default function HomePage() {
     useEffect(() => {
         document.title = '| COSMO CINE DO BRASIL |';
     }, []);
-
 
     useEffect(() => {
         const savedLocale = localStorage.getItem('locale') as 'pt' | 'en' | null;
@@ -115,37 +114,45 @@ export default function HomePage() {
             <div className="grid gap-6 px-4 fade-in grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
                 {filmesFiltrados
                     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                    .map((filme) => (
-                        <Link
-                            href={`/filmes/${filme.slug}`}
-                            key={filme.id}
-                            className="paralucent text-2xl flex flex-col cursor-pointer group"
-                        >
-                            
-                            <div>
-                                <div className="w-full aspect-video relative rounded-lg overflow-hidden">
-                                    <Image
-                                        src={filme.thumbnail}
-                                        alt={filme.nome}
-                                        fill
-                                        className="object-cover group-hover:opacity-80 transition"
-                                    />
-                                </div>
-                                <p className="mt-2 text-base uppercase leading-tight">
-                                    {filme.nome}
-                                    {filme.cliente ? ` | ${filme.cliente}` : ''}
-                                </p>
-                                <p className="text-sm text-gray-400 hover:underline leading-snug">
-                                    {filme.diretor}
-                                </p>
-                                {filme.agencia && (
-                                    <p className="text-sm text-gray-500 leading-snug">
-                                        {filme.agencia}
+                    .map((filme) => {
+                        const primaria =
+                            (filme.produtoraContratante && filme.produtoraContratante.trim()) ||
+                            (filme.agencia && filme.agencia.trim()) ||
+                            '';
+
+                        return (
+                            <Link
+                                href={`/filmes/${filme.slug}`}
+                                key={filme.id}
+                                className="paralucent text-2xl flex flex-col cursor-pointer group"
+                            >
+                                <div>
+                                    <div className="w-full aspect-video relative rounded-lg overflow-hidden">
+                                        <Image
+                                            src={filme.thumbnail}
+                                            alt={filme.nome}
+                                            fill
+                                            className="object-cover group-hover:opacity-80 transition"
+                                        />
+                                    </div>
+                                    <p className="mt-2 text-base uppercase leading-tight">
+                                        {filme.nome}
+                                        {filme.cliente ? ` | ${filme.cliente}` : ''}
                                     </p>
-                                )}
-                            </div>
-                        </Link>
-                    ))}
+                                    <p className="text-sm text-gray-400 leading-snug">
+                                        {filme.diretor}
+                                    </p>
+
+                                    {/* Hierarquia: produtoraContratante > agencia > nada */}
+                                    {primaria && (
+                                        <p className="text-sm text-gray-500 leading-snug">
+                                            {primaria}
+                                        </p>
+                                    )}
+                                </div>
+                            </Link>
+                        );
+                    })}
             </div>
         </div>
     );
