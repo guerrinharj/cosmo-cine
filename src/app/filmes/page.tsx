@@ -135,7 +135,7 @@ export default function HomePage() {
                                     {filme.nome}
                                     {filme.cliente ? ` | ${filme.cliente}` : ''}
                                 </p>
-                                <p className="text-sm text-gray-400 hover:underline leading-snug">
+                                <p className="text-sm text-gray-400 leading-snug">
                                     {filme.diretor}
                                 </p>
                                 {filme.agencia && (
