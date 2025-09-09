@@ -11,14 +11,14 @@ export default function EditFilmePage() {
     type FormFields = {
         [key: string]: string | boolean;
         nome: string;
-        cliente: string;
+        cliente: string;                
         diretor: string;
         categoria: string;
-        produtoraContratante: string;
-        agencia: string;
+        produtoraContratante: string;    
+        agencia: string;                 
         video_url: string;
-        date: string;
-        thumbnail: string;
+        date: string;                   
+        thumbnail: string;              
         showable: boolean;
         is_service: boolean;
     };
@@ -42,7 +42,8 @@ export default function EditFilmePage() {
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    const requiredFields = ['nome', 'cliente', 'diretor', 'categoria'];
+    // 'cliente' is NOT required anymore
+    const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
     const splitCreditos = (str: string) =>
         str
@@ -56,17 +57,17 @@ export default function EditFilmePage() {
             const data = await res.json();
 
             setForm({
-                nome: data.nome,
-                cliente: data.cliente,
-                diretor: data.diretor,
-                categoria: data.categoria,
-                produtoraContratante: data.produtoraContratante || '',
-                agencia: data.agencia || '',
-                video_url: data.video_url,
-                date: data.date?.slice(0, 10) || '',
-                thumbnail: data.thumbnail || '',
-                showable: data.showable,
-                is_service: data.is_service || false,
+                nome: data.nome ?? '',
+                cliente: data.cliente ?? '',                 // <- default to ''
+                diretor: data.diretor ?? '',
+                categoria: data.categoria ?? '',
+                produtoraContratante: data.produtoraContratante ?? '',
+                agencia: data.agencia ?? '',
+                video_url: data.video_url ?? '',
+                date: data.date?.slice(0, 10) ?? '',
+                thumbnail: data.thumbnail ?? '',
+                showable: Boolean(data.showable),
+                is_service: Boolean(data.is_service),
             });
 
             const creditosArray =
@@ -110,20 +111,24 @@ export default function EditFilmePage() {
         try {
             const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
             const oembed = await oembedRes.json();
-            const thumbnailUrl = oembed.thumbnail_url;
+            const thumbnailUrl = (oembed.thumbnail_url as string) || form.thumbnail || '';
+
+            // Omit optional empty fields by sending undefined
+            const payload = {
+                ...form,
+                thumbnail: form.thumbnail.trim() ? form.thumbnail : (thumbnailUrl || undefined),
+                creditos: creditos.map(c => c.trim()).filter(Boolean).join('; '),
+                cliente: form.cliente.trim() || undefined,
+                agencia: form.agencia.trim() || undefined,
+                produtoraContratante: form.produtoraContratante.trim() || undefined,
+                date: form.date || undefined,
+                is_service: form.is_service,
+            };
 
             const res = await fetch(`/api/filmes/${slug}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    ...form,
-                    thumbnail: thumbnailUrl,
-                    creditos: creditos
-                        .map(c => c.trim())
-                        .filter(Boolean)
-                        .join('; '),
-                    is_service: form.is_service,
-                }),
+                body: JSON.stringify(payload),
             });
 
             const result = await res.json();
@@ -174,10 +179,9 @@ export default function EditFilmePage() {
                     />
                     <input
                         name="cliente"
-                        placeholder="Cliente *"
+                        placeholder="Cliente"
                         value={form.cliente as string}
                         onChange={handleChange}
-                        onBlur={() => setTouched({ ...touched, cliente: true })}
                         className={inputStyle('cliente')}
                     />
                     <input
@@ -247,7 +251,7 @@ export default function EditFilmePage() {
                                         placeholder="Texto do crédito (ex.: Direção: Fulano; Arte & Design: Sicrana, Beltrano)"
                                         value={c}
                                         onChange={e => updateCredito(i, e.target.value)}
-                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] text-white placeholder-white"
+                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h=[80px] text-white placeholder-white"
                                     />
                                     <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">
                                         ✕

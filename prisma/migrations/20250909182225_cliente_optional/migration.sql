@@ -1,0 +1,1 @@
+ALTER TABLE "Filme" ALTER COLUMN "cliente" DROP NOT NULL;
