@@ -8,9 +8,9 @@ import Image from 'next/image';
 type Filme = {
     id: string;
     slug: string;
-    cliente: string;
     nome: string;
-    diretor: string;
+    cliente?: string;           // made optional
+    diretor?: string;           // treat as optional
     agencia?: string;
     video_url?: string;
     date: string;
@@ -37,8 +37,8 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             method: 'GET',
             credentials: 'include',
         })
-            .then(res => res.ok ? res.json() : { authenticated: false })
-            .then(data => setIsAuthenticated(data.authenticated));
+            .then(res => (res.ok ? res.json() : { authenticated: false }))
+            .then(data => setIsAuthenticated(Boolean(data?.authenticated)));
     }, []);
 
     useEffect(() => {
@@ -91,6 +91,8 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         );
     }
 
+    const titleText = `${filme.nome}${filme.cliente ? ` | ${filme.cliente}` : ''}`;
+
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
             {/* Control Bar */}
@@ -118,8 +120,18 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                 <div className="flex items-center gap-4">
                     {isAuthenticated && (
                         <>
-                            <Link href={`/filmes/${slug}/edit`} className="paralucent uppercase hover:underline">Editar</Link>
-                            <button onClick={handleDelete} className="paralucent uppercase text-red-500 hover:underline">Deletar</button>
+                            <Link
+                                href={`/filmes/${slug}/edit`}
+                                className="paralucent uppercase hover:underline"
+                            >
+                                Editar
+                            </Link>
+                            <button
+                                onClick={handleDelete}
+                                className="paralucent uppercase text-red-500 hover:underline"
+                            >
+                                Deletar
+                            </button>
                         </>
                     )}
                     <button
@@ -133,47 +145,58 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                <h1 className="paralucent text-2xl md-text-4xl font-bold uppercase">{filme.nome}</h1>
-                <p className="paralucent text-2xl md-text-4xl text-gray-400 mt-1 uppercase">{filme.cliente}</p>
-                {filme.agencia && <p className="paralucent text-xl text-gray-400">{filme.agencia}</p>}
-
+                {/* Video first */}
                 {filme.video_url && (
                     <div className="w-full aspect-video mt-6">
                         <iframe
                             src={filme.video_url.replace('vimeo.com', 'player.vimeo.com/video')}
                             className="w-full h-full"
-                            frameBorder="0"
                             allowFullScreen
                         ></iframe>
                     </div>
                 )}
 
-        {/* Créditos com destaque no prefixo */}
-        {filme.creditos && (
-        <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-            {(
-            filme.creditos
-                // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
-                .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
-                .map(s => s.trim())
-                .filter(Boolean)
-            ).map((entry, idx) => {
-            const colonIdx = entry.indexOf(':');
-            const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
-            const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
+                {/* Titles BELOW the video */}
+                <h1 className="paralucent text-2xl md:text-4xl font-bold uppercase mt-6">
+                    {titleText}
+                </h1>
 
-            return (
-                <div key={idx} className="flex flex-col">
-                {label && <span className="font-bold text-gray-400">{label}:</span>}
-                {value && <span className="block">{value}</span>}
-                </div>
-            );
-            })}
+                {filme.diretor && (
+                    <p className="paralucent text-lg md:text-2xl text-gray-400 mt-1 uppercase">
+                        {filme.diretor}
+                    </p>
+                )}
+
+                {filme.agencia && (
+                    <p className="paralucent text-xl text-gray-400 mt-2">
+                        {filme.agencia}
+                    </p>
+                )}
+
+                {/* Créditos com destaque no prefixo */}
+                {filme.creditos && (
+                    <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
+                        {(
+                            filme.creditos
+                                // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
+                                .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
+                                .map(s => s.trim())
+                                .filter(Boolean)
+                        ).map((entry, idx) => {
+                            const colonIdx = entry.indexOf(':');
+                            const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
+                            const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
+
+                            return (
+                                <div key={idx} className="flex flex-col">
+                                    {label && <span className="font-bold text-gray-400">{label}:</span>}
+                                    {value && <span className="block">{value}</span>}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
-        )}
-
-
-        </div>
-    </div>
     );
 }
