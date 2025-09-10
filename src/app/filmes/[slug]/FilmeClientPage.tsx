@@ -154,7 +154,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
 
             {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                {/* Video first - simple, no extra logic; ensure visible height with ratio wrapper */}
+                {/* Video or Thumbnail */}
                 <div className="relative w-full mt-6" style={{ paddingTop: '56.25%' }}>
                     {src ? (
                         <iframe
@@ -167,11 +167,16 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                             title={filme.nome}
                         />
                     ) : (
-                        <div className="absolute inset-0 flex items-center justify-center bg-neutral-900 text-neutral-400 text-sm">
-                            Vídeo indisponível.
-                        </div>
+                        <Image
+                            src={filme.thumbnail}
+                            alt={filme.nome}
+                            fill
+                            className="object-cover"
+                            sizes="100vw"
+                            priority
+                        />
                     )}
-                </div>
+            </div>
 
                 {/* Titles BELOW the video */}
                 <h1 className="paralucent text-2xl md:text-4xl font-bold uppercase mt-6">
