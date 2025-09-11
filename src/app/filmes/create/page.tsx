@@ -13,7 +13,7 @@ type FilmeForm = {
     agencia: string;                 // optional for UI, may be ''
     video_url: string;
     date: string;                    // optional for UI, may be ''
-    thumbnail: string;
+    thumbnail: string;               // NEW: optional override
     showable: boolean;
     is_service: boolean;
     [key: string]: string | boolean;
@@ -31,7 +31,7 @@ export default function CreateFilmePage() {
         agencia: '',
         video_url: '',
         date: '',
-        thumbnail: '',
+        thumbnail: '',               // NEW
         showable: false,
         is_service: false
     });
@@ -44,16 +44,18 @@ export default function CreateFilmePage() {
     // 'cliente' is NOT required anymore
     const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
-    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const target = e.target as HTMLInputElement;
         const { name, value, type } = target;
-        const checked = target.checked;
+        const checked = (target as HTMLInputElement).checked;
 
         setForm((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value,
         }));
     };
+
+    const isLikelyUrl = (value: string) => /^https?:\/\/.+/i.test(value.trim());
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -75,14 +77,30 @@ export default function CreateFilmePage() {
         }
 
         try {
-            const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${form.video_url}`);
-            const oembed = await oembedRes.json();
-            const thumbnailUrl = oembed.thumbnail_url as string;
+            // Prefer user-provided thumbnail, fallback to oEmbed
+            let chosenThumbnail = form.thumbnail.trim();
+
+            if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
+                setTouched({ ...touched, thumbnail: true });
+                setModalMessage('A Thumbnail personalizada deve ser uma URL iniciando com http(s)://');
+                setShowModal(true);
+                return;
+            }
+
+            if (!chosenThumbnail) {
+                // Fetch Vimeo oEmbed thumbnail only if user didn't specify one
+                const oembedRes = await fetch(`https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url)}`);
+                if (oembedRes.ok) {
+                    const oembed = await oembedRes.json();
+                    chosenThumbnail = (oembed?.thumbnail_url as string) || '';
+                }
+            }
 
             // Omit optional empty fields by sending undefined (JSON.stringify removes undefined keys)
             const payload = {
                 ...form,
-                thumbnail: thumbnailUrl,
+                // Use chosen thumbnail if any (custom or Vimeo); let backend decide fallback if empty
+                thumbnail: chosenThumbnail || undefined,
                 creditos: creditos.filter(c => c.trim() !== '').join(', '),
                 cliente: form.cliente.trim() || undefined,
                 agencia: form.agencia.trim() || undefined,
@@ -112,19 +130,17 @@ export default function CreateFilmePage() {
     };
 
     const addCredito = () => setCreditos([...creditos, '']);
-
     const updateCredito = (i: number, value: string) => {
         const copy = [...creditos];
         copy[i] = value;
         setCreditos(copy);
     };
-
     const removeCredito = (i: number) => {
         setCreditos(creditos.filter((_, idx) => idx !== i));
     };
 
     const inputStyle = (field: string) =>
-        `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'}`;
+        `w-full px-3 py-2 rounded border ${touched[field] && !form[field] ? 'border-red-500' : 'border-gray-300'} bg-black text-white placeholder-gray-400`;
 
     return (
         <div className="bg-black text-white min-h-screen">
@@ -141,7 +157,7 @@ export default function CreateFilmePage() {
                         className={inputStyle('nome')}
                     />
 
-                    {/* cliente is OPTIONAL now (no asterisk, no required blur) */}
+                    {/* cliente is OPTIONAL now */}
                     <input
                         name="cliente"
                         placeholder="Cliente"
@@ -205,6 +221,38 @@ export default function CreateFilmePage() {
                         className={inputStyle('date')}
                     />
 
+                    {/* NEW: Custom Thumbnail URL (optional, overrides Vimeo) */}
+                    <div className="md:col-span-2">
+                        <input
+                            name="thumbnail"
+                            placeholder="Thumbnail personalizada (URL) — opcional, sobrescreve a do Vimeo"
+                            value={form.thumbnail}
+                            onChange={(e) => {
+                                if (!touched.thumbnail) setTouched({ ...touched, thumbnail: false });
+                                handleChange(e);
+                            }}
+                            onBlur={() => setTouched({ ...touched, thumbnail: true })}
+                            className={`w-full px-3 py-2 rounded border ${touched.thumbnail && form.thumbnail && !isLikelyUrl(form.thumbnail) ? 'border-red-500' : 'border-gray-300'} bg-black text-white placeholder-gray-400`}
+                        />
+                        {/* Simple live preview */}
+                        {isLikelyUrl(form.thumbnail) && (
+                            <div className="mt-3">
+                                <p className="text-sm text-gray-400 mb-2">Pré-visualização da Thumbnail:</p>
+                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                <img
+                                    src={form.thumbnail}
+                                    alt="Pré-visualização da thumbnail"
+                                    className="w-full max-h-72 object-contain rounded border border-gray-700"
+                                />
+                            </div>
+                        )}
+                        {touched.thumbnail && form.thumbnail && !isLikelyUrl(form.thumbnail) && (
+                            <p className="text-sm text-red-400 mt-2">
+                                Insira uma URL válida (começando com http:// ou https://).
+                            </p>
+                        )}
+                    </div>
+
                     {/* Créditos */}
                     <div className="md:col-span-2">
                         <p className="mb-2 font-bold">Créditos</p>
@@ -212,10 +260,12 @@ export default function CreateFilmePage() {
                             <div key={i} className="flex gap-2 mb-2 flex-col">
                                 <div className="flex gap-2">
                                     <textarea
+                                        name={`credito_${i}`}
                                         placeholder="Texto do crédito"
                                         value={c}
-                                        onChange={(e) => updateCredito(i, e.target.value)}
-                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px]"
+                                        onChange={(e) => handleChange(e)}
+                                        onInput={(e) => updateCredito(i, (e.target as HTMLTextAreaElement).value)}
+                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] bg-black text-white placeholder-gray-400"
                                     />
                                     <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">✕</button>
                                 </div>
