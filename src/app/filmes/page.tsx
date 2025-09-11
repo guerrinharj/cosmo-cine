@@ -18,6 +18,7 @@ type Filme = {
     thumbnail: string;
     date: string;
     is_service?: boolean;
+    showable: boolean;
 };
 
 export default function HomePage() {
@@ -56,6 +57,7 @@ export default function HomePage() {
     }, []);
 
     const filmesFiltrados = filmes
+        .filter(f => isAuthenticated ? true : f.showable)
         .filter(f => (filtro.length > 0 ? filtro.includes(f.categoria) : true))
         .filter(f => (isService.length > 0 ? isService.includes(f.is_service ?? false) : true));
 
@@ -135,9 +137,15 @@ export default function HomePage() {
                                             className="object-cover group-hover:opacity-80 transition"
                                         />
                                     </div>
-                                    <p className="mt-2 text-base uppercase leading-tight">
+                                    <p className="mt-2 text-base uppercase leading-tight flex items-center gap-2">
                                         {filme.nome}
                                         {filme.cliente ? ` | ${filme.cliente}` : ''}
+
+                                        {isAuthenticated && !filme.showable && (
+                                            <span className="ml-2 text-xs font-bold text-red-500">
+                                                PRIVATE
+                                            </span>
+                                        )}
                                     </p>
                                     <p className="text-sm text-gray-400 leading-snug">
                                         {filme.diretor}
