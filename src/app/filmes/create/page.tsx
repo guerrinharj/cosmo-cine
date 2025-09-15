@@ -6,14 +6,14 @@ import NavBar from '@/components/NavBar';
 
 type FilmeForm = {
     nome: string;
-    cliente: string;                 // optional for UI, may be ''
+    cliente: string;               
     diretor: string;
     categoria: string;
-    produtoraContratante: string;    // optional for UI, may be ''
-    agencia: string;                 // optional for UI, may be ''
+    produtoraContratante: string;    
+    agencia: string;                 
     video_url: string;
-    date: string;                    // optional for UI, may be ''
-    thumbnail: string;               // NEW: optional override
+    date: string;                    
+    thumbnail: string;             
     showable: boolean;
     is_service: boolean;
     [key: string]: string | boolean;
@@ -157,7 +157,6 @@ export default function CreateFilmePage() {
                         className={inputStyle('nome')}
                     />
 
-                    {/* cliente is OPTIONAL now */}
                     <input
                         name="cliente"
                         placeholder="Cliente"
@@ -221,7 +220,7 @@ export default function CreateFilmePage() {
                         className={inputStyle('date')}
                     />
 
-                    {/* NEW: Custom Thumbnail URL (optional, overrides Vimeo) */}
+                    {/* Custom Thumbnail URL (optional, overrides Vimeo) */}
                     <div className="md:col-span-2">
                         <input
                             name="thumbnail"

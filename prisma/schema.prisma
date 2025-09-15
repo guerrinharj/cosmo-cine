@@ -10,7 +10,7 @@ datasource db {
 model Filme {
   id                   String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nome                 String
-  cliente              String?  // <- now optional
+  cliente              String? 
   diretor              String
   categoria            Categoria
   produtoraContratante String?

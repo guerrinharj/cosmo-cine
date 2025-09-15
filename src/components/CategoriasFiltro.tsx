@@ -43,9 +43,9 @@ export default function CategoriaFiltro({
     return (
         <motion.div
             key="categoria-filtro"
-            initial={{ y: 64, opacity: 0 }}        // start slightly below
-            animate={{ y: 0, opacity: 1 }}        // slide up
-            exit={{ y: 64, opacity: 0 }}          // optional, if unmounting
+            initial={{ y: 64, opacity: 0 }}        
+            animate={{ y: 0, opacity: 1 }}       
+            exit={{ y: 64, opacity: 0 }}        
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="fixed bottom-0 left-0 w-full border-t border-white bg-opacity-90 z-50 px-4 py-3 bg-black/90 backdrop-blur-sm"
         >
