@@ -178,7 +178,6 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     )}
             </div>
 
-                {/* Titles BELOW the video */}
                 <h1 className="paralucent text-2xl md:text-4xl font-bold uppercase mt-6">
                     {titleText}
                 </h1>
