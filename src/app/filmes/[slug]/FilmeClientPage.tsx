@@ -91,9 +91,6 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         );
     }
 
-    const titleText = `${filme.nome}${filme.cliente ? ` | ${filme.cliente}` : ''}`;
-
-    // --- Minimal, robust src: use as-is if already a player URL; otherwise convert once.
     const rawUrl = filme.video_url ?? '';
     const src =
         rawUrl.includes('player.vimeo.com')
@@ -102,18 +99,52 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                 ? rawUrl.replace('https://vimeo.com/', 'https://player.vimeo.com/video/')
                 : rawUrl;
 
+    const splitCredits = (credits: string) =>
+        (credits ?? '')
+            .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
+            .map(s => s.trim())
+            .filter(Boolean);
+
+    const extractFromCredits = (credits: string | undefined, labelRegex: RegExp): string | null => {
+        if (!credits) return null;
+        for (const entry of splitCredits(credits)) {
+            const idx = entry.indexOf(':');
+            if (idx < 0) continue;
+            const label = entry.slice(0, idx).trim();
+            const value = entry.slice(idx + 1).trim();
+            if (labelRegex.test(label)) return value || null;
+        }
+        return null;
+    };
+
+    const metaRows: Array<{ label: string; value: string }> = [];
+    metaRows.push({ label: 'Title', value: filme.nome });
+
+    if (filme.diretor) metaRows.push({ label: 'Director', value: filme.diretor });
+    if (filme.cliente) metaRows.push({ label: 'Client', value: filme.cliente });
+
+    const productionCompany =
+        extractFromCredits(filme.creditos, /^(production company|produtora|produtor(a)?|prod\.)$/i);
+    if (productionCompany) metaRows.push({ label: 'Production Company', value: productionCompany });
+
+    const agencyValue =
+        filme.agencia ||
+        extractFromCredits(filme.creditos, /^(agency|agência|agencia|agêncy)$/i) ||
+        null;
+    if (agencyValue) metaRows.push({ label: 'Agency', value: agencyValue });
+
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
-            {/* Control Bar */}
             <div className="fixed top-0 left-0 right-0 h-14 bg-black border-b border-white z-50 flex items-center justify-between px-4">
                 <button
                     onClick={goToNext}
                     className="text-2xl transition-transform duration-300 hover:-translate-x-1"
+                    aria-label="Anterior"
                 >
                     &larr;
                 </button>
 
-                <button onClick={() => router.push('/filmes')} className="text-sm">
+                <button onClick={() => router.push('/filmes')} className="text-sm" aria-label="Fechar">
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-6 w-6 transition-transform duration-500 hover:rotate-[360deg]"
@@ -146,15 +177,14 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     <button
                         onClick={goToPrevious}
                         className="text-2xl transition-transform duration-300 hover:translate-x-1"
+                        aria-label="Próximo"
                     >
                         &rarr;
                     </button>
                 </div>
             </div>
 
-            {/* Content */}
             <div className="pt-20 max-w-4xl mx-auto">
-                {/* Video or Thumbnail */}
                 <div className="relative w-full mt-6" style={{ paddingTop: '56.25%' }}>
                     {src ? (
                         <iframe
@@ -176,34 +206,22 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                             priority
                         />
                     )}
-            </div>
+                </div>
 
-                <h1 className="paralucent text-2xl md:text-4xl font-bold uppercase mt-6">
-                    {titleText}
-                </h1>
+                <div className="mt-6 space-y-1">
+                    {metaRows.map((row) => (
+                        <div key={row.label} className="leading-tight">
+                            <span className="paralucent uppercase tracking-wide text-gray-400 text-xs mr-2">
+                                {row.label}:
+                            </span>
+                            <span className="paralucent text-base md:text-lg">{row.value}</span>
+                        </div>
+                    ))}
+                </div>
 
-                {filme.diretor && (
-                    <p className="paralucent text-lg md:text-2xl text-gray-400 mt-1 uppercase">
-                        {filme.diretor}
-                    </p>
-                )}
-
-                {filme.agencia && (
-                    <p className="paralucent text-xl text-gray-400 mt-2">
-                        {filme.agencia}
-                    </p>
-                )}
-
-                {/* Créditos com destaque no prefixo */}
                 {filme.creditos && (
                     <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
-                        {(
-                            filme.creditos
-                                // Split on ";" OR on "," only when the next chunk starts with a label ending in ":"
-                                .split(/;\s*|,(?=\s*[A-Za-zÀ-ÿ&][A-Za-zÀ-ÿ\s&]*:)/)
-                                .map(s => s.trim())
-                                .filter(Boolean)
-                        ).map((entry, idx) => {
+                        {splitCredits(filme.creditos).map((entry, idx) => {
                             const colonIdx = entry.indexOf(':');
                             const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
                             const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
