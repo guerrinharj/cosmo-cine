@@ -137,7 +137,7 @@ A aplicação trabalha com um único modelo central: Filme.
 | ---------------------- | ---------- | ----------- | ----------------------------------- |
 | `id`                   | `String`   | Sim         | Gerado automaticamente (CUID)       |
 | `nome`                 | `String`   | Sim         | Nome do projeto                     |
-| `cliente`              | `String`   | Sim         | Nome do cliente                     |
+| `cliente`              | `String`   | Não         | Nome do cliente                     |
 | `diretor`              | `String`   | Sim         | Nome do diretor                     |
 | `categoria`            | `Enum`     | Sim         | Publicidade, Clipe ou Conteúdo      |
 | `produtoraContratante` | `String`   | Não         | Nome da produtora contratante       |
