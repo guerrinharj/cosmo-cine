@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
+import { supabase } from '@/lib/supabaseClient';
 
 export default function EditFilmePage() {
     const router = useRouter();
@@ -11,14 +12,14 @@ export default function EditFilmePage() {
     type FormFields = {
         [key: string]: string | boolean;
         nome: string;
-        cliente: string;                
+        cliente: string;
         diretor: string;
         categoria: string;
-        produtoraContratante: string;    
-        agencia: string;                 
+        produtoraContratante: string;
+        agencia: string;
         video_url: string;
-        date: string;                   
-        thumbnail: string;              
+        date: string;
+        thumbnail: string;
         showable: boolean;
         is_service: boolean;
     };
@@ -34,7 +35,7 @@ export default function EditFilmePage() {
         date: '',
         thumbnail: '',
         showable: false,
-        is_service: false,
+        is_service: false
     });
 
     const [creditos, setCreditos] = useState<string[]>([]);
@@ -42,7 +43,10 @@ export default function EditFilmePage() {
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    // 'cliente' is NOT required anymore
+    // NEW: upload states
+    const [file, setFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+
     const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
     const splitCreditos = (str: string) =>
@@ -69,7 +73,7 @@ export default function EditFilmePage() {
                 date: data.date?.slice(0, 10) ?? '',
                 thumbnail: data.thumbnail ?? '',
                 showable: Boolean(data.showable),
-                is_service: Boolean(data.is_service),
+                is_service: Boolean(data.is_service)
             });
 
             const creditosArray =
@@ -85,9 +89,71 @@ export default function EditFilmePage() {
         const { name, value, type, checked } = target;
         setForm(prev => ({
             ...prev,
-            [name]: type === 'checkbox' ? checked : value,
+            [name]: type === 'checkbox' ? checked : value
         }));
     };
+
+    // NEW: selecionar arquivo para upload
+    const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const f = e.target.files?.[0] || null;
+        if (!f) {
+            setFile(null);
+            return;
+        }
+        if (!f.type.startsWith('image/')) {
+            setModalMessage('Envie um arquivo de imagem (jpg, png, webp…).');
+            setShowModal(true);
+            e.target.value = '';
+            return;
+        }
+        if (f.size > 5 * 1024 * 1024) {
+            setModalMessage('A imagem deve ter no máximo 5MB.');
+            setShowModal(true);
+            e.target.value = '';
+            return;
+        }
+        setFile(f);
+    };
+
+    // NEW: upload para Storage (bucket "thumbnails")
+    async function uploadThumbnail(): Promise<string> {
+        if (!file) throw new Error('Nenhum arquivo selecionado.');
+        setUploading(true);
+        try {
+            const sanitized = file.name.replace(/[^\w.\-]+/g, '_').toLowerCase();
+            const slugBase =
+                (form.nome as string)?.trim()
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/[^\w]+/g, '-')
+                    .replace(/^-+|-+$/g, '') || 'filme';
+            const path = `filmes/${slugBase}/${Date.now()}-${sanitized}`;
+
+            const { error: upErr } = await supabase.storage
+                .from('thumbnails')
+                .upload(path, file, {
+                    cacheControl: '3600',
+                    upsert: false,
+                    contentType: file.type
+                });
+
+            if (upErr) throw upErr;
+
+            // Bucket público: pegar URL pública
+            const { data } = supabase.storage.from('thumbnails').getPublicUrl(path);
+            const publicUrl = data?.publicUrl;
+            if (!publicUrl) throw new Error('Não foi possível obter a URL pública do arquivo.');
+            return publicUrl;
+
+            // Se bucket for PRIVADO, use signed URL:
+            // const { data: signed } = await supabase.storage.from('thumbnails').createSignedUrl(path, 60 * 60);
+            // if (!signed?.signedUrl) throw new Error('Não foi possível gerar URL temporária.');
+            // return signed.signedUrl;
+        } finally {
+            setUploading(false);
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -104,34 +170,38 @@ export default function EditFilmePage() {
         if (!isVimeoUrl) {
             setTouched({ ...touched, video_url: true });
             setModalMessage(
-                'A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)',
+                'A URL do vídeo precisa ser um link válido do Vimeo (ex: https://vimeo.com/12345678)'
             );
             setShowModal(true);
             return;
         }
 
         try {
-            // Prefer user-provided thumbnail if valid; otherwise fallback to Vimeo oEmbed
+            // 1) Se enviar arquivo, usa a URL do nosso bucket
             let chosenThumbnail = (form.thumbnail as string).trim();
-
-            if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
-                setTouched({ ...touched, thumbnail: true });
-                setModalMessage('A Thumbnail personalizada deve ser uma URL iniciando com http(s)://');
-                setShowModal(true);
-                return;
-            }
-
-            if (!chosenThumbnail) {
-                const oembedRes = await fetch(
-                    `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url as string)}`
-                );
-                if (oembedRes.ok) {
-                    const oembed = await oembedRes.json();
-                    chosenThumbnail = (oembed?.thumbnail_url as string) || '';
+            if (file) {
+                const uploadedUrl = await uploadThumbnail();
+                chosenThumbnail = uploadedUrl; // <- usa a URL do Storage
+            } else {
+                // 2) Sem arquivo: valida URL manual se houver
+                if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
+                    setTouched({ ...touched, thumbnail: true });
+                    setModalMessage('A Thumbnail personalizada deve ser uma URL iniciando com http(s)://');
+                    setShowModal(true);
+                    return;
+                }
+                // 3) Sem arquivo e sem URL manual: fallback Vimeo oEmbed
+                if (!chosenThumbnail) {
+                    const oembedRes = await fetch(
+                        `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url as string)}`
+                    );
+                    if (oembedRes.ok) {
+                        const oembed = await oembedRes.json();
+                        chosenThumbnail = (oembed?.thumbnail_url as string) || '';
+                    }
                 }
             }
 
-            // Omit optional empty fields by sending undefined
             const payload = {
                 ...form,
                 thumbnail: chosenThumbnail || undefined,
@@ -140,13 +210,13 @@ export default function EditFilmePage() {
                 agencia: (form.agencia as string).trim() || undefined,
                 produtoraContratante: (form.produtoraContratante as string).trim() || undefined,
                 date: (form.date as string) || undefined,
-                is_service: form.is_service,
+                is_service: form.is_service
             };
 
             const res = await fetch(`/api/filmes/${slug}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload),
+                body: JSON.stringify(payload)
             });
 
             const result = await res.json();
@@ -156,9 +226,9 @@ export default function EditFilmePage() {
             } else {
                 setModalMessage(`Erro ao atualizar filme: ${result.details || result.error}`);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro:', error);
-            setModalMessage('Erro inesperado. Verifique os dados e tente novamente.');
+            setModalMessage(error?.message || 'Erro inesperado. Verifique os dados e tente novamente.');
         }
 
         setShowModal(true);
@@ -243,11 +313,28 @@ export default function EditFilmePage() {
                         className={inputStyle('video_url')}
                     />
 
-                    {/* Custom Thumbnail URL (optional, overrides Vimeo) */}
+                    {/* NEW: Upload de imagem (sobrepõe URL manual se enviado) */}
+                    <div className="md:col-span-2">
+                        <label className="block mb-2">Upload de Thumbnail (imagem)</label>
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleFile}
+                            className="w-full file:mr-4 file:rounded file:border-0 file:bg-white file:text-black file:px-4 file:py-2 rounded border border-gray-300 bg-black text-white"
+                        />
+                        {file && (
+                            <p className="text-sm text-gray-400 mt-2">
+                                Arquivo selecionado: <span className="underline">{file.name}</span>
+                            </p>
+                        )}
+                        {uploading && <p className="text-sm text-gray-400 mt-2">Enviando imagem…</p>}
+                    </div>
+
+                    {/* Custom Thumbnail URL (usada se NÃO enviar arquivo) */}
                     <div className="md:col-span-2">
                         <input
                             name="thumbnail"
-                            placeholder="Thumbnail personalizada (URL) — opcional, sobrescreve a do Vimeo"
+                            placeholder="Thumbnail personalizada (URL) — usada se NÃO enviar arquivo"
                             value={form.thumbnail as string}
                             onChange={(e) => {
                                 if (!touched.thumbnail) setTouched({ ...touched, thumbnail: false });
@@ -261,8 +348,8 @@ export default function EditFilmePage() {
                             } bg-black text-white placeholder-gray-400`}
                         />
 
-                        {/* Live preview */}
-                        {isLikelyUrl(form.thumbnail as string) && (
+                        {/* Live preview (só quando não houver arquivo escolhido) */}
+                        {!file && isLikelyUrl(form.thumbnail as string) && (
                             <div className="mt-3">
                                 <p className="text-sm text-gray-400 mb-2">Pré-visualização da Thumbnail:</p>
                                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -274,7 +361,7 @@ export default function EditFilmePage() {
                             </div>
                         )}
 
-                        {touched.thumbnail && form.thumbnail && !isLikelyUrl(form.thumbnail as string) && (
+                        {!file && touched.thumbnail && form.thumbnail && !isLikelyUrl(form.thumbnail as string) && (
                             <p className="text-sm text-red-400 mt-2">
                                 Insira uma URL válida (começando com http:// ou https://).
                             </p>
@@ -326,7 +413,8 @@ export default function EditFilmePage() {
                     <div className="md:col-span-2 flex justify-end">
                         <button
                             type="submit"
-                            className="px-6 py-2 bg-white text-black rounded hover:bg-gray-200 transition"
+                            disabled={uploading}
+                            className="px-6 py-2 bg-white text-black rounded hover:bg-gray-200 transition disabled:opacity-60"
                         >
                             Salvar Alterações
                         </button>
