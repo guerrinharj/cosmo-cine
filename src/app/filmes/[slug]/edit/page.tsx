@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import { supabase } from '@/lib/supabaseClient';
+import Cropper, { Area } from 'react-easy-crop';
 
 export default function EditFilmePage() {
     const router = useRouter();
@@ -24,6 +25,11 @@ export default function EditFilmePage() {
         is_service: boolean;
     };
 
+    // ===== Ajustes do crop (mesmo padrão da Home) =====
+    const HOME_ASPECT = 16 / 9;
+    const TARGET_WIDTH = 1600;
+    const TARGET_HEIGHT = Math.round(TARGET_WIDTH / HOME_ASPECT);
+
     const [form, setForm] = useState<FormFields>({
         nome: '',
         cliente: '',
@@ -43,9 +49,15 @@ export default function EditFilmePage() {
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    // NEW: upload states
+    // Upload / Crop
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+
+    const [cropOpen, setCropOpen] = useState(false);
+    const [imageSrc, setImageSrc] = useState<string>('');
+    const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
@@ -93,11 +105,13 @@ export default function EditFilmePage() {
         }));
     };
 
-    // NEW: selecionar arquivo para upload
+    // Selecionar arquivo e abrir modal de crop
     const handleFile = (e: React.ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0] || null;
         if (!f) {
             setFile(null);
+            setImageSrc('');
+            setCropOpen(false);
             return;
         }
         if (!f.type.startsWith('image/')) {
@@ -106,21 +120,61 @@ export default function EditFilmePage() {
             e.target.value = '';
             return;
         }
-        if (f.size > 5 * 1024 * 1024) {
-            setModalMessage('A imagem deve ter no máximo 5MB.');
+        if (f.size > 10 * 1024 * 1024) {
+            setModalMessage('A imagem deve ter no máximo 10MB.');
             setShowModal(true);
             e.target.value = '';
             return;
         }
         setFile(f);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageSrc(reader.result as string);
+            setCropOpen(true);
+        };
+        reader.readAsDataURL(f);
     };
 
-    // NEW: upload para Storage (bucket "thumbnails")
-    async function uploadThumbnail(): Promise<string> {
-        if (!file) throw new Error('Nenhum arquivo selecionado.');
+    // Tipagem do callback do cropper
+    const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
+        setCroppedAreaPixels(croppedPixels);
+    }, []);
+
+    // Gera blob recortado no tamanho fixo
+    async function getCroppedBlob(imageSrc: string, crop: Area) {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = (err) => reject(err);
+            img.src = imageSrc;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = TARGET_WIDTH;
+        canvas.height = TARGET_HEIGHT;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas não suportado.');
+
+        const tempCanvas = document.createElement('canvas');
+        const tctx = tempCanvas.getContext('2d');
+        if (!tctx) throw new Error('Canvas não suportado.');
+        tempCanvas.width = crop.width;
+        tempCanvas.height = crop.height;
+        tctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
+
+        ctx.drawImage(tempCanvas, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+
+        return await new Promise<Blob>((resolve) => {
+            canvas.toBlob((blob) => resolve(blob as Blob), 'image/jpeg', 0.9);
+        });
+    }
+
+    // Upload genérico (Blob | File) para o Storage
+    async function uploadToStorage(fileOrBlob: Blob, filenameHint = 'thumbnail.jpg'): Promise<string> {
         setUploading(true);
         try {
-            const sanitized = file.name.replace(/[^\w.\-]+/g, '_').toLowerCase();
+            const sanitized = filenameHint.replace(/[^\w.\-]+/g, '_').toLowerCase();
             const slugBase =
                 (form.nome as string)?.trim()
                     .toLowerCase()
@@ -132,24 +186,21 @@ export default function EditFilmePage() {
 
             const { error: upErr } = await supabase.storage
                 .from('thumbnails')
-                .upload(path, file, {
+                .upload(path, fileOrBlob, {
                     cacheControl: '3600',
                     upsert: false,
-                    contentType: file.type
+                    contentType: fileOrBlob.type || 'image/jpeg'
                 });
-
             if (upErr) throw upErr;
 
-            // Bucket público: pegar URL pública
             const { data } = supabase.storage.from('thumbnails').getPublicUrl(path);
             const publicUrl = data?.publicUrl;
             if (!publicUrl) throw new Error('Não foi possível obter a URL pública do arquivo.');
             return publicUrl;
 
-            // Se bucket for PRIVADO, use signed URL:
+            // Se bucket privado: gere signed URL no server (route handler) ou use:
             // const { data: signed } = await supabase.storage.from('thumbnails').createSignedUrl(path, 60 * 60);
-            // if (!signed?.signedUrl) throw new Error('Não foi possível gerar URL temporária.');
-            // return signed.signedUrl;
+            // return signed?.signedUrl!;
         } finally {
             setUploading(false);
         }
@@ -177,11 +228,12 @@ export default function EditFilmePage() {
         }
 
         try {
-            // 1) Se enviar arquivo, usa a URL do nosso bucket
+            // 1) Se enviar arquivo + recorte definido, prioriza a URL do nosso Storage
             let chosenThumbnail = (form.thumbnail as string).trim();
-            if (file) {
-                const uploadedUrl = await uploadThumbnail();
-                chosenThumbnail = uploadedUrl; // <- usa a URL do Storage
+            if (file && imageSrc && croppedAreaPixels) {
+                const blob = await getCroppedBlob(imageSrc, croppedAreaPixels);
+                const uploadedUrl = await uploadToStorage(blob, file.name.replace(/\.[^.]+$/, '.jpg'));
+                chosenThumbnail = uploadedUrl;
             } else {
                 // 2) Sem arquivo: valida URL manual se houver
                 if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
@@ -190,7 +242,7 @@ export default function EditFilmePage() {
                     setShowModal(true);
                     return;
                 }
-                // 3) Sem arquivo e sem URL manual: fallback Vimeo oEmbed
+                // 3) Sem arquivo e sem URL manual: fallback do Vimeo
                 if (!chosenThumbnail) {
                     const oembedRes = await fetch(
                         `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url as string)}`
@@ -313,9 +365,9 @@ export default function EditFilmePage() {
                         className={inputStyle('video_url')}
                     />
 
-                    {/* NEW: Upload de imagem (sobrepõe URL manual se enviado) */}
+                    {/* Upload + Crop (sobrepõe URL manual se enviado) */}
                     <div className="md:col-span-2">
-                        <label className="block mb-2">Upload de Thumbnail (imagem)</label>
+                        <label className="block mb-2">Upload de Thumbnail (imagem) — com recorte</label>
                         <input
                             type="file"
                             accept="image/*"
@@ -348,7 +400,7 @@ export default function EditFilmePage() {
                             } bg-black text-white placeholder-gray-400`}
                         />
 
-                        {/* Live preview (só quando não houver arquivo escolhido) */}
+                        {/* Preview quando não há arquivo selecionado */}
                         {!file && isLikelyUrl(form.thumbnail as string) && (
                             <div className="mt-3">
                                 <p className="text-sm text-gray-400 mb-2">Pré-visualização da Thumbnail:</p>
@@ -421,6 +473,60 @@ export default function EditFilmePage() {
                     </div>
                 </form>
             </div>
+
+            {/* Modal do Crop */}
+            {cropOpen && imageSrc && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+                    <div className="bg-white text-black rounded-2xl w-full max-w-2xl overflow-hidden">
+                        <div className="p-4 border-b font-semibold">
+                            Ajuste o recorte (proporção {Math.round(HOME_ASPECT * 100) / 100}:1)
+                        </div>
+                        <div className="relative w-full h-[60vh] min-h-[360px] bg-black">
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={HOME_ASPECT}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropComplete={onCropComplete}
+                                restrictPosition={true}
+                            />
+                        </div>
+                        <div className="flex items-center gap-4 p-4 border-t">
+                            <input
+                                type="range"
+                                min={1}
+                                max={3}
+                                step={0.01}
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="flex-1"
+                                aria-label="Zoom"
+                            />
+                            <button
+                                onClick={() => {
+                                    setCropOpen(false);
+                                    setImageSrc('');
+                                    setFile(null);
+                                }}
+                                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    // Fechamos o modal; o recorte é aplicado ao enviar (submit)
+                                    setCropOpen(false);
+                                }}
+                                className="px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
+                            >
+                                Aplicar recorte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
