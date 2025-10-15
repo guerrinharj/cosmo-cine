@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, ChangeEvent, FormEvent } from 'react';
+import { useState, useCallback, ChangeEvent, FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import { supabase } from '@/lib/supabaseClient';
+import Cropper, { Area } from 'react-easy-crop';
 
 type FilmeForm = {
     nome: string;
@@ -19,6 +20,11 @@ type FilmeForm = {
     is_service: boolean;
     [key: string]: string | boolean;
 };
+
+// Ajuste conforme seu layout da Home
+const HOME_ASPECT = 16 / 9;
+const TARGET_WIDTH = 1600;
+const TARGET_HEIGHT = Math.round(TARGET_WIDTH / HOME_ASPECT);
 
 export default function CreateFilmePage() {
     const router = useRouter();
@@ -42,9 +48,15 @@ export default function CreateFilmePage() {
     const [modalMessage, setModalMessage] = useState('');
     const [showModal, setShowModal] = useState(false);
 
-    // NEW: estado para upload
+    // Upload / crop
     const [file, setFile] = useState<File | null>(null);
     const [uploading, setUploading] = useState(false);
+
+    const [cropOpen, setCropOpen] = useState(false);
+    const [imageSrc, setImageSrc] = useState<string>('');
+    const [crop, setCrop] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
 
     const requiredFields = ['nome', 'diretor', 'categoria', 'video_url'];
 
@@ -52,7 +64,6 @@ export default function CreateFilmePage() {
         const target = e.target as HTMLInputElement;
         const { name, value, type } = target;
         const checked = (target as HTMLInputElement).checked;
-
         setForm((prev) => ({
             ...prev,
             [name]: type === 'checkbox' ? checked : value
@@ -61,11 +72,13 @@ export default function CreateFilmePage() {
 
     const isLikelyUrl = (value: string) => /^https?:\/\/.+/i.test(value.trim());
 
-    // NEW: selecionar arquivo
+    // Seleção do arquivo + abre o modal do crop
     const handleFile = (e: ChangeEvent<HTMLInputElement>) => {
         const f = e.target.files?.[0] || null;
         if (!f) {
             setFile(null);
+            setImageSrc('');
+            setCropOpen(false);
             return;
         }
         if (!f.type.startsWith('image/')) {
@@ -74,22 +87,64 @@ export default function CreateFilmePage() {
             e.target.value = '';
             return;
         }
-        if (f.size > 5 * 1024 * 1024) {
-            setModalMessage('A imagem deve ter no máximo 5MB.');
+        if (f.size > 10 * 1024 * 1024) {
+            setModalMessage('A imagem deve ter no máximo 10MB.');
             setShowModal(true);
             e.target.value = '';
             return;
         }
+
         setFile(f);
+        const reader = new FileReader();
+        reader.onload = () => {
+            setImageSrc(reader.result as string);
+            setCropOpen(true);
+        };
+        reader.readAsDataURL(f);
     };
 
-    // NEW: upload para Supabase Storage (bucket "thumbnails")
-    async function uploadThumbnail(): Promise<string> {
-        if (!file) throw new Error('Nenhum arquivo selecionado.');
+    // Callback do crop (tipado)
+    const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
+        setCroppedAreaPixels(croppedPixels);
+    }, []);
 
+    // Gera o blob recortado na proporção/tamanho desejados
+    async function getCroppedBlob(imageSrc: string, crop: Area) {
+        const image = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = (err) => reject(err);
+            img.src = imageSrc;
+        });
+
+        const canvas = document.createElement('canvas');
+        canvas.width = TARGET_WIDTH;
+        canvas.height = TARGET_HEIGHT;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) throw new Error('Canvas não suportado.');
+
+        // recorte bruto em um canvas temporário para preservar qualidade
+        const tempCanvas = document.createElement('canvas');
+        const tctx = tempCanvas.getContext('2d');
+        if (!tctx) throw new Error('Canvas não suportado.');
+        tempCanvas.width = crop.width;
+        tempCanvas.height = crop.height;
+        tctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
+
+        // redimensiona para o destino final (consistente com a Home)
+        ctx.drawImage(tempCanvas, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+
+        return await new Promise<Blob>((resolve) => {
+            canvas.toBlob((blob) => resolve(blob as Blob), 'image/jpeg', 0.9);
+        });
+    }
+
+    // Upload genérico para o bucket
+    async function uploadToStorage(fileOrBlob: Blob, filenameHint = 'thumbnail.jpg'): Promise<string> {
         setUploading(true);
         try {
-            const sanitized = file.name.replace(/[^\w.\-]+/g, '_').toLowerCase();
+            const sanitized = filenameHint.replace(/[^\w.\-]+/g, '_').toLowerCase();
             const slugBase =
                 form.nome?.trim()
                     .toLowerCase()
@@ -97,28 +152,21 @@ export default function CreateFilmePage() {
                     .replace(/[\u0300-\u036f]/g, '')
                     .replace(/[^\w]+/g, '-')
                     .replace(/^-+|-+$/g, '') || 'filme';
-            const path = `filmes/${slugBase}/${Date.now()}-${sanitized}`;
 
+            const path = `filmes/${slugBase}/${Date.now()}-${sanitized}`;
             const { error: upErr } = await supabase.storage
                 .from('thumbnails')
-                .upload(path, file, {
+                .upload(path, fileOrBlob, {
                     cacheControl: '3600',
                     upsert: false,
-                    contentType: file.type
+                    contentType: fileOrBlob.type || 'image/jpeg'
                 });
-
             if (upErr) throw upErr;
 
-            // Bucket público: URL pública direta
             const { data } = supabase.storage.from('thumbnails').getPublicUrl(path);
             const publicUrl = data?.publicUrl;
             if (!publicUrl) throw new Error('Não foi possível obter a URL pública do arquivo.');
             return publicUrl;
-
-            // Se o bucket for PRIVADO, use:
-            // const { data: signed } = await supabase.storage.from('thumbnails').createSignedUrl(path, 60 * 60);
-            // if (!signed?.signedUrl) throw new Error('Não foi possível gerar URL temporária do arquivo.');
-            // return signed.signedUrl;
         } finally {
             setUploading(false);
         }
@@ -144,21 +192,21 @@ export default function CreateFilmePage() {
         }
 
         try {
-            // 1) Se enviou arquivo, usamos a URL do nosso bucket (sobrepõe qualquer URL manual)
             let chosenThumbnail = form.thumbnail.trim();
-            if (file) {
-                const uploadedUrl = await uploadThumbnail();
-                chosenThumbnail = uploadedUrl; // <- **usa a URL do nosso Storage**
+
+            // Se tiver arquivo e crop definido, gera blob recortado e envia
+            if (file && imageSrc && croppedAreaPixels) {
+                const blob = await getCroppedBlob(imageSrc, croppedAreaPixels);
+                const uploadedUrl = await uploadToStorage(blob, file.name.replace(/\.[^.]+$/, '.jpg'));
+                chosenThumbnail = uploadedUrl;
             } else {
-                // 2) Sem arquivo: valida URL manual se existir
+                // Sem arquivo: valida URL manual ou busca oEmbed do Vimeo
                 if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
                     setTouched({ ...touched, thumbnail: true });
                     setModalMessage('A Thumbnail personalizada deve ser uma URL iniciando com http(s)://');
                     setShowModal(true);
                     return;
                 }
-
-                // 3) Fallback para oEmbed do Vimeo
                 if (!chosenThumbnail) {
                     const oembedRes = await fetch(
                         `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url)}`
@@ -221,6 +269,7 @@ export default function CreateFilmePage() {
             <NavBar />
             <div className="max-w-5xl mx-auto px-6 py-10">
                 <h1 className="paralucent text-3xl font-bold mb-8 uppercase">Criar Filme</h1>
+
                 <form onSubmit={handleSubmit} className="paralucent grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input
                         name="nome"
@@ -230,7 +279,6 @@ export default function CreateFilmePage() {
                         onBlur={() => setTouched({ ...touched, nome: true })}
                         className={inputStyle('nome')}
                     />
-
                     <input
                         name="cliente"
                         placeholder="Cliente"
@@ -238,7 +286,6 @@ export default function CreateFilmePage() {
                         onChange={handleChange}
                         className={inputStyle('cliente')}
                     />
-
                     <input
                         name="diretor"
                         placeholder="Diretor *"
@@ -247,7 +294,6 @@ export default function CreateFilmePage() {
                         onBlur={() => setTouched({ ...touched, diretor: true })}
                         className={inputStyle('diretor')}
                     />
-
                     <select
                         name="categoria"
                         value={form.categoria}
@@ -260,7 +306,6 @@ export default function CreateFilmePage() {
                         <option value="Clipe">Clipe</option>
                         <option value="Conteudo">Conteúdo</option>
                     </select>
-
                     <input
                         name="produtoraContratante"
                         placeholder="Produtora Contratante"
@@ -268,7 +313,6 @@ export default function CreateFilmePage() {
                         onChange={handleChange}
                         className={inputStyle('produtoraContratante')}
                     />
-
                     <input
                         name="agencia"
                         placeholder="Agência"
@@ -276,7 +320,6 @@ export default function CreateFilmePage() {
                         onChange={handleChange}
                         className={inputStyle('agencia')}
                     />
-
                     <input
                         name="video_url"
                         placeholder="Vídeo URL * (Vimeo)"
@@ -285,7 +328,6 @@ export default function CreateFilmePage() {
                         onBlur={() => setTouched({ ...touched, video_url: true })}
                         className={inputStyle('video_url')}
                     />
-
                     <input
                         name="date"
                         type="date"
@@ -294,9 +336,9 @@ export default function CreateFilmePage() {
                         className={inputStyle('date')}
                     />
 
-                    {/* NEW: Upload de imagem (sobrepõe qualquer URL se enviado) */}
+                    {/* Upload + Crop */}
                     <div className="md:col-span-2">
-                        <label className="block mb-2">Upload de Thumbnail (imagem)</label>
+                        <label className="block mb-2">Upload de Thumbnail (imagem) — com recorte</label>
                         <input
                             type="file"
                             accept="image/*"
@@ -357,9 +399,7 @@ export default function CreateFilmePage() {
                                         placeholder="Texto do crédito"
                                         value={c}
                                         onChange={(e) => handleChange(e)}
-                                        onInput={(e) =>
-                                            updateCredito(i, (e.target as HTMLTextAreaElement).value)
-                                        }
+                                        onInput={(e) => updateCredito(i, (e.target as HTMLTextAreaElement).value)}
                                         className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] bg-black text-white placeholder-gray-400"
                                     />
                                     <button
@@ -413,6 +453,60 @@ export default function CreateFilmePage() {
                     </div>
                 </form>
             </div>
+
+            {/* Modal do Crop */}
+            {cropOpen && imageSrc && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+                    <div className="bg-white text-black rounded-2xl w-full max-w-2xl overflow-hidden">
+                        <div className="p-4 border-b font-semibold">
+                            Ajuste o recorte (proporção {Math.round(HOME_ASPECT * 100) / 100}:1)
+                        </div>
+                        <div className="relative w-full h-[60vh] min-h-[360px] bg-black">
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={HOME_ASPECT}
+                                onCropChange={setCrop}
+                                onZoomChange={setZoom}
+                                onCropComplete={onCropComplete}
+                                restrictPosition={true}
+                            />
+                        </div>
+                        <div className="flex items-center gap-4 p-4 border-t">
+                            <input
+                                type="range"
+                                min={1}
+                                max={3}
+                                step={0.01}
+                                value={zoom}
+                                onChange={(e) => setZoom(parseFloat(e.target.value))}
+                                className="flex-1"
+                                aria-label="Zoom"
+                            />
+                            <button
+                                onClick={() => {
+                                    setCropOpen(false);
+                                    setImageSrc('');
+                                    setFile(null);
+                                }}
+                                className="px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                onClick={() => {
+                                    // só fechamos o modal; o recorte efetivo é aplicado no submit
+                                    setCropOpen(false);
+                                }}
+                                className="px-4 py-2 rounded bg-black text-white hover:bg-gray-800"
+                            >
+                                Aplicar recorte
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {showModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
