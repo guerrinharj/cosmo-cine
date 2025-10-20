@@ -12,6 +12,7 @@ type Filme = {
     cliente?: string;
     diretor?: string;
     agencia?: string;
+    produtoraContratante?: string; // <-- novo campo
     video_url?: string;
     date: string;
     thumbnail: string;
@@ -123,10 +124,24 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     if (filme.diretor) metaRows.push({ label: 'Director', value: filme.diretor });
     if (filme.cliente) metaRows.push({ label: 'Client', value: filme.cliente });
 
+    // NEW: Hiring Production Company
+    const hiringProductionCompany =
+        filme.produtoraContratante ||
+        extractFromCredits(
+            filme.creditos,
+            /^(hiring production company|produtora contratante|produção contratante|prod\.?\s*contratante)$/i
+        ) ||
+        null;
+    if (hiringProductionCompany) {
+        metaRows.push({ label: 'Hiring Production Company', value: hiringProductionCompany });
+    }
+
+    // Existing Production Company
     const productionCompany =
         extractFromCredits(filme.creditos, /^(production company|produtora|produtor(a)?|prod\.)$/i);
     if (productionCompany) metaRows.push({ label: 'Production Company', value: productionCompany });
 
+    // Agency (from field or credits)
     const agencyValue =
         filme.agencia ||
         extractFromCredits(filme.creditos, /^(agency|agência|agencia|agêncy)$/i) ||
