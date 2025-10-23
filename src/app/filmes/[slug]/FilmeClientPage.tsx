@@ -12,12 +12,13 @@ type Filme = {
     cliente?: string;
     diretor?: string;
     agencia?: string;
-    produtoraContratante?: string; // <-- novo campo
+    produtoraContratante?: string;
     video_url?: string;
     date: string;
     thumbnail: string;
     creditos?: string;
     showable?: boolean;
+    is_service?: boolean;
 };
 
 export default function FilmeClientPage({ slug }: { slug: string }) {
@@ -54,28 +55,33 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             .then((data: Filme[]) => {
                 const ordered = data
                     .filter((f: Filme) => f.showable)
-                    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+                    .sort(
+                        (a, b) =>
+                            new Date(b.date).getTime() -
+                            new Date(a.date).getTime(),
+                    );
 
                 setFilmes(ordered);
-                const index = ordered.findIndex((f) => f.slug === slug);
+                const index = ordered.findIndex(f => f.slug === slug);
                 setCurrentIndex(index);
             });
     }, [slug]);
 
     const handleDelete = async () => {
         if (!confirm('Tem certeza que deseja deletar este filme?')) return;
-
         const res = await fetch(`/api/filmes/${slug}`, { method: 'DELETE' });
         if (res.ok) router.push('/');
         else alert('Erro ao deletar');
     };
 
     const goToNext = () => {
-        if (currentIndex > 0) router.push(`/filmes/${filmes[currentIndex - 1].slug}`);
+        if (currentIndex > 0)
+            router.push(`/filmes/${filmes[currentIndex - 1].slug}`);
     };
 
     const goToPrevious = () => {
-        if (currentIndex < filmes.length - 1) router.push(`/filmes/${filmes[currentIndex + 1].slug}`);
+        if (currentIndex < filmes.length - 1)
+            router.push(`/filmes/${filmes[currentIndex + 1].slug}`);
     };
 
     if (!filme) {
@@ -93,12 +99,11 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     }
 
     const rawUrl = filme.video_url ?? '';
-    const src =
-        rawUrl.includes('player.vimeo.com')
-            ? rawUrl
-            : rawUrl.startsWith('https://vimeo.com/')
-                ? rawUrl.replace('https://vimeo.com/', 'https://player.vimeo.com/video/')
-                : rawUrl;
+    const src = rawUrl.includes('player.vimeo.com')
+        ? rawUrl
+        : rawUrl.startsWith('https://vimeo.com/')
+        ? rawUrl.replace('https://vimeo.com/', 'https://player.vimeo.com/video/')
+        : rawUrl;
 
     const splitCredits = (credits: string) =>
         (credits ?? '')
@@ -106,7 +111,10 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             .map(s => s.trim())
             .filter(Boolean);
 
-    const extractFromCredits = (credits: string | undefined, labelRegex: RegExp): string | null => {
+    const extractFromCredits = (
+        credits: string | undefined,
+        labelRegex: RegExp,
+    ): string | null => {
         if (!credits) return null;
         for (const entry of splitCredits(credits)) {
             const idx = entry.indexOf(':');
@@ -121,32 +129,49 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
     const metaRows: Array<{ label: string; value: string }> = [];
     metaRows.push({ label: 'Title', value: filme.nome });
 
-    if (filme.diretor) metaRows.push({ label: 'Director', value: filme.diretor });
-    if (filme.cliente) metaRows.push({ label: 'Client', value: filme.cliente });
+    if (filme.diretor)
+        metaRows.push({ label: 'Director', value: filme.diretor });
+    if (filme.cliente)
+        metaRows.push({ label: 'Client', value: filme.cliente });
 
-    // NEW: Hiring Production Company
+    // Label dinâmico: Production Company se is_service, senão Co-Production
+    const contratanteLabel = filme.is_service
+        ? 'Production Company'
+        : 'Co-Production';
+
     const hiringProductionCompany =
         filme.produtoraContratante ||
         extractFromCredits(
             filme.creditos,
-            /^(hiring production company|produtora contratante|produção contratante|prod\.?\s*contratante)$/i
+            /^(hiring production company|produtora contratante|produção contratante|prod\.?\s*contratante)$/i,
         ) ||
         null;
+
     if (hiringProductionCompany) {
-        metaRows.push({ label: 'Hiring Production Company', value: hiringProductionCompany });
+        metaRows.push({
+            label: contratanteLabel,
+            value: hiringProductionCompany,
+        });
     }
 
-    // Existing Production Company
-    const productionCompany =
-        extractFromCredits(filme.creditos, /^(production company|produtora|produtor(a)?|prod\.)$/i);
-    if (productionCompany) metaRows.push({ label: 'Production Company', value: productionCompany });
+    // Production company padrão
+    const productionCompany = extractFromCredits(
+        filme.creditos,
+        /^(production company|produtora|produtor(a)?|prod\.)$/i,
+    );
+    if (productionCompany)
+        metaRows.push({ label: 'Production Company', value: productionCompany });
 
-    // Agency (from field or credits)
+    // Agency
     const agencyValue =
         filme.agencia ||
-        extractFromCredits(filme.creditos, /^(agency|agência|agencia|agêncy)$/i) ||
+        extractFromCredits(
+            filme.creditos,
+            /^(agency|agência|agencia|agêncy)$/i,
+        ) ||
         null;
-    if (agencyValue) metaRows.push({ label: 'Agency', value: agencyValue });
+    if (agencyValue)
+        metaRows.push({ label: 'Agency', value: agencyValue });
 
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
@@ -159,7 +184,11 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     &larr;
                 </button>
 
-                <button onClick={() => router.push('/filmes')} className="text-sm" aria-label="Fechar">
+                <button
+                    onClick={() => router.push('/filmes')}
+                    className="text-sm"
+                    aria-label="Fechar"
+                >
                     <svg
                         xmlns="http://www.w3.org/2000/svg"
                         className="h-6 w-6 transition-transform duration-500 hover:rotate-[360deg]"
@@ -168,7 +197,11 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                         stroke="currentColor"
                         strokeWidth={2}
                     >
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
 
@@ -200,7 +233,10 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
             </div>
 
             <div className="pt-20 max-w-4xl mx-auto">
-                <div className="relative w-full mt-6" style={{ paddingTop: '56.25%' }}>
+                <div
+                    className="relative w-full mt-6"
+                    style={{ paddingTop: '56.25%' }}
+                >
                     {src ? (
                         <iframe
                             src={src}
@@ -224,12 +260,14 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                 </div>
 
                 <div className="mt-6 space-y-1">
-                    {metaRows.map((row) => (
+                    {metaRows.map(row => (
                         <div key={row.label} className="leading-tight">
                             <span className="paralucent uppercase tracking-wide text-gray-400 text-xs mr-2">
                                 {row.label}:
                             </span>
-                            <span className="paralucent text-base md:text-lg">{row.value}</span>
+                            <span className="paralucent text-base md:text-lg">
+                                {row.value}
+                            </span>
                         </div>
                     ))}
                 </div>
@@ -238,12 +276,20 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">
                         {splitCredits(filme.creditos).map((entry, idx) => {
                             const colonIdx = entry.indexOf(':');
-                            const label = colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
-                            const value = colonIdx >= 0 ? entry.slice(colonIdx + 1).trim() : entry.trim();
+                            const label =
+                                colonIdx >= 0 ? entry.slice(0, colonIdx).trim() : '';
+                            const value =
+                                colonIdx >= 0
+                                    ? entry.slice(colonIdx + 1).trim()
+                                    : entry.trim();
 
                             return (
                                 <div key={idx} className="flex flex-col">
-                                    {label && <span className="font-bold text-gray-400">{label}:</span>}
+                                    {label && (
+                                        <span className="font-bold text-gray-400">
+                                            {label}:
+                                        </span>
+                                    )}
                                     {value && <span className="block">{value}</span>}
                                 </div>
                             );
