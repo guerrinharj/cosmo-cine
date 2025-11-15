@@ -3,7 +3,11 @@
 
 import { useEffect, useRef, useState } from 'react'
 
+type GameMode = 'auto' | 'solo' | 'two'
+
 export default function PongPage() {
+    const [mode, setMode] = useState<GameMode>('auto')
+
     useEffect(() => {
         document.body.style.overflow = 'hidden'
         return () => {
@@ -11,24 +15,61 @@ export default function PongPage() {
         }
     }, [])
 
+    const isSolo = mode === 'solo'
+    const isTwo = mode === 'two'
+
     return (
         <div
             className="bg-black w-screen overflow-y-hidden relative"
             style={{ height: 'calc(100vh - 86px)' }}
         >
             <main className="h-full">
-                <PongCanvas />
+                <PongCanvas mode={mode} />
             </main>
 
-            {/* Controles no rodapé */}
-            <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 paralucent text-gray-200/20 text-sm md:text-base select-none">
-                W / S
+            {/* Controles + opções de modo */}
+            <div className="
+                hidden md:flex flex-col items-center gap-3
+                absolute bottom-4 left-1/2 -translate-x-1/2
+                paralucent text-gray-200/60 text-sm md:text-base select-none
+            ">
+                {/* Controles */}
+                <span className="text-gray-200/30">
+                    W / S — ↑ / ↓
+                </span>
+
+                {/* Trigger 1 jogador / 2 jogadores */}
+                <div className="flex items-center gap-2 text-xs md:text-sm">
+                    <button
+                        type="button"
+                        onClick={() => setMode('solo')}
+                        className={`px-3 py-1 rounded-full border transition-colors ${
+                            mode === 'solo'
+                                ? 'bg-gray-200 text-black border-gray-200'
+                                : 'border-gray-600 text-gray-600 hover:border-gray-400 hover:text-gray-100'
+                        }`}
+                    >
+                        1 player
+                    </button>
+
+                    <button
+                        type="button"
+                        onClick={() => setMode('two')}
+                        className={`px-3 py-1 rounded-full border transition-colors ${
+                            mode === 'two'
+                                ? 'bg-gray-200 text-black border-gray-200'
+                                : 'border-gray-600 text-gray-600 hover:border-gray-400 hover:text-gray-100'
+                        }`}
+                    >
+                        2 players
+                    </button>
+                </div>
             </div>
         </div>
     )
 }
 
-function PongCanvas() {
+function PongCanvas({ mode }: { mode: GameMode }) {
     const canvasRef = useRef<HTMLCanvasElement | null>(null)
     const [ready, setReady] = useState(false)
 
@@ -58,12 +99,39 @@ function PongCanvas() {
             vy: 0,
             leftScore: 0,
             rightScore: 0,
-            keys: { w: false, s: false },
+            keys: { w: false, s: false, up: false, down: false },
             logoImg: new Image(),
             logoLoaded: false,
+            isMobile: false,
+            twoPlayer: false,
+        }
+
+        function detectDevice() {
+            const isTouch =
+                'ontouchstart' in window ||
+                navigator.maxTouchPoints > 0 ||
+                // @ts-ignore
+                (navigator as any).msMaxTouchPoints > 0
+
+            state.isMobile = isTouch || window.innerWidth < 768
+
+            // Lógica do modo:
+            // - 'solo'  => sempre 1P (IA na direita)
+            // - 'two'   => 2P só em desktop; em mobile continua 1P
+            // - 'auto'  => 2P em desktop, 1P em mobile (comportamento "antigo")
+            if (mode === 'solo') {
+                state.twoPlayer = false
+            } else if (mode === 'two') {
+                state.twoPlayer = !state.isMobile
+            } else {
+                // auto
+                state.twoPlayer = !state.isMobile
+            }
         }
 
         function sizeCanvas() {
+            detectDevice()
+
             state.vw = window.innerWidth
             const navBarHeight = 64
             state.vh = window.innerHeight - navBarHeight
@@ -109,12 +177,22 @@ function PongCanvas() {
 
         function step() {
             const paddleSpeed = Math.max(6, state.vh * 0.012)
+
+            // Left paddle (sempre W/S ou touch)
             if (state.keys.w) state.leftY -= paddleSpeed
             if (state.keys.s) state.leftY += paddleSpeed
             state.leftY = Math.max(0, Math.min(state.vh - state.paddleH, state.leftY))
 
-            const rightCenter = state.rightY + state.paddleH / 2
-            state.rightY += (state.ballY - rightCenter) * 0.08
+            // Right paddle:
+            // - 2P (desktop): ↑ / ↓
+            // - 1P: IA segue a bola
+            if (state.twoPlayer) {
+                if (state.keys.up) state.rightY -= paddleSpeed
+                if (state.keys.down) state.rightY += paddleSpeed
+            } else {
+                const rightCenter = state.rightY + state.paddleH / 2
+                state.rightY += (state.ballY - rightCenter) * 0.08
+            }
             state.rightY = Math.max(0, Math.min(state.vh - state.paddleH, state.rightY))
 
             state.ballX += state.vx
@@ -159,9 +237,8 @@ function PongCanvas() {
 
         function drawScoreOverlay() {
             ctx.save()
-            ctx.fillStyle = 'rgba(200,200,200,0.1)'
+            ctx.fillStyle = 'rgba(200,200,200, 0.5)'
 
-            // Make font smaller on mobile (<640px)
             const fontSize = state.vw < 640 ? 36 : 64
             ctx.font = `bold ${fontSize}px system-ui`
             ctx.textBaseline = 'top'
@@ -176,7 +253,6 @@ function PongCanvas() {
             ctx.restore()
         }
 
-        // Draw a capsule (pill) shape that perfectly rounds the short side.
         function capsule(
             ctx2d: CanvasRenderingContext2D,
             x: number,
@@ -186,22 +262,14 @@ function PongCanvas() {
         ) {
             const r = Math.min(w, h) / 2
             ctx2d.beginPath()
-            // Top edge (left to right, stopping before corner)
             ctx2d.moveTo(x + r, y)
             ctx2d.lineTo(x + w - r, y)
-            // Top-right arc
             ctx2d.arc(x + w - r, y + r, r, -Math.PI / 2, 0)
-            // Right edge
             ctx2d.lineTo(x + w, y + h - r)
-            // Bottom-right arc
             ctx2d.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
-            // Bottom edge
             ctx2d.lineTo(x + r, y + h)
-            // Bottom-left arc
             ctx2d.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
-            // Left edge
             ctx2d.lineTo(x, y + r)
-            // Top-left arc
             ctx2d.arc(x + r, y + r, r, Math.PI, (3 * Math.PI) / 2)
             ctx2d.closePath()
             ctx2d.fill()
@@ -211,12 +279,10 @@ function PongCanvas() {
             ctx.fillStyle = '#000'
             ctx.fillRect(0, 0, state.vw, state.vh)
 
-            // Pill-shaped paddles
             ctx.fillStyle = '#fff'
             capsule(ctx, 40, state.leftY, state.paddleW, state.paddleH)
             capsule(ctx, state.vw - 40 - state.paddleW, state.rightY, state.paddleW, state.paddleH)
 
-            // Ball (logo or circle fallback)
             if (state.logoLoaded) {
                 const size = state.ballR * 2
                 ctx.drawImage(
@@ -236,12 +302,29 @@ function PongCanvas() {
         }
 
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'w') state.keys.w = true
-            if (e.key === 's') state.keys.s = true
+            if (e.key === 'w' || e.key === 'W') state.keys.w = true
+            if (e.key === 's' || e.key === 'S') state.keys.s = true
+            if (e.key === 'ArrowUp') {
+                state.keys.up = true
+                e.preventDefault()
+            }
+            if (e.key === 'ArrowDown') {
+                state.keys.down = true
+                e.preventDefault()
+            }
         }
+
         const onKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'w') state.keys.w = false
-            if (e.key === 's') state.keys.s = false
+            if (e.key === 'w' || e.key === 'W') state.keys.w = false
+            if (e.key === 's' || e.key === 'S') state.keys.s = false
+            if (e.key === 'ArrowUp') {
+                state.keys.up = false
+                e.preventDefault()
+            }
+            if (e.key === 'ArrowDown') {
+                state.keys.down = false
+                e.preventDefault()
+            }
         }
 
         const onTouchMove = (e: TouchEvent) => {
@@ -269,7 +352,7 @@ function PongCanvas() {
             window.removeEventListener('keyup', onKeyUp)
             canvas.removeEventListener('touchmove', onTouchMove)
         }
-    }, [ready])
+    }, [ready, mode])
 
     return (
         <canvas
