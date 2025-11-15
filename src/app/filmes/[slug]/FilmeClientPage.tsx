@@ -13,6 +13,7 @@ type Filme = {
     diretor?: string;
     agencia?: string;
     produtoraContratante?: string;
+    label?: string;
     video_url?: string;
     date: string;
     thumbnail: string;
@@ -135,7 +136,7 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         metaRows.push({ label: 'Client', value: filme.cliente });
 
     // Label dinâmico: Production Company se is_service, senão Co-Production
-    const contratanteLabel = filme.is_service
+        const contratanteLabel = filme.is_service
         ? 'Production Company'
         : 'Co-Production';
 
@@ -172,6 +173,14 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
         null;
     if (agencyValue)
         metaRows.push({ label: 'Agency', value: agencyValue });
+
+    if (!hiringProductionCompany && !agencyValue && filme.label?.trim()) {
+        metaRows.push({
+            label: 'Label',
+            value: filme.label.trim(),
+        });
+    }
+
 
     return (
         <div className="bg-black text-white min-h-screen px-6 pb-12 fade-in">
@@ -259,18 +268,19 @@ export default function FilmeClientPage({ slug }: { slug: string }) {
                     )}
                 </div>
 
-                <div className="mt-6 space-y-1">
+                <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-10">
                     {metaRows.map(row => (
-                        <div key={row.label} className="leading-tight">
-                            <span className="paralucent uppercase tracking-wide text-gray-400 text-xs mr-2">
+                        <div key={row.label} className="flex flex-col leading-tight">
+                            <span className="paralucent tracking-wide text-gray-400 text-sm">
                                 {row.label}:
                             </span>
-                            <span className="paralucent text-base md:text-lg">
+                            <span className="paralucent text-base md:text-4xl">
                                 {row.value}
                             </span>
                         </div>
                     ))}
                 </div>
+
 
                 {filme.creditos && (
                     <div className="paralucent mt-10 grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 text-sm">

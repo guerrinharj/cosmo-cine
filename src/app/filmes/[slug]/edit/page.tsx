@@ -19,6 +19,7 @@ export default function EditFilmePage() {
         produtoraContratante: string;
         agencia: string;
         video_url: string;
+        label: string;
         date: string;
         thumbnail: string;
         showable: boolean;
@@ -37,6 +38,7 @@ export default function EditFilmePage() {
         categoria: '',
         produtoraContratante: '',
         agencia: '',
+        label: '',
         video_url: '',
         date: '',
         thumbnail: '',
@@ -81,6 +83,7 @@ export default function EditFilmePage() {
                 categoria: data.categoria ?? '',
                 produtoraContratante: data.produtoraContratante ?? '',
                 agencia: data.agencia ?? '',
+                label: data.label ?? '',
                 video_url: data.video_url ?? '',
                 date: data.date?.slice(0, 10) ?? '',
                 thumbnail: data.thumbnail ?? '',
@@ -261,6 +264,7 @@ export default function EditFilmePage() {
                 cliente: (form.cliente as string).trim() || undefined,
                 agencia: (form.agencia as string).trim() || undefined,
                 produtoraContratante: (form.produtoraContratante as string).trim() || undefined,
+                label: (form.label as string).trim() || undefined,
                 date: (form.date as string) || undefined,
                 is_service: form.is_service
             };
@@ -355,6 +359,13 @@ export default function EditFilmePage() {
                         value={form.agencia as string}
                         onChange={handleChange}
                         className={inputStyle('agencia')}
+                    />
+                    <input
+                        name="label"
+                        placeholder="Label"
+                        value={form.label as string}
+                        onChange={handleChange}
+                        className={inputStyle('label')}
                     />
                     <input
                         name="video_url"

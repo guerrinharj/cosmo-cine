@@ -13,6 +13,7 @@ type FilmeForm = {
     categoria: string;
     produtoraContratante: string;
     agencia: string;
+    label: string; 
     video_url: string;
     date: string;
     thumbnail: string;
@@ -36,6 +37,7 @@ export default function CreateFilmePage() {
         categoria: '',
         produtoraContratante: '',
         agencia: '',
+        label: '',
         video_url: '',
         date: '',
         thumbnail: '',
@@ -224,6 +226,7 @@ export default function CreateFilmePage() {
                 creditos: creditos.filter((c) => c.trim() !== '').join(', '),
                 cliente: form.cliente.trim() || undefined,
                 agencia: form.agencia.trim() || undefined,
+                label: form.label.trim() || undefined,
                 produtoraContratante: form.produtoraContratante.trim() || undefined,
                 date: form.date || undefined,
                 is_service: form.is_service
@@ -320,6 +323,14 @@ export default function CreateFilmePage() {
                         onChange={handleChange}
                         className={inputStyle('agencia')}
                     />
+                    <input
+                        name="label"
+                        placeholder="Label"
+                        value={form.label}
+                        onChange={handleChange}
+                        className={inputStyle('label')}
+                    />
+
                     <input
                         name="video_url"
                         placeholder="Vídeo URL * (Vimeo)"

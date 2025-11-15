@@ -17,6 +17,7 @@ type Filme = {
     categoria: string;
     thumbnail: string;
     date: string;
+    label: string;
     is_service?: boolean;
     showable: boolean;
 };
@@ -120,8 +121,8 @@ export default function HomePage() {
                         const primaria =
                             (filme.produtoraContratante && filme.produtoraContratante.trim()) ||
                             (filme.agencia && filme.agencia.trim()) ||
+                            (filme.label && filme.label.trim()) ||
                             '';
-
                         return (
                             <Link
                                 href={`/filmes/${filme.slug}`}
