@@ -5,6 +5,12 @@ import { useParams, useRouter } from 'next/navigation';
 import NavBar from '@/components/NavBar';
 import { supabase } from '@/lib/supabaseClient';
 import Cropper, { Area } from 'react-easy-crop';
+import {
+    DragDropContext,
+    Droppable,
+    Draggable,
+    type DropResult,
+} from '@hello-pangea/dnd';
 
 export default function EditFilmePage() {
     const router = useRouter();
@@ -138,18 +144,16 @@ export default function EditFilmePage() {
         reader.readAsDataURL(f);
     };
 
-    // Tipagem do callback do cropper
     const onCropComplete = useCallback((_croppedArea: Area, croppedPixels: Area) => {
         setCroppedAreaPixels(croppedPixels);
     }, []);
 
-    // Gera blob recortado no tamanho fixo
     async function getCroppedBlob(imageSrc: string, crop: Area) {
         const image = await new Promise<HTMLImageElement>((resolve, reject) => {
             const img = new Image();
             img.crossOrigin = 'anonymous';
             img.onload = () => resolve(img);
-            img.onerror = (err) => reject(err);
+            img.onerror = reject;
             img.src = imageSrc;
         });
 
@@ -159,21 +163,20 @@ export default function EditFilmePage() {
         const ctx = canvas.getContext('2d');
         if (!ctx) throw new Error('Canvas não suportado.');
 
-        const tempCanvas = document.createElement('canvas');
-        const tctx = tempCanvas.getContext('2d');
+        const temp = document.createElement('canvas');
+        temp.width = crop.width;
+        temp.height = crop.height;
+        const tctx = temp.getContext('2d');
         if (!tctx) throw new Error('Canvas não suportado.');
-        tempCanvas.width = crop.width;
-        tempCanvas.height = crop.height;
         tctx.drawImage(image, crop.x, crop.y, crop.width, crop.height, 0, 0, crop.width, crop.height);
 
-        ctx.drawImage(tempCanvas, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
+        ctx.drawImage(temp, 0, 0, TARGET_WIDTH, TARGET_HEIGHT);
 
-        return await new Promise<Blob>((resolve) => {
-            canvas.toBlob((blob) => resolve(blob as Blob), 'image/jpeg', 0.9);
+        return new Promise<Blob>((resolve) => {
+            canvas.toBlob(blob => resolve(blob as Blob), 'image/jpeg', 0.9);
         });
     }
 
-    // Upload genérico (Blob | File) para o Storage
     async function uploadToStorage(fileOrBlob: Blob, filenameHint = 'thumbnail.jpg'): Promise<string> {
         setUploading(true);
         try {
@@ -187,28 +190,35 @@ export default function EditFilmePage() {
                     .replace(/^-+|-+$/g, '') || 'filme';
             const path = `filmes/${slugBase}/${Date.now()}-${sanitized}`;
 
-            const { error: upErr } = await supabase.storage
+            const { error } = await supabase.storage
                 .from('thumbnails')
                 .upload(path, fileOrBlob, {
                     cacheControl: '3600',
                     upsert: false,
                     contentType: fileOrBlob.type || 'image/jpeg'
                 });
-            if (upErr) throw upErr;
+            if (error) throw error;
 
             const { data } = supabase.storage.from('thumbnails').getPublicUrl(path);
-            const publicUrl = data?.publicUrl;
-            if (!publicUrl) throw new Error('Não foi possível obter a URL pública do arquivo.');
-            return publicUrl;
-
-            // Se bucket privado: gere signed URL no server (route handler) ou use:
-            // const { data: signed } = await supabase.storage.from('thumbnails').createSignedUrl(path, 60 * 60);
-            // return signed?.signedUrl!;
+            if (!data?.publicUrl) throw new Error('Não foi possível obter a URL pública.');
+            return data.publicUrl;
         } finally {
             setUploading(false);
         }
     }
 
+    // ========= DRAG AND DROP =========
+    const handleDragEnd = (result: DropResult) => {
+        if (!result.destination) return;
+
+        const items = Array.from(creditos);
+        const [moved] = items.splice(result.source.index, 1);
+        items.splice(result.destination.index, 0, moved);
+
+        setCreditos(items);
+    };
+
+    // ========= SUBMIT =========
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -231,28 +241,31 @@ export default function EditFilmePage() {
         }
 
         try {
-            // 1) Se enviar arquivo + recorte definido, prioriza a URL do nosso Storage
             let chosenThumbnail = (form.thumbnail as string).trim();
             if (file && imageSrc && croppedAreaPixels) {
                 const blob = await getCroppedBlob(imageSrc, croppedAreaPixels);
-                const uploadedUrl = await uploadToStorage(blob, file.name.replace(/\.[^.]+$/, '.jpg'));
+                const uploadedUrl = await uploadToStorage(
+                    blob,
+                    file.name.replace(/\.[^.]+$/, '.jpg')
+                );
                 chosenThumbnail = uploadedUrl;
             } else {
-                // 2) Sem arquivo: valida URL manual se houver
                 if (chosenThumbnail && !isLikelyUrl(chosenThumbnail)) {
                     setTouched({ ...touched, thumbnail: true });
                     setModalMessage('A Thumbnail personalizada deve ser uma URL iniciando com http(s)://');
                     setShowModal(true);
                     return;
                 }
-                // 3) Sem arquivo e sem URL manual: fallback do Vimeo
+
                 if (!chosenThumbnail) {
                     const oembedRes = await fetch(
-                        `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(form.video_url as string)}`
+                        `https://vimeo.com/api/oembed.json?url=${encodeURIComponent(
+                            form.video_url as string
+                        )}`
                     );
                     if (oembedRes.ok) {
                         const oembed = await oembedRes.json();
-                        chosenThumbnail = (oembed?.thumbnail_url as string) || '';
+                        chosenThumbnail = oembed?.thumbnail_url || '';
                     }
                 }
             }
@@ -405,13 +418,14 @@ export default function EditFilmePage() {
                             }}
                             onBlur={() => setTouched({ ...touched, thumbnail: true })}
                             className={`w-full px-3 py-2 rounded border ${
-                                touched.thumbnail && form.thumbnail && !isLikelyUrl(form.thumbnail as string)
+                                touched.thumbnail &&
+                                form.thumbnail &&
+                                !isLikelyUrl(form.thumbnail as string)
                                     ? 'border-red-500'
                                     : 'border-gray-300'
                             } bg-black text-white placeholder-gray-400`}
                         />
 
-                        {/* Preview quando não há arquivo selecionado */}
                         {!file && isLikelyUrl(form.thumbnail as string) && (
                             <div className="mt-3">
                                 <p className="text-sm text-gray-400 mb-2">Pré-visualização da Thumbnail:</p>
@@ -439,26 +453,75 @@ export default function EditFilmePage() {
                         className={inputStyle('date')}
                     />
 
-                    {/* Créditos */}
+                    {/* Créditos com drag-and-drop */}
                     <div className="md:col-span-2">
                         <p className="mb-2 font-bold">Créditos</p>
-                        {creditos.map((c, i) => (
-                            <div key={i} className="flex gap-2 mb-2 flex-col">
-                                <div className="flex gap-2">
-                                    <textarea
-                                        placeholder="Texto do crédito (ex.: Direção: Fulano; Arte & Design: Sicrana, Beltrano)"
-                                        value={c}
-                                        onChange={e => updateCredito(i, e.target.value)}
-                                        className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] bg-black text-white placeholder-gray-400"
-                                    />
-                                    <button type="button" onClick={() => removeCredito(i)} className="text-red-400 px-2">
-                                        ✕
-                                    </button>
-                                </div>
-                                {c.trim() && <p className="text-sm text-gray-400 mt-1">{c.trim()}</p>}
-                            </div>
-                        ))}
-                        <button type="button" onClick={addCredito} className="mt-2 text-sm underline text-white">
+
+                        <DragDropContext onDragEnd={handleDragEnd}>
+                            <Droppable droppableId="creditos">
+                                {(provided: any) => (
+                                    <div
+                                        ref={provided.innerRef}
+                                        {...provided.droppableProps}
+                                        className="space-y-2"
+                                    >
+                                        {creditos.map((c, i) => (
+                                            <Draggable
+                                                key={`credito-${i}`}
+                                                draggableId={`credito-${i}`}
+                                                index={i}
+                                            >
+                                                {(provided: any) => (
+                                                    <div
+                                                        ref={provided.innerRef}
+                                                        {...provided.draggableProps}
+                                                        className="border border-gray-700 rounded p-2 flex flex-col gap-2"
+                                                    >
+                                                        <div className="flex gap-2 items-start">
+                                                            {/* “handle” de arrastar */}
+                                                            <span
+                                                                {...provided.dragHandleProps}
+                                                                className="cursor-grab select-none text-gray-400 pt-2"
+                                                                title="Arraste para reordenar"
+                                                            >
+                                                                ☰
+                                                            </span>
+
+                                                            <textarea
+                                                                placeholder="Texto do crédito (ex.: Direção: Fulano; Arte & Design: Sicrana, Beltrano)"
+                                                                value={c}
+                                                                onChange={e => updateCredito(i, e.target.value)}
+                                                                className="flex-1 px-3 py-2 rounded border border-gray-300 min-h-[80px] bg-black text-white placeholder-gray-400"
+                                                            />
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => removeCredito(i)}
+                                                                className="text-red-400 px-2"
+                                                            >
+                                                                ✕
+                                                            </button>
+                                                        </div>
+                                                        {c.trim() && (
+                                                            <p className="text-sm text-gray-400 mt-1">
+                                                                {c.trim()}
+                                                            </p>
+                                                        )}
+                                                    </div>
+                                                )}
+                                            </Draggable>
+                                        ))}
+
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
+                        </DragDropContext>
+
+                        <button
+                            type="button"
+                            onClick={addCredito}
+                            className="mt-2 text-sm underline text-white"
+                        >
                             Adicionar Crédito
                         </button>
                     </div>
