@@ -22,7 +22,7 @@ export default function PongPage() {
 
             {/* Controles no rodapé */}
             <div className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 paralucent text-gray-200/20 text-sm md:text-base select-none">
-                W / S
+                W / S — ↑ / ↓
             </div>
         </div>
     )
@@ -58,12 +58,27 @@ function PongCanvas() {
             vy: 0,
             leftScore: 0,
             rightScore: 0,
-            keys: { w: false, s: false },
+            keys: { w: false, s: false, up: false, down: false },
             logoImg: new Image(),
             logoLoaded: false,
+            isMobile: false,
+            twoPlayer: false,
+        }
+
+        function detectDevice() {
+            const isTouch =
+                'ontouchstart' in window ||
+                navigator.maxTouchPoints > 0 ||
+                // @ts-ignore
+                (navigator as any).msMaxTouchPoints > 0
+
+            state.isMobile = isTouch || window.innerWidth < 768
+            state.twoPlayer = !state.isMobile
         }
 
         function sizeCanvas() {
+            detectDevice()
+
             state.vw = window.innerWidth
             const navBarHeight = 64
             state.vh = window.innerHeight - navBarHeight
@@ -109,12 +124,22 @@ function PongCanvas() {
 
         function step() {
             const paddleSpeed = Math.max(6, state.vh * 0.012)
+
+            // Left paddle (sempre W/S ou touch)
             if (state.keys.w) state.leftY -= paddleSpeed
             if (state.keys.s) state.leftY += paddleSpeed
             state.leftY = Math.max(0, Math.min(state.vh - state.paddleH, state.leftY))
 
-            const rightCenter = state.rightY + state.paddleH / 2
-            state.rightY += (state.ballY - rightCenter) * 0.08
+            // Right paddle:
+            // - Mobile: IA segue a bola (como antes)
+            // - Desktop: 2P com ↑ / ↓
+            if (state.twoPlayer) {
+                if (state.keys.up) state.rightY -= paddleSpeed
+                if (state.keys.down) state.rightY += paddleSpeed
+            } else {
+                const rightCenter = state.rightY + state.paddleH / 2
+                state.rightY += (state.ballY - rightCenter) * 0.08
+            }
             state.rightY = Math.max(0, Math.min(state.vh - state.paddleH, state.rightY))
 
             state.ballX += state.vx
@@ -161,7 +186,6 @@ function PongCanvas() {
             ctx.save()
             ctx.fillStyle = 'rgba(200,200,200,0.1)'
 
-            // Make font smaller on mobile (<640px)
             const fontSize = state.vw < 640 ? 36 : 64
             ctx.font = `bold ${fontSize}px system-ui`
             ctx.textBaseline = 'top'
@@ -176,7 +200,6 @@ function PongCanvas() {
             ctx.restore()
         }
 
-        // Draw a capsule (pill) shape that perfectly rounds the short side.
         function capsule(
             ctx2d: CanvasRenderingContext2D,
             x: number,
@@ -186,22 +209,14 @@ function PongCanvas() {
         ) {
             const r = Math.min(w, h) / 2
             ctx2d.beginPath()
-            // Top edge (left to right, stopping before corner)
             ctx2d.moveTo(x + r, y)
             ctx2d.lineTo(x + w - r, y)
-            // Top-right arc
             ctx2d.arc(x + w - r, y + r, r, -Math.PI / 2, 0)
-            // Right edge
             ctx2d.lineTo(x + w, y + h - r)
-            // Bottom-right arc
             ctx2d.arc(x + w - r, y + h - r, r, 0, Math.PI / 2)
-            // Bottom edge
             ctx2d.lineTo(x + r, y + h)
-            // Bottom-left arc
             ctx2d.arc(x + r, y + h - r, r, Math.PI / 2, Math.PI)
-            // Left edge
             ctx2d.lineTo(x, y + r)
-            // Top-left arc
             ctx2d.arc(x + r, y + r, r, Math.PI, (3 * Math.PI) / 2)
             ctx2d.closePath()
             ctx2d.fill()
@@ -211,12 +226,10 @@ function PongCanvas() {
             ctx.fillStyle = '#000'
             ctx.fillRect(0, 0, state.vw, state.vh)
 
-            // Pill-shaped paddles
             ctx.fillStyle = '#fff'
             capsule(ctx, 40, state.leftY, state.paddleW, state.paddleH)
             capsule(ctx, state.vw - 40 - state.paddleW, state.rightY, state.paddleW, state.paddleH)
 
-            // Ball (logo or circle fallback)
             if (state.logoLoaded) {
                 const size = state.ballR * 2
                 ctx.drawImage(
@@ -236,12 +249,29 @@ function PongCanvas() {
         }
 
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'w') state.keys.w = true
-            if (e.key === 's') state.keys.s = true
+            if (e.key === 'w' || e.key === 'W') state.keys.w = true
+            if (e.key === 's' || e.key === 'S') state.keys.s = true
+            if (e.key === 'ArrowUp') {
+                state.keys.up = true
+                e.preventDefault()
+            }
+            if (e.key === 'ArrowDown') {
+                state.keys.down = true
+                e.preventDefault()
+            }
         }
+
         const onKeyUp = (e: KeyboardEvent) => {
-            if (e.key === 'w') state.keys.w = false
-            if (e.key === 's') state.keys.s = false
+            if (e.key === 'w' || e.key === 'W') state.keys.w = false
+            if (e.key === 's' || e.key === 'S') state.keys.s = false
+            if (e.key === 'ArrowUp') {
+                state.keys.up = false
+                e.preventDefault()
+            }
+            if (e.key === 'ArrowDown') {
+                state.keys.down = false
+                e.preventDefault()
+            }
         }
 
         const onTouchMove = (e: TouchEvent) => {
