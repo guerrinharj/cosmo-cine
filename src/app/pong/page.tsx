@@ -237,7 +237,7 @@ function PongCanvas({ mode }: { mode: GameMode }) {
 
         function drawScoreOverlay() {
             ctx.save()
-            ctx.fillStyle = 'rgba(200,200,200,0.1)'
+            ctx.fillStyle = 'rgba(200,200,200, 0.5)'
 
             const fontSize = state.vw < 640 ? 36 : 64
             ctx.font = `bold ${fontSize}px system-ui`
