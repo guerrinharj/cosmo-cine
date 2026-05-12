@@ -3,6 +3,7 @@ export const messages = {
     pt: {
         nav: {
             films: 'Filmes',
+            productionService: 'Production Service',
             contact: 'Contato',
             logout: 'Sair',
         },
@@ -20,6 +21,7 @@ export const messages = {
     en: {
         nav: {
             films: 'Films',
+            productionService: 'Production Service',
             contact: 'Contact',
             logout: 'Logout',
         },
