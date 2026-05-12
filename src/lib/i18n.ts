@@ -4,6 +4,7 @@ export const messages = {
         nav: {
             films: 'Filmes',
             contact: 'Contato',
+            productionService: 'Production Service',
             logout: 'Sair',
         },
         filmes: {
@@ -21,6 +22,7 @@ export const messages = {
         nav: {
             films: 'Films',
             contact: 'Contact',
+            productionService: 'Production Service',
             logout: 'Logout',
         },
         filmes: {

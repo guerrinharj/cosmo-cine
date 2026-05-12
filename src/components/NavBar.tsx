@@ -78,6 +78,14 @@ export default function NavBar() {
                     <Link href="/filmes" className={linkClass('/filmes')}>
                         {t.nav.films}
                     </Link>
+                    <a
+                        href="https://cosmo-user.onrender.com/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                    >
+                        {t.nav.productionService}
+                    </a>
                     <Link href="/contato" className={linkClass('/contato')}>
                         {t.nav.contact}
                     </Link>
@@ -89,6 +97,14 @@ export default function NavBar() {
                 <Link href="/filmes" className={linkClass('/filmes')}>
                     {t.nav.films}
                 </Link>
+            <a
+                    href="https://cosmo-user.onrender.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                >
+                    {t.nav.productionService}
+                </a>
                 <Link href="/contato" className={linkClass('/contato')}>
                     {t.nav.contact}
                 </Link>
