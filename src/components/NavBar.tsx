@@ -50,6 +50,11 @@ export default function NavBar() {
             pathname === href ? 'border-white' : 'border-transparent hover:border-white'
         }`;
 
+    const mobileLinkClass = (href: string) =>
+        `border-b-2 px-1 py-1 whitespace-nowrap transition-all duration-300 ${
+            pathname === href ? 'border-white' : 'border-transparent hover:border-white'
+        }`;
+
     return (
         <motion.nav
             key={pathname}
@@ -73,20 +78,20 @@ export default function NavBar() {
             </div>
 
             {/* Mobile center group */}
-            <div className="flex md:hidden items-center justify-center w-full text-white h-20">
-                <div className="absolute left-0 right-0 flex justify-center gap-6 text-lg uppercase paralucent items-center">
-                    <Link href="/filmes" className={linkClass('/filmes')}>
+            <div className="md:hidden absolute left-14 right-10 flex justify-center items-center text-white">
+                <div className="flex gap-2 text-xs uppercase paralucent items-center">
+                    <Link href="/filmes" className={mobileLinkClass('/filmes')}>
                         {t.nav.films}
                     </Link>
                     <a
                         href="https://cosmo-user.onrender.com/"
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                        className="border-b-2 px-1 py-1 whitespace-nowrap transition-all duration-300 border-transparent hover:border-white"
                     >
                         {t.nav.productionService}
                     </a>
-                    <Link href="/contato" className={linkClass('/contato')}>
+                    <Link href="/contato" className={mobileLinkClass('/contato')}>
                         {t.nav.contact}
                     </Link>
                 </div>
