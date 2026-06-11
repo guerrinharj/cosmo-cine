@@ -5,14 +5,15 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter, usePathname } from 'next/navigation';
 import { messages } from '@/lib/i18n';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 type Locale = 'pt' | 'en';
 
 export default function NavBar() {
-    const [locale, setLocale] = useState<Locale>('pt');
+    const [locale, setLocale] = useState<Locale>('en');
     const [authenticated, setAuthenticated] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
 
     const router = useRouter();
     const pathname = usePathname();
@@ -20,14 +21,28 @@ export default function NavBar() {
 
     useEffect(() => {
         const saved = localStorage.getItem('locale');
-        setLocale(saved === 'pt' || saved === 'en' ? saved : 'pt');
+
+        setLocale(
+            saved === 'pt' || saved === 'en'
+                ? saved
+                : 'en'
+        );
+
         setMounted(true);
 
         fetch('/api/auth/me', { credentials: 'include' })
-            .then(res => (res.ok ? res.json() : { authenticated: false }))
-            .then(data => setAuthenticated(Boolean(data?.authenticated)))
+            .then((res) =>
+                res.ok ? res.json() : { authenticated: false }
+            )
+            .then((data) =>
+                setAuthenticated(Boolean(data?.authenticated))
+            )
             .catch(() => setAuthenticated(false));
     }, []);
+
+    useEffect(() => {
+        setMobileOpen(false);
+    }, [pathname]);
 
     if (!mounted) return null;
 
@@ -51,33 +66,58 @@ export default function NavBar() {
         }`;
 
     return (
-        <motion.nav
-            key={pathname}
-            initial={isHome ? { y: -64, opacity: 0 } : false}
-            animate={isHome ? { y: 0, opacity: 1 } : {}}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative border-b border-white"
-        >
-            {/* Mobile left logo */}
-            <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-50">
-                <Link href="/" className="block">
-                    <Image
-                        src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
-                        alt="Cosmo Cine"
-                        width={40}
-                        height={40}
-                        className="w-10 h-auto transition-transform duration-300 active:scale-95"
-                        priority
-                    />
-                </Link>
-            </div>
+        <>
+            <motion.nav
+                key={pathname}
+                initial={isHome ? { y: -64, opacity: 0 } : false}
+                animate={isHome ? { y: 0, opacity: 1 } : {}}
+                transition={{ duration: 0.5, ease: 'easeOut' }}
+                className="sticky top-0 left-0 z-50 w-full h-20 bg-black/90 backdrop-blur-sm flex items-center px-4 relative border-b border-white"
+            >
+                {/* Mobile logo */}
+                <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-50">
+                    <Link href="/" className="block">
+                        <Image
+                            src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
+                            alt="Cosmo Cine"
+                            width={40}
+                            height={40}
+                            className="w-10 h-auto transition-transform duration-300 active:scale-95"
+                            priority
+                        />
+                    </Link>
+                </div>
 
-            {/* Mobile center group */}
-            <div className="flex md:hidden items-center justify-center w-full text-white h-20">
-                <div className="absolute left-0 right-0 flex justify-center gap-6 text-lg uppercase paralucent items-center">
+                {/* Mobile burger */}
+                <button
+                    onClick={() => setMobileOpen(prev => !prev)}
+                    className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1.5"
+                    aria-label="Toggle menu"
+                    aria-expanded={mobileOpen}
+                >
+                    <span
+                        className={`block h-0.5 w-7 bg-white transition-transform duration-300 ${
+                            mobileOpen ? 'translate-y-2 rotate-45' : ''
+                        }`}
+                    />
+                    <span
+                        className={`block h-0.5 w-7 bg-white transition-opacity duration-300 ${
+                            mobileOpen ? 'opacity-0' : 'opacity-100'
+                        }`}
+                    />
+                    <span
+                        className={`block h-0.5 w-7 bg-white transition-transform duration-300 ${
+                            mobileOpen ? '-translate-y-2 -rotate-45' : ''
+                        }`}
+                    />
+                </button>
+
+                {/* Desktop centered links */}
+                <div className="hidden md:flex gap-6 items-center text-white text-lg uppercase paralucent absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
                     <Link href="/filmes" className={linkClass('/filmes')}>
                         {t.nav.films}
                     </Link>
+
                     <a
                         href="https://cosmo-user.onrender.com/"
                         target="_blank"
@@ -86,62 +126,94 @@ export default function NavBar() {
                     >
                         {t.nav.productionService}
                     </a>
+
                     <Link href="/contato" className={linkClass('/contato')}>
                         {t.nav.contact}
                     </Link>
                 </div>
-            </div>
 
-            {/* Desktop centered links */}
-            <div className="hidden md:flex gap-6 items-center text-white text-lg uppercase paralucent absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
-                <Link href="/filmes" className={linkClass('/filmes')}>
-                    {t.nav.films}
-                </Link>
-            <a
-                    href="https://cosmo-user.onrender.com/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
-                >
-                    {t.nav.productionService}
-                </a>
-                <Link href="/contato" className={linkClass('/contato')}>
-                    {t.nav.contact}
-                </Link>
-            </div>
+                {/* Desktop left logo */}
+                <div className="hidden md:block">
+                    <Link href="/" className="block">
+                        <Image
+                            src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
+                            alt="Cosmo Cine"
+                            width={200}
+                            height={200}
+                            className="duration-300 hover:opacity-80 w-40"
+                            priority
+                        />
+                    </Link>
+                </div>
 
-            {/* Desktop left logo */}
-            <div className="hidden md:block">
-                <Link href="/" className="block">
-                    <Image
-                        src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
-                        alt="Cosmo Cine"
-                        width={200}
-                        height={200}
-                        className="duration-300 hover:opacity-80 w-40"
-                        priority
-                    />
-                </Link>
-            </div>
-
-            {/* Locale toggle — absolute on the right */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 z-50">
-                <button
-                    onClick={switchLocale}
-                    className="text-white text-sm md:text-base uppercase tracking-wider hover:underline"
-                >
-                    {locale === 'pt' ? 'EN' : 'PT'}
-                </button>
-            </div>
-
-            {/* Logout — absolute, left of locale */}
-            {authenticated && (
-                <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
-                    <button onClick={handleLogout} className="text-red-400 hover:underline">
-                        {t.nav.logout}
+                {/* Desktop locale */}
+                <div className="hidden md:block absolute right-4 top-1/2 -translate-y-1/2 z-50">
+                    <button
+                        onClick={switchLocale}
+                        className="text-white text-base uppercase tracking-wider hover:underline"
+                    >
+                        {locale === 'pt' ? 'EN' : 'PT'}
                     </button>
                 </div>
-            )}
-        </motion.nav>
+
+                {/* Desktop logout */}
+                {authenticated && (
+                    <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
+                        <button onClick={handleLogout} className="text-red-400 hover:underline">
+                            {t.nav.logout}
+                        </button>
+                    </div>
+                )}
+            </motion.nav>
+
+            {/* Mobile menu */}
+            <AnimatePresence>
+                {mobileOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -12 }}
+                        transition={{ duration: 0.25, ease: 'easeOut' }}
+                        className="md:hidden fixed top-20 left-0 z-40 w-full bg-black/95 border-b border-white text-white"
+                    >
+                        <div className="flex flex-col items-center gap-8 py-10 text-xl uppercase paralucent">
+                            <Link href="/filmes" className={linkClass('/filmes')}>
+                                {t.nav.films}
+                            </Link>
+
+                            <a
+                                href="https://cosmo-user.onrender.com/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                                onClick={() => setMobileOpen(false)}
+                            >
+                                {t.nav.productionService}
+                            </a>
+
+                            <Link href="/contato" className={linkClass('/contato')}>
+                                {t.nav.contact}
+                            </Link>
+
+                            <button
+                                onClick={switchLocale}
+                                className="text-white text-base uppercase tracking-wider hover:underline"
+                            >
+                                {locale === 'pt' ? 'EN' : 'PT'}
+                            </button>
+
+                            {authenticated && (
+                                <button
+                                    onClick={handleLogout}
+                                    className="text-red-400 hover:underline"
+                                >
+                                    {t.nav.logout}
+                                </button>
+                            )}
+                        </div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </>
     );
 }
