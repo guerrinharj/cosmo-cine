@@ -55,14 +55,20 @@ export default function NavBar() {
     };
 
     const handleLogout = async () => {
-        await fetch('/api/auth/logout', { method: 'POST', credentials: 'include' });
+        await fetch('/api/auth/logout', {
+            method: 'POST',
+            credentials: 'include',
+        });
+
         setAuthenticated(false);
         router.push('/login');
     };
 
     const linkClass = (href: string) =>
         `border-b-2 px-2 py-1 transition-all duration-300 ${
-            pathname === href ? 'border-white' : 'border-transparent hover:border-white'
+            pathname === href
+                ? 'border-white'
+                : 'border-transparent hover:border-white'
         }`;
 
     return (
@@ -90,7 +96,7 @@ export default function NavBar() {
 
                 {/* Mobile burger */}
                 <button
-                    onClick={() => setMobileOpen(prev => !prev)}
+                    onClick={() => setMobileOpen((prev) => !prev)}
                     className="md:hidden absolute right-4 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-1.5"
                     aria-label="Toggle menu"
                     aria-expanded={mobileOpen}
@@ -159,7 +165,10 @@ export default function NavBar() {
                 {/* Desktop logout */}
                 {authenticated && (
                     <div className="absolute right-16 top-1/2 -translate-y-1/2 z-50 hidden md:block">
-                        <button onClick={handleLogout} className="text-red-400 hover:underline">
+                        <button
+                            onClick={handleLogout}
+                            className="text-red-400 hover:underline"
+                        >
                             {t.nav.logout}
                         </button>
                     </div>
@@ -194,13 +203,6 @@ export default function NavBar() {
                             <Link href="/contato" className={linkClass('/contato')}>
                                 {t.nav.contact}
                             </Link>
-
-                            <button
-                                onClick={switchLocale}
-                                className="text-white text-base uppercase tracking-wider hover:underline"
-                            >
-                                {locale === 'pt' ? 'EN' : 'PT'}
-                            </button>
 
                             {authenticated && (
                                 <button
