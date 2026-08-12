@@ -84,7 +84,7 @@ export default function NavBar() {
                         {t.nav.films}
                     </Link>
                     <a
-                        href="https://cosmo-user.onrender.com/"
+                        href="https://production-service.cosmocine.com/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="border-b-2 px-1 py-1 whitespace-nowrap transition-all duration-300 border-transparent hover:border-white"
@@ -103,7 +103,7 @@ export default function NavBar() {
                     {t.nav.films}
                 </Link>
                 <a
-                    href="https://cosmo-user.onrender.com/"
+                    href="https://production-service.cosmocine.com/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
