@@ -5,6 +5,7 @@ export const messages = {
             films: 'Filmes',
             productionService: 'Production Service',
             contact: 'Contato',
+            productionService: 'Production Service',
             logout: 'Sair',
         },
         filmes: {
@@ -23,6 +24,7 @@ export const messages = {
             films: 'Films',
             productionService: 'Production Service',
             contact: 'Contact',
+            productionService: 'Production Service',
             logout: 'Logout',
         },
         filmes: {
