@@ -3,8 +3,8 @@ export const messages = {
     pt: {
         nav: {
             films: 'Filmes',
-            contact: 'Contato',
             productionService: 'Production Service',
+            contact: 'Contato',
             logout: 'Sair',
         },
         filmes: {
@@ -21,8 +21,8 @@ export const messages = {
     en: {
         nav: {
             films: 'Films',
-            contact: 'Contact',
             productionService: 'Production Service',
+            contact: 'Contact',
             logout: 'Logout',
         },
         filmes: {

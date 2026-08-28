@@ -9,6 +9,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 type Locale = 'pt' | 'en';
 
+const PRODUCTION_SERVICE_URL = 'https://cosmocine.com/';
+
 export default function NavBar() {
     const [locale, setLocale] = useState<Locale>('en');
     const [authenticated, setAuthenticated] = useState(false);
@@ -65,6 +67,9 @@ export default function NavBar() {
             pathname === href ? 'border-white' : 'border-transparent hover:border-white'
         }`;
 
+    const externalLinkClass =
+        'border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white';
+
     return (
         <>
             <motion.nav
@@ -76,7 +81,7 @@ export default function NavBar() {
             >
                 {/* Mobile logo */}
                 <div className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 z-50">
-                    <Link href="/" className="block">
+                    <a href={PRODUCTION_SERVICE_URL} className="block">
                         <Image
                             src="/logos/COM%20ICONE/Cosmo_V_negativo_Icone.png"
                             alt="Cosmo Cine"
@@ -85,7 +90,7 @@ export default function NavBar() {
                             className="w-10 h-auto transition-transform duration-300 active:scale-95"
                             priority
                         />
-                    </Link>
+                    </a>
                 </div>
 
                 {/* Mobile burger */}
@@ -119,10 +124,8 @@ export default function NavBar() {
                     </Link>
 
                     <a
-                        href="https://cosmo-user.onrender.com/"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                        href={PRODUCTION_SERVICE_URL}
+                        className={externalLinkClass}
                     >
                         {t.nav.productionService}
                     </a>
@@ -134,7 +137,7 @@ export default function NavBar() {
 
                 {/* Desktop left logo */}
                 <div className="hidden md:block">
-                    <Link href="/" className="block">
+                    <a href={PRODUCTION_SERVICE_URL} className="block">
                         <Image
                             src="/logos/COM%20ICONE/Cosmo_H_negativo_Icone.png"
                             alt="Cosmo Cine"
@@ -143,7 +146,7 @@ export default function NavBar() {
                             className="duration-300 hover:opacity-80 w-40"
                             priority
                         />
-                    </Link>
+                    </a>
                 </div>
 
                 {/* Desktop locale */}
@@ -182,10 +185,8 @@ export default function NavBar() {
                             </Link>
 
                             <a
-                                href="https://cosmo-user.onrender.com/"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="border-b-2 px-2 py-1 transition-all duration-300 border-transparent hover:border-white"
+                                href={PRODUCTION_SERVICE_URL}
+                                className={externalLinkClass}
                                 onClick={() => setMobileOpen(false)}
                             >
                                 {t.nav.productionService}
